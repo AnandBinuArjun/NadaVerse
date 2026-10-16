@@ -21,7 +21,7 @@ async def test_list_ragas_and_provenance():
         response = await ac.get("/api/v1/ragas")
     assert response.status_code == 200
     ragas = response.json()
-    assert len(ragas) >= 3
+    assert len(ragas) >= 21
 
     maya = next(r for r in ragas if r["slug"] == "mayamalavagowla")
     assert maya["melakarta_number"] == 15
@@ -29,6 +29,14 @@ async def test_list_ragas_and_provenance():
     assert len(maya["sources"]) > 0
     assert maya["rights"]["status"] == "public_domain"
     assert "S R₁ G₃ M₁ P D₁ N₃ Ṡ" in maya["arohanam"]
+
+    simhendra = next(r for r in ragas if r["slug"] == "simhendramadhyamam")
+    assert simhendra["melakarta_number"] == 57
+    assert simhendra["is_melakarta"] is True
+
+    ananda = next(r for r in ragas if r["slug"] == "anandabhairavi")
+    assert ananda["is_melakarta"] is False
+    assert "S G₂ R₂ G₂ M₁ P D₂ P Ṡ" in ananda["arohanam"]
 
 
 @pytest.mark.asyncio
@@ -48,11 +56,34 @@ async def test_list_talas_and_instruments():
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
         talas = (await ac.get("/api/v1/talas")).json()
         instruments = (await ac.get("/api/v1/instruments")).json()
+        composers = (await ac.get("/api/v1/composers")).json()
+        glossary = (await ac.get("/api/v1/glossary")).json()
 
-    assert len(talas) >= 1
-    assert talas[0]["slug"] == "adi-tala"
-    assert len(instruments) >= 1
-    assert instruments[0]["slug"] == "saraswati-veena"
+    assert len(talas) >= 10
+    tala_slugs = {t["slug"] for t in talas}
+    assert "adi-tala" in tala_slugs
+    assert "chatusra-dhruva" in tala_slugs
+    assert "khanda-ata" in tala_slugs
+
+    assert len(instruments) >= 15
+    inst_slugs = {i["slug"] for i in instruments}
+    assert "saraswati-veena" in inst_slugs
+    assert "chitravina" in inst_slugs
+    assert "carnatic-mandolin" in inst_slugs
+    assert "idakka" in inst_slugs
+
+    assert len(composers) >= 15
+    comp_slugs = {c["slug"] for c in composers}
+    assert "tyagaraja" in comp_slugs
+    assert "oothukkadu-venkata-kavi" in comp_slugs
+    assert "thanjavur-quartet" in comp_slugs
+
+    assert len(glossary) >= 36
+    term_names = {g["term"] for g in glossary}
+    assert "Shruti" in term_names
+    assert "Nyasa" in term_names
+    assert "Vivadi" in term_names
+    assert "Tillana" in term_names
 
 
 @pytest.mark.asyncio
