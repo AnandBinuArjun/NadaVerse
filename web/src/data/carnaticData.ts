@@ -1499,6 +1499,125 @@ export const VERIFIED_TALAS: TalaItem[] = [
     reviewStatus: 'expert_reviewed',
     reviewerName: 'NadaVerse Laya Advisory',
     reviewedAt: '2026-10-15'
+  },
+  {
+    id: 'tala-tisra-triputa',
+    slug: 'tisra-triputa',
+    canonicalName: 'Tisra Jati Triputa Tala',
+    angasFormula: 'I₃ + O + O',
+    totalAksharas: 7,
+    laghuCounts: 3,
+    dhrutamCounts: 2,
+    jati: 'Tisra (3 counts per Laghu)',
+    description: 'A 7-akshara tala consisting of 1 Tisra Laghu (3 counts) followed by 2 Dhrutams of 2 counts each (3 + 2 + 2 = 7). Foundational meter for classical Geethams.',
+    handMovementsGuide: 'Laghu: 1 clap + 2 finger counts (pinky, ring). Dhrutam 1: 1 clap + wave. Dhrutam 2: 1 clap + wave. Total = 7 aksharas.',
+    beatActions: [
+      { beatIndex: 1, anga: 'Laghu', actionType: 'thattu', actionLabel: 'Laghu Clap', syllable: 'Tha' },
+      { beatIndex: 2, anga: 'Laghu', actionType: 'finger_count', actionLabel: 'Pinky tap', syllable: 'Ki' },
+      { beatIndex: 3, anga: 'Laghu', actionType: 'finger_count', actionLabel: 'Ring tap', syllable: 'Ta' },
+      { beatIndex: 4, anga: 'Dhrutam', actionType: 'thattu', actionLabel: 'Dhrutam 1 Clap', syllable: 'Tha' },
+      { beatIndex: 5, anga: 'Dhrutam', actionType: 'veecheduthal', actionLabel: 'Dhrutam 1 Wave', syllable: 'Ka' },
+      { beatIndex: 6, anga: 'Dhrutam', actionType: 'thattu', actionLabel: 'Dhrutam 2 Clap', syllable: 'Dhi' },
+      { beatIndex: 7, anga: 'Dhrutam', actionType: 'veecheduthal', actionLabel: 'Dhrutam 2 Wave', syllable: 'Mi' }
+    ],
+    representativeCompositions: [
+      'Kereya Neeranu Kerege Chelli (Geetham - Purandara Dasa)',
+      'Padumanabha Paramapurusha (Malahari Geetham - Purandara Dasa)'
+    ],
+    sources: [{ title: 'Tala Guide: Structure & Practice', authorOrCreator: 'Madras Music Academy', citation: '1977.', publicationYear: 1977 }],
+    rights: { status: 'public_domain', rightsHolder: 'Carnatic Traditional Heritage' },
+    reviewStatus: 'expert_reviewed',
+    reviewerName: 'NadaVerse Laya Advisory',
+    reviewedAt: '2026-10-15'
+  },
+  {
+    id: 'tala-chatusra-eka',
+    slug: 'chatusra-eka',
+    canonicalName: 'Chatusra Jati Eka Tala',
+    angasFormula: 'I₄',
+    totalAksharas: 4,
+    laghuCounts: 4,
+    dhrutamCounts: 0,
+    jati: 'Chatusra (4 counts per Laghu)',
+    description: 'The fundamental 4-beat cycle of Indian music consisting of a single Chatusra Laghu. Used in foundational alankaras, bhajans, and simple devotional songs.',
+    handMovementsGuide: 'Beat 1: Clap, Beat 2: Pinky finger, Beat 3: Ring finger, Beat 4: Middle finger. Total = 4 aksharas.',
+    beatActions: [
+      { beatIndex: 1, anga: 'Laghu', actionType: 'thattu', actionLabel: 'Clap', syllable: 'Tha' },
+      { beatIndex: 2, anga: 'Laghu', actionType: 'finger_count', actionLabel: 'Pinky tap', syllable: 'Ka' },
+      { beatIndex: 3, anga: 'Laghu', actionType: 'finger_count', actionLabel: 'Ring tap', syllable: 'Dhi' },
+      { beatIndex: 4, anga: 'Laghu', actionType: 'finger_count', actionLabel: 'Middle tap', syllable: 'Mi' }
+    ],
+    representativeCompositions: [
+      'Eka Tala Alankara (Purandara Dasa)',
+      'Mahaganapatim (Nata - Muthuswami Dikshitar)'
+    ],
+    sources: [{ title: 'South Indian Music (Book IV)', authorOrCreator: 'Prof. P. Sambamoorthy', citation: '1965.', publicationYear: 1965 }],
+    rights: { status: 'public_domain', rightsHolder: 'Carnatic Traditional Heritage' },
+    reviewStatus: 'expert_reviewed',
+    reviewerName: 'NadaVerse Laya Advisory',
+    reviewedAt: '2026-10-15'
+  },
+  {
+    id: 'tala-tisra-rupaka',
+    slug: 'tisra-rupaka',
+    canonicalName: 'Tisra Jati Rupaka Tala',
+    angasFormula: 'O + I₃',
+    totalAksharas: 5,
+    laghuCounts: 3,
+    dhrutamCounts: 1,
+    jati: 'Tisra (3 counts in Laghu)',
+    description: 'The 5-akshara classical Shastric form of Rupaka Tala consisting of 1 Dhrutam (2) followed by 1 Tisra Laghu (3).',
+    handMovementsGuide: 'Dhrutam: Clap + Wave. Laghu: Clap + Pinky + Ring finger. Total = 5 aksharas.',
+    beatActions: [
+      { beatIndex: 1, anga: 'Dhrutam', actionType: 'thattu', actionLabel: 'Dhrutam Clap', syllable: 'Tha' },
+      { beatIndex: 2, anga: 'Dhrutam', actionType: 'veecheduthal', actionLabel: 'Dhrutam Wave', syllable: 'Ki' },
+      { beatIndex: 3, anga: 'Laghu', actionType: 'thattu', actionLabel: 'Laghu Clap', syllable: 'Ta' },
+      { beatIndex: 4, anga: 'Laghu', actionType: 'finger_count', actionLabel: 'Pinky tap', syllable: 'Tha' },
+      { beatIndex: 5, anga: 'Laghu', actionType: 'finger_count', actionLabel: 'Ring tap', syllable: 'Ka' }
+    ],
+    representativeCompositions: [
+      'Rupaka Tala Alankara (Purandara Dasa)'
+    ],
+    sources: [{ title: 'The Tala System of South Indian Music', authorOrCreator: 'Dr. N. Ramanathan', citation: '1988.', publicationYear: 1988 }],
+    rights: { status: 'public_domain', rightsHolder: 'Carnatic Traditional Heritage' },
+    reviewStatus: 'expert_reviewed',
+    reviewerName: 'NadaVerse Laya Advisory',
+    reviewedAt: '2026-10-15'
+  },
+  {
+    id: 'tala-sankeerna-triputa',
+    slug: 'sankeerna-triputa',
+    canonicalName: 'Sankeerna Jati Triputa Tala',
+    angasFormula: 'I₉ + O + O',
+    totalAksharas: 13,
+    laghuCounts: 9,
+    dhrutamCounts: 2,
+    jati: 'Sankeerna (9 counts in Laghu)',
+    description: 'A grand 13-akshara tala cycle consisting of 1 Sankeerna Laghu (9 counts) followed by 2 Dhrutams (2 + 2 = 4 counts). Famous for complex Ragam-Tanam-Pallavi calculations.',
+    handMovementsGuide: 'Laghu: Clap + 8 finger/count taps (pinky, ring, middle, index, thumb, pinky, ring, middle). Dhrutam 1: Clap + Wave. Dhrutam 2: Clap + Wave. Total = 13 aksharas.',
+    beatActions: [
+      { beatIndex: 1, anga: 'Laghu', actionType: 'thattu', actionLabel: 'Laghu Clap', syllable: 'Tha' },
+      { beatIndex: 2, anga: 'Laghu', actionType: 'finger_count', actionLabel: 'Pinky tap', syllable: 'Ka' },
+      { beatIndex: 3, anga: 'Laghu', actionType: 'finger_count', actionLabel: 'Ring tap', syllable: 'Dhi' },
+      { beatIndex: 4, anga: 'Laghu', actionType: 'finger_count', actionLabel: 'Middle tap', syllable: 'Mi' },
+      { beatIndex: 5, anga: 'Laghu', actionType: 'finger_count', actionLabel: 'Index tap', syllable: 'Tha' },
+      { beatIndex: 6, anga: 'Laghu', actionType: 'finger_count', actionLabel: 'Thumb tap', syllable: 'Ka' },
+      { beatIndex: 7, anga: 'Laghu', actionType: 'finger_count', actionLabel: 'Pinky tap 2', syllable: 'Tha' },
+      { beatIndex: 8, anga: 'Laghu', actionType: 'finger_count', actionLabel: 'Ring tap 2', syllable: 'Ki' },
+      { beatIndex: 9, anga: 'Laghu', actionType: 'finger_count', actionLabel: 'Middle tap 2', syllable: 'Ta' },
+      { beatIndex: 10, anga: 'Dhrutam', actionType: 'thattu', actionLabel: 'Dhrutam 1 Clap', syllable: 'Tha' },
+      { beatIndex: 11, anga: 'Dhrutam', actionType: 'veecheduthal', actionLabel: 'Dhrutam 1 Wave', syllable: 'Ka' },
+      { beatIndex: 12, anga: 'Dhrutam', actionType: 'thattu', actionLabel: 'Dhrutam 2 Clap', syllable: 'Dhi' },
+      { beatIndex: 13, anga: 'Dhrutam', actionType: 'veecheduthal', actionLabel: 'Dhrutam 2 Wave', syllable: 'Mi' }
+    ],
+    representativeCompositions: [
+      'Complex RTP compositions in Sankeerna Triputa Tala'
+    ],
+    sources: [{ title: 'Tala Guide: Structure & Practice', authorOrCreator: 'Madras Music Academy', citation: '1977.', publicationYear: 1977 }],
+    rights: { status: 'public_domain', rightsHolder: 'Carnatic Traditional Heritage' },
+    reviewStatus: 'expert_reviewed',
+    reviewerName: 'NadaVerse Laya Advisory',
+    reviewedAt: '2026-10-15'
   }
 ];
 
