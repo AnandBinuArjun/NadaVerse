@@ -7,6 +7,7 @@ import { VERIFIED_TALAS } from '../data/carnaticData';
 import { TalaItem } from '../types/carnatic';
 import { useLanguage } from '../context/LanguageContext';
 import { TALA_ML_NAMES } from '../lib/translations';
+import { TALA_ML_DETAILS } from '../data/malayalamTranslations';
 
 export const TalaStudio: React.FC = () => {
   const { lang, t } = useLanguage();
@@ -89,6 +90,22 @@ export const TalaStudio: React.FC = () => {
   };
 
   const currentAction = activeBeat >= 0 ? selectedTala.beatActions[activeBeat] : null;
+  const talaMl = TALA_ML_DETAILS[selectedTala.slug];
+
+  const getActionLabel = (actionType: string, fallback: string) => {
+    if (lang !== 'ml') return fallback;
+    if (actionType === 'thattu') return 'തട്ട് (അടി)';
+    if (actionType === 'veecheduthal') return 'വീച്ചെടുക്കൽ';
+    return 'വിരലെണ്ണൽ';
+  };
+
+  const getAngaName = (anga: string) => {
+    if (lang !== 'ml') return anga;
+    if (anga === 'Laghu') return 'ലഘു';
+    if (anga === 'Dhrutam') return 'ദ്രുതം';
+    if (anga === 'Anudhrutam') return 'അനുദ്രുതം';
+    return anga;
+  };
 
   return (
     <section className="bg-[#191916] border border-[#3B392F] rounded-2xl p-6 sm:p-8 shadow-xl">
@@ -97,13 +114,15 @@ export const TalaStudio: React.FC = () => {
         <div>
           <div className="flex items-center space-x-2 text-[#C7A45B] text-xs font-mono uppercase tracking-wider mb-1">
             <Activity className="w-4 h-4" />
-            <span>Rhythmic Precision Architecture</span>
+            <span>{lang === 'ml' ? 'താള കൃത്യതാ വാസ്തുവിദ്യ' : 'Rhythmic Precision Architecture'}</span>
           </div>
           <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#F4EBDD]">
-            Tala Studio & Metronome
+            {lang === 'ml' ? 'താള സ്റ്റുഡിയോ & മെട്രോനോം' : 'Tala Studio & Metronome'}
           </h2>
           <p className="text-sm text-[#BDB4A4] mt-1 max-w-xl">
-            Precision audio scheduler tracking traditional Carnatic Angas (Laghu & Dhrutam) with solkattu syllables and thattu/veechu kriya guidance.
+            {lang === 'ml'
+              ? 'ലഘു, ദ്രുതം എന്നീ അംഗങ്ങളും, ചൊല്ല്കെട്ടുകളും, തട്ട്/വീച്ച് കൈക്രിയകളും കൃത്യമായി പാലിച്ച് സാധകം ചെയ്യാനുള്ള ഉന്നത മെട്രോനോം.'
+              : 'Precision audio scheduler tracking traditional Carnatic Angas (Laghu & Dhrutam) with solkattu syllables and thattu/veechu kriya guidance.'}
           </p>
         </div>
 
@@ -172,15 +191,18 @@ export const TalaStudio: React.FC = () => {
               className={`w-5 h-5 ${isPlaying ? 'text-[#C7A45B] animate-spin' : 'text-[#BDB4A4]'}`}
             />
             <span className="font-serif font-bold text-lg text-[#F4EBDD]">
-              {selectedTala.canonicalName}
+              {lang === 'ml' && TALA_ML_NAMES[selectedTala.slug]
+                ? `${TALA_ML_NAMES[selectedTala.slug]} (${selectedTala.canonicalName})`
+                : selectedTala.canonicalName}
             </span>
             <span className="text-xs bg-[#191916] text-[#C7A45B] px-2 py-0.5 rounded font-mono border border-[#3B392F]">
-              {selectedTala.totalAksharas} Beats
+              {selectedTala.totalAksharas} {lang === 'ml' ? 'അക്ഷരങ്ങൾ' : 'Beats'}
             </span>
           </div>
 
           <div className="text-xs font-mono text-[#BDB4A4]">
-            Angas: <span className="text-[#F4EBDD] font-bold">{selectedTala.angasFormula}</span>
+            {lang === 'ml' ? 'അംഗങ്ങൾ: ' : 'Angas: '}
+            <span className="text-[#F4EBDD] font-bold">{selectedTala.angasFormula}</span>
           </div>
         </div>
 
@@ -201,7 +223,7 @@ export const TalaStudio: React.FC = () => {
                 }`}
               >
                 <span className="text-[10px] font-mono uppercase tracking-wider opacity-80">
-                  {action.anga}
+                  {getAngaName(action.anga)}
                 </span>
                 <span className="text-xl font-bold font-serif my-0.5">
                   {action.beatIndex}
@@ -226,22 +248,25 @@ export const TalaStudio: React.FC = () => {
         <div className="bg-[#191916] p-4 rounded-xl border border-[#3B392F] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-sm">
           <div>
             <span className="text-xs font-mono uppercase text-[#BDB4A4] block">
-              Current Hand Gesture (Kriya):
+              {lang === 'ml' ? 'നിലവിലെ കൈക്രിയ (മുദ്ര):' : 'Current Hand Gesture (Kriya):'}
             </span>
             <span className="text-[#F4EBDD] font-medium text-base">
               {currentAction ? (
                 <>
-                  <strong className="text-[#C7A45B]">{currentAction.actionLabel}</strong> — Solkattu:{' '}
+                  <strong className="text-[#C7A45B]">
+                    {getActionLabel(currentAction.actionType, currentAction.actionLabel)}
+                  </strong>{' '}
+                  — {lang === 'ml' ? 'ചൊല്ല്കെട്ട്: ' : 'Solkattu: '}
                   <span className="font-mono text-[#E0C98F]">{currentAction.syllable}</span>
                 </>
               ) : (
-                'Press Start Tala to begin rhythmic tracking'
+                lang === 'ml' ? 'താളം തുടങ്ങാൻ "താളം തുടങ്ങുക" അമർത്തുക' : 'Press Start Tala to begin rhythmic tracking'
               )}
             </span>
           </div>
 
-          <div className="text-xs text-[#BDB4A4] sm:text-right max-w-sm">
-            {selectedTala.handMovementsGuide}
+          <div className="text-xs text-[#BDB4A4] sm:text-right max-w-sm leading-relaxed">
+            {lang === 'ml' && talaMl ? talaMl.handMovementsGuideMl : selectedTala.handMovementsGuide}
           </div>
         </div>
       </div>
@@ -252,7 +277,7 @@ export const TalaStudio: React.FC = () => {
         <div className="md:col-span-8 bg-[#22221D] p-5 rounded-xl border border-[#3B392F]">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-mono uppercase text-[#BDB4A4]">
-              Tempo (Laya Speed)
+              {lang === 'ml' ? 'ലയ വേഗത (ടെമ്പോ)' : 'Tempo (Laya Speed)'}
             </span>
             <div className="flex items-center space-x-2">
               <span className="text-xl font-bold font-mono text-[#C7A45B]">{bpm}</span>
@@ -273,14 +298,16 @@ export const TalaStudio: React.FC = () => {
 
           {/* Quick Laya Presets */}
           <div className="flex items-center space-x-2 mt-3 pt-3 border-t border-[#3B392F]/60 text-xs">
-            <span className="text-[#BDB4A4] font-mono text-[11px]">Carnatic Kalams:</span>
+            <span className="text-[#BDB4A4] font-mono text-[11px]">
+              {lang === 'ml' ? 'കാലങ്ങൾ:' : 'Carnatic Kalams:'}
+            </span>
             <button
               onClick={() => handleBpmChange(56)}
               className={`px-2.5 py-1 rounded font-mono text-xs ${
                 bpm === 56 ? 'bg-[#C7A45B] text-[#11110F]' : 'bg-[#191916] text-[#F4EBDD] hover:text-[#C7A45B]'
               }`}
             >
-              Vilamba (56)
+              {lang === 'ml' ? 'വിളംബ കാലം (56)' : 'Vilamba (56)'}
             </button>
             <button
               onClick={() => handleBpmChange(76)}
@@ -288,7 +315,7 @@ export const TalaStudio: React.FC = () => {
                 bpm === 76 ? 'bg-[#C7A45B] text-[#11110F]' : 'bg-[#191916] text-[#F4EBDD] hover:text-[#C7A45B]'
               }`}
             >
-              Madhyama (76)
+              {lang === 'ml' ? 'മധ്യമ കാലം (76)' : 'Madhyama (76)'}
             </button>
             <button
               onClick={() => handleBpmChange(112)}
@@ -296,7 +323,7 @@ export const TalaStudio: React.FC = () => {
                 bpm === 112 ? 'bg-[#C7A45B] text-[#11110F]' : 'bg-[#191916] text-[#F4EBDD] hover:text-[#C7A45B]'
               }`}
             >
-              Durita (112)
+              {lang === 'ml' ? 'ദ്രുത കാലം (112)' : 'Durita (112)'}
             </button>
           </div>
         </div>
@@ -307,10 +334,12 @@ export const TalaStudio: React.FC = () => {
             onClick={handleTapTempo}
             className="w-full py-3 px-4 rounded-xl bg-[#191916] hover:bg-[#2A2A24] border border-[#3B392F] hover:border-[#C7A45B] text-[#F4EBDD] font-medium text-sm transition-all active:scale-95"
           >
-            Tap Here to Set Tempo
+            {lang === 'ml' ? 'വേഗത നിശ്ചയിക്കാൻ ഇവിടെ തട്ടുക' : 'Tap Here to Set Tempo'}
           </button>
           <span className="text-[11px] text-[#BDB4A4] mt-2 font-mono">
-            Tap repeatedly to synchronize with your inner pulse
+            {lang === 'ml'
+              ? 'നിങ്ങളുടെ മനസ്സിലെ വേഗത ക്രമീകരിക്കാൻ ഇവിടെ ആവർത്തിച്ചു തട്ടുക'
+              : 'Tap repeatedly to synchronize with your inner pulse'}
           </span>
         </div>
       </div>

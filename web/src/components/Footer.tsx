@@ -5,7 +5,7 @@ import { ShieldCheck } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 export const Footer: React.FC = () => {
-  const { t } = useLanguage();
+  const { lang, t } = useLanguage();
 
   return (
     <footer className="bg-[#11110F] border-t border-[#3B392F] text-[#BDB4A4] text-xs pt-12 pb-16">
@@ -72,14 +72,16 @@ export const Footer: React.FC = () => {
         <div className="pt-6 flex flex-col sm:flex-row items-center justify-between text-[11px] text-[#BDB4A4]/80 gap-3">
           <div>
             <span>{t.footerCopyright}</span>
-            © 2026 NadaVerse Foundation. Preserving and illuminating classical heritage.
+            {lang === 'ml'
+              ? ' © 2026 നാദവേഴ്സ് ഫൗണ്ടേഷൻ. ശാസ്ത്രീയ സംഗീത പൈതൃക സംരക്ഷണം.'
+              : ' © 2026 NadaVerse Foundation. Preserving and illuminating classical heritage.'}
           </div>
           <div className="flex items-center space-x-4">
-            <span>Privacy by Design</span>
+            <span>{lang === 'ml' ? 'സ്വകാര്യത പ്രധാനം' : 'Privacy by Design'}</span>
             <span>·</span>
-            <span>Accessibility First</span>
+            <span>{lang === 'ml' ? 'ഏവർക്കും പ്രാപ്യം' : 'Accessibility First'}</span>
             <span>·</span>
-            <span>Completely Free</span>
+            <span>{lang === 'ml' ? 'തികച്ചും സൗജന്യം' : 'Completely Free'}</span>
           </div>
         </div>
       </div>

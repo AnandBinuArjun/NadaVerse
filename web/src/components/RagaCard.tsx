@@ -59,7 +59,7 @@ export const RagaCard: React.FC<RagaCardProps> = ({ raga, onAskTutor }) => {
             )}
           </div>
           <div className="text-xs text-[#BDB4A4] font-mono">
-            {raga.chakra || (raga.parentRaga ? `Janya of ${raga.parentRaga}` : '')}
+            {raga.chakra || (raga.parentRaga ? (lang === 'ml' ? `${raga.parentRaga}-യുടെ ജന്യരാഗം` : `Janya of ${raga.parentRaga}`) : '')}
           </div>
         </div>
 
@@ -67,7 +67,9 @@ export const RagaCard: React.FC<RagaCardProps> = ({ raga, onAskTutor }) => {
         <div className="flex items-center space-x-2 shrink-0">
           <span className="inline-flex items-center space-x-1 text-xs bg-[#22221D] text-[#87947A] border border-[#3B392F] px-2.5 py-1 rounded-full">
             <ShieldCheck className="w-3.5 h-3.5" />
-            <span className="font-medium">Expert Reviewed</span>
+            <span className="font-medium">
+              {lang === 'ml' ? 'വിദഗ്ദ്ധ പരിശോധന പൂർത്തിയായത്' : 'Expert Reviewed'}
+            </span>
           </span>
         </div>
       </div>
@@ -76,7 +78,7 @@ export const RagaCard: React.FC<RagaCardProps> = ({ raga, onAskTutor }) => {
       <div className="my-5 bg-[#22221D] p-4 rounded-xl border border-[#3B392F]">
         <div className="flex items-center justify-between mb-3">
           <span className="text-xs uppercase font-mono text-[#BDB4A4]">
-            Scale Structure (Arohanam / Avarohanam)
+            {lang === 'ml' ? 'സ്വര സഞ്ചാര ഘടന (ആരോഹണം / അവരോഹണം)' : 'Scale Structure (Arohanam / Avarohanam)'}
           </span>
           <button
             onClick={handlePlayArohanam}
@@ -85,7 +87,11 @@ export const RagaCard: React.FC<RagaCardProps> = ({ raga, onAskTutor }) => {
             aria-label={`Listen to ${raga.canonicalName} ascending scale`}
           >
             <Volume2 className="w-3.5 h-3.5" />
-            <span>{isPlayingScale ? 'Playing Scale...' : 'Hear Arohanam'}</span>
+            <span>
+              {isPlayingScale
+                ? (lang === 'ml' ? 'സ്വരങ്ങൾ മീട്ടുന്നു...' : 'Playing Scale...')
+                : (lang === 'ml' ? 'ആരോഹണം കേൾക്കുക' : 'Hear Arohanam')}
+            </span>
           </button>
         </div>
 
@@ -107,7 +113,9 @@ export const RagaCard: React.FC<RagaCardProps> = ({ raga, onAskTutor }) => {
         {/* Interactive Swara Pills */}
         <div className="mt-4 pt-3 border-t border-[#3B392F]/60">
           <div className="text-[11px] font-mono text-[#BDB4A4] mb-2">
-            Tap any swara to audition its natural interval:
+            {lang === 'ml'
+              ? 'സ്വാഭാവിക സ്വരസ്ഥാന അനുപാതം കേൾക്കാൻ ഏതു സ്വരത്തിലും തൊടുക:'
+              : 'Tap any swara to audition its natural interval:'}
           </div>
           <div className="flex flex-wrap gap-1.5">
             {raga.swaraDetails.map((swara) => {
@@ -136,7 +144,10 @@ export const RagaCard: React.FC<RagaCardProps> = ({ raga, onAskTutor }) => {
       <div className="space-y-3 text-sm text-[#F4EBDD]/90 leading-relaxed">
         <p>{raga.educationalSummary}</p>
         <div className="text-xs text-[#BDB4A4] bg-[#22221D]/50 p-3 rounded-lg border border-[#3B392F]/60">
-          <strong className="text-[#F4EBDD]">Pedagogical Role:</strong> {raga.pedagogicalSignificance}
+          <strong className="text-[#F4EBDD]">
+            {lang === 'ml' ? 'അഭ്യസന പ്രാധാന്യം: ' : 'Pedagogical Role: '}
+          </strong>{' '}
+          {raga.pedagogicalSignificance}
         </div>
       </div>
 
@@ -144,7 +155,9 @@ export const RagaCard: React.FC<RagaCardProps> = ({ raga, onAskTutor }) => {
       {raga.famousCompositions && raga.famousCompositions.length > 0 && (
         <div className="mt-5 pt-4 border-t border-[#3B392F]">
           <span className="text-xs font-mono uppercase text-[#BDB4A4] block mb-2">
-            Notable Compositions in {raga.canonicalName}:
+            {lang === 'ml'
+              ? `${raga.canonicalName} രാഗത്തിലെ പ്രധാന കൃതികൾ:`
+              : `Notable Compositions in ${raga.canonicalName}:`}
           </span>
           <div className="space-y-1.5">
             {raga.famousCompositions.map((comp, idx) => (
@@ -157,7 +170,7 @@ export const RagaCard: React.FC<RagaCardProps> = ({ raga, onAskTutor }) => {
                   <span className="text-[#BDB4A4]">{comp.composer}</span>
                 </div>
                 <div className="text-[11px] font-mono text-[#C7A45B] mt-1 sm:mt-0">
-                  {comp.tala} Tala · {comp.language}
+                  {comp.tala} {lang === 'ml' ? 'താളം' : 'Tala'} · {comp.language}
                 </div>
               </div>
             ))}
@@ -170,7 +183,8 @@ export const RagaCard: React.FC<RagaCardProps> = ({ raga, onAskTutor }) => {
         <div className="flex items-center space-x-1.5">
           <BookOpen className="w-3.5 h-3.5 text-[#C7A45B]" />
           <span>
-            Primary Source: <em>{raga.sources[0]?.title}</em> by {raga.sources[0]?.authorOrCreator}
+            {lang === 'ml' ? 'പ്രധാന അവലംബം: ' : 'Primary Source: '}
+            <em>{raga.sources[0]?.title}</em> by {raga.sources[0]?.authorOrCreator}
           </span>
         </div>
 
@@ -180,7 +194,11 @@ export const RagaCard: React.FC<RagaCardProps> = ({ raga, onAskTutor }) => {
             className="flex items-center space-x-1 text-[#C7A45B] hover:text-[#E0C98F] font-medium transition-colors"
           >
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Ask AI Tutor about this Raga</span>
+            <span>
+              {lang === 'ml'
+                ? `${raga.canonicalName}-നെക്കുറിച്ച് സംഗീത ഗുരുവിനോട് ചോദിക്കുക`
+                : 'Ask AI Tutor about this Raga'}
+            </span>
           </button>
         )}
       </div>

@@ -16,6 +16,7 @@ import { VERIFIED_RAGAS, VERIFIED_INSTRUMENTS, VERIFIED_TALAS, GLOSSARY_TERMS, V
 import { API_BASE_URL } from '../lib/api';
 import { useLanguage } from '../context/LanguageContext';
 import { RAGA_ML_NAMES, COMPOSER_ML_NAMES } from '../lib/translations';
+import { GLOSSARY_ML_DATA, COMPOSER_ML_DATA } from '../data/malayalamTranslations';
 import {
   Compass,
   Sliders,
@@ -96,20 +97,34 @@ export default function Home() {
       i.family.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const filteredComposers = VERIFIED_COMPOSERS.filter(
-    (c) =>
+  const filteredComposers = VERIFIED_COMPOSERS.filter((c) => {
+    const ml = COMPOSER_ML_DATA[c.name];
+    return (
       c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (COMPOSER_ML_NAMES[c.name] && COMPOSER_ML_NAMES[c.name].includes(searchQuery)) ||
       c.tradition.toLowerCase().includes(searchQuery.toLowerCase()) ||
       c.signatureMudra.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.primaryLanguages.some((l) => l.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+      c.primaryLanguages.some((l) => l.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (ml && (
+        ml.biographyMl.includes(searchQuery) ||
+        ml.traditionMl.includes(searchQuery) ||
+        ml.birthplaceMl.includes(searchQuery)
+      ))
+    );
+  });
 
-  const filteredGlossary = GLOSSARY_TERMS.filter(
-    (g) =>
+  const filteredGlossary = GLOSSARY_TERMS.filter((g) => {
+    const ml = GLOSSARY_ML_DATA[g.term];
+    return (
       g.term.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      g.simpleExplanation.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+      g.simpleExplanation.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (ml && (
+        ml.termMl.includes(searchQuery) ||
+        ml.categoryMl.includes(searchQuery) ||
+        ml.simpleExplanationMl.includes(searchQuery)
+      ))
+    );
+  });
 
   return (
     <div className="min-h-screen bg-[#11110F] text-[#F4EBDD] flex flex-col font-sans selection:bg-[#C7A45B]/30 selection:text-[#F4EBDD]">
@@ -318,16 +333,18 @@ export default function Home() {
 
             <div className="p-6 bg-[#191916] rounded-2xl border border-[#3B392F]">
               <h3 className="font-serif font-bold text-lg text-[#F4EBDD] mb-2">
-                Continue to Practice Studio
+                {lang === 'ml' ? 'സാധക കളരിയിലേക്ക് തുടരുക' : 'Continue to Practice Studio'}
               </h3>
               <p className="text-sm text-[#BDB4A4] mb-4">
-                Now that you understand Shruti and Tala, open the dedicated Practice Studio to rehearse with live feedback.
+                {lang === 'ml'
+                  ? 'ശ്രുതിയും താളവും മനസ്സിലാക്കിക്കഴിഞ്ഞാൽ, തത്സമയ സാധകത്തിനായി കളരി തുറന്ന് പരിശീലിക്കാം.'
+                  : 'Now that you understand Shruti and Tala, open the dedicated Practice Studio to rehearse with live feedback.'}
               </p>
               <button
                 onClick={() => setActiveSection('practice')}
                 className="px-5 py-2.5 rounded-xl bg-[#C7A45B] hover:bg-[#E0C98F] text-[#11110F] font-semibold text-xs transition-colors"
               >
-                Go to Practice Studio
+                {lang === 'ml' ? 'സാധക കളരി തുറക്കുക' : 'Go to Practice Studio'}
               </button>
             </div>
           </div>
@@ -411,8 +428,16 @@ export default function Home() {
             {exploreTab === 'ragas' && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between text-xs text-[#BDB4A4] font-mono">
-                  <span>Displaying {filteredRagas.length} verified raga records</span>
-                  <span className="text-[#87947A]">Source: Music Academy Madras & Treatises</span>
+                  <span>
+                    {lang === 'ml'
+                      ? `${filteredRagas.length} ആധികാരിക രാഗ രേഖകൾ ലഭ്യമാണ്`
+                      : `Displaying ${filteredRagas.length} verified raga records`}
+                  </span>
+                  <span className="text-[#87947A]">
+                    {lang === 'ml'
+                      ? 'അവലംബം: മ്യൂസിക് അക്കാദമി മദ്രാസ് & ഗ്രന്ഥങ്ങൾ'
+                      : 'Source: Music Academy Madras & Treatises'}
+                  </span>
                 </div>
 
                 <div className="grid grid-cols-1 gap-6">
@@ -438,7 +463,11 @@ export default function Home() {
             {exploreTab === 'instruments' && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between text-xs text-[#BDB4A4] font-mono">
-                  <span>Displaying {filteredInstruments.length} verified classical instruments</span>
+                  <span>
+                    {lang === 'ml'
+                      ? `${filteredInstruments.length} ശാസ്ത്രീയ സംഗീത വാദ്യങ്ങൾ ലഭ്യമാണ്`
+                      : `Displaying ${filteredInstruments.length} verified classical instruments`}
+                  </span>
                 </div>
 
                 <div className="grid grid-cols-1 gap-6">
@@ -457,61 +486,79 @@ export default function Home() {
             {exploreTab === 'composers' && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between text-xs text-[#BDB4A4] font-mono">
-                  <span>Displaying {filteredComposers.length} verified masters of Carnatic tradition</span>
+                  <span>
+                    {lang === 'ml'
+                      ? `${filteredComposers.length} മഹാരഥന്മാരായ വാഗ്ഗേയകാരന്മാർ`
+                      : `Displaying ${filteredComposers.length} verified masters of Carnatic tradition`}
+                  </span>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {filteredComposers.map((composer, idx) => (
-                    <div
-                      key={idx}
-                      className="bg-[#191916] border border-[#3B392F] rounded-2xl p-6 hover:border-[#C7A45B]/60 transition-all space-y-4"
-                    >
-                      <div className="flex items-start justify-between pb-3 border-b border-[#3B392F]">
-                        <div>
-                          <h3 className="font-serif font-bold text-xl text-[#F4EBDD]">
-                            {lang === 'ml' && COMPOSER_ML_NAMES[composer.name]
-                              ? `${COMPOSER_ML_NAMES[composer.name]} (${composer.name})`
-                              : composer.name}
-                          </h3>
-                          <span className="text-xs font-mono text-[#C7A45B]">
-                            {composer.tradition} · {composer.lifespan}
+                  {filteredComposers.map((composer, idx) => {
+                    const ml = COMPOSER_ML_DATA[composer.name];
+                    return (
+                      <div
+                        key={idx}
+                        className="bg-[#191916] border border-[#3B392F] rounded-2xl p-6 hover:border-[#C7A45B]/60 transition-all space-y-4"
+                      >
+                        <div className="flex items-start justify-between pb-3 border-b border-[#3B392F]">
+                          <div>
+                            <h3 className="font-serif font-bold text-xl text-[#F4EBDD]">
+                              {lang === 'ml' && COMPOSER_ML_NAMES[composer.name]
+                                ? `${COMPOSER_ML_NAMES[composer.name]} (${composer.name})`
+                                : composer.name}
+                            </h3>
+                            <span className="text-xs font-mono text-[#C7A45B]">
+                              {lang === 'ml' && ml ? ml.traditionMl : composer.tradition} · {composer.lifespan}
+                            </span>
+                          </div>
+                          <span className="text-[10px] font-mono bg-[#22221D] text-[#87947A] border border-[#3B392F] px-2 py-0.5 rounded">
+                            {lang === 'ml' ? 'മുദ്ര: ' : 'Mudra: '}
+                            {lang === 'ml' && ml ? ml.mudraMl : composer.signatureMudra}
                           </span>
                         </div>
-                        <span className="text-[10px] font-mono bg-[#22221D] text-[#87947A] border border-[#3B392F] px-2 py-0.5 rounded">
-                          Mudra: {composer.signatureMudra}
-                        </span>
+
+                        <div className="flex flex-wrap gap-2 text-[10px] font-mono text-[#BDB4A4]/80">
+                          <span>
+                            {lang === 'ml' ? 'ജന്മസ്ഥലം: ' : 'Birthplace: '}
+                            {lang === 'ml' && ml ? ml.birthplaceMl : composer.birthplace}
+                          </span>
+                          <span>•</span>
+                          <span>
+                            {lang === 'ml' ? 'ഭാഷകൾ: ' : 'Languages: '}
+                            {lang === 'ml' && ml ? ml.languagesMl.join(', ') : composer.primaryLanguages.join(', ')}
+                          </span>
+                        </div>
+
+                        <p className="text-xs text-[#BDB4A4] leading-relaxed">
+                          {lang === 'ml' && ml ? ml.biographyMl : composer.biography}
+                        </p>
+
+                        <div className="bg-[#22221D] p-3 rounded-xl border border-[#3B392F]/60 text-xs">
+                          <span className="text-[10px] font-mono uppercase text-[#C7A45B] block mb-1">
+                            {lang === 'ml' ? 'പ്രധാന അനശ്വര കൃതികൾ:' : 'Signature Masterpieces:'}
+                          </span>
+                          <ul className="list-disc list-inside text-[#F4EBDD] space-y-0.5 text-xs">
+                            {composer.majorKritis.map((k, kIdx) => (
+                              <li key={kIdx}>{k}</li>
+                            ))}
+                          </ul>
+                        </div>
+
+                        <button
+                          onClick={() => handleOpenTutorWithTopic(composer.name)}
+                          className="text-xs text-[#C7A45B] hover:text-[#E0C98F] flex items-center space-x-1 font-medium"
+                        >
+                          <Sparkles className="w-3.5 h-3.5" />
+                          <span>
+                            {lang === 'ml'
+                              ? `${composer.name}-നെക്കുറിച്ച് സംഗീത ഗുരുവിനോട് ചോദിക്കുക`
+                              : `Ask AI Tutor about ${composer.name}`}
+                          </span>
+                        </button>
                       </div>
-
-                      <div className="flex flex-wrap gap-2 text-[10px] font-mono text-[#BDB4A4]/80">
-                        <span>Birthplace: {composer.birthplace}</span>
-                        <span>•</span>
-                        <span>Languages: {composer.primaryLanguages.join(', ')}</span>
-                      </div>
-
-                      <p className="text-xs text-[#BDB4A4] leading-relaxed">
-                        {composer.biography}
-                      </p>
-
-                      <div className="bg-[#22221D] p-3 rounded-xl border border-[#3B392F]/60 text-xs">
-                        <span className="text-[10px] font-mono uppercase text-[#C7A45B] block mb-1">
-                          Signature Masterpieces:
-                        </span>
-                        <ul className="list-disc list-inside text-[#F4EBDD] space-y-0.5 text-xs">
-                          {composer.majorKritis.map((k, kIdx) => (
-                            <li key={kIdx}>{k}</li>
-                          ))}
-                        </ul>
-                      </div>
-
-                      <button
-                        onClick={() => handleOpenTutorWithTopic(composer.name)}
-                        className="text-xs text-[#C7A45B] hover:text-[#E0C98F] flex items-center space-x-1 font-medium"
-                      >
-                        <Sparkles className="w-3.5 h-3.5" />
-                        <span>Ask AI Tutor about {composer.name}</span>
-                      </button>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -519,31 +566,48 @@ export default function Home() {
             {/* GLOSSARY TAB */}
             {exploreTab === 'glossary' && (
               <div className="space-y-6">
+                <div className="flex items-center justify-between text-xs text-[#BDB4A4] font-mono">
+                  <span>
+                    {lang === 'ml'
+                      ? `${filteredGlossary.length} സംഗീത ശാസ്ത്ര പദങ്ങൾ ലഭ്യമാണ്`
+                      : `Displaying ${filteredGlossary.length} verified musicology terms`}
+                  </span>
+                  <span className="text-[#87947A]">
+                    {lang === 'ml'
+                      ? 'സാധാരണക്കാർക്ക് എളുപ്പത്തിൽ മനസ്സിലാക്കാവുന്ന ലളിത വിവരണം'
+                      : 'Plain-language definitions citing primary treatises'}
+                  </span>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {filteredGlossary.map((item, idx) => (
-                    <div
-                      key={idx}
-                      className="bg-[#191916] border border-[#3B392F] p-5 rounded-2xl hover:border-[#C7A45B]/60 transition-all space-y-2"
-                    >
-                      <div className="flex items-baseline justify-between">
-                        <h4 className="font-serif font-bold text-lg text-[#F4EBDD]">
-                          {item.term}
-                        </h4>
-                        <span className="text-[10px] font-mono bg-[#22221D] text-[#C7A45B] px-2 py-0.5 rounded border border-[#3B392F]">
-                          {item.category}
-                        </span>
+                  {filteredGlossary.map((item, idx) => {
+                    const ml = GLOSSARY_ML_DATA[item.term];
+                    return (
+                      <div
+                        key={idx}
+                        className="bg-[#191916] border border-[#3B392F] p-5 rounded-2xl hover:border-[#C7A45B]/60 transition-all space-y-2"
+                      >
+                        <div className="flex items-baseline justify-between">
+                          <h4 className="font-serif font-bold text-lg text-[#F4EBDD]">
+                            {lang === 'ml' && ml ? `${ml.termMl} (${item.term})` : item.term}
+                          </h4>
+                          <span className="text-[10px] font-mono bg-[#22221D] text-[#C7A45B] px-2 py-0.5 rounded border border-[#3B392F]">
+                            {lang === 'ml' && ml ? ml.categoryMl : item.category}
+                          </span>
+                        </div>
+                        <p className="text-xs text-[#F4EBDD]/90 font-medium leading-relaxed">
+                          {lang === 'ml' && ml ? ml.simpleExplanationMl : item.simpleExplanation}
+                        </p>
+                        <p className="text-xs text-[#BDB4A4] leading-relaxed">
+                          {lang === 'ml' && ml ? ml.detailedContextMl : item.detailedContext}
+                        </p>
+                        <div className="pt-2 text-[10px] text-[#BDB4A4]/70 font-mono">
+                          {lang === 'ml' ? 'അവലംബം: ' : 'Source: '}
+                          {item.sources[0]?.title} ({item.sources[0]?.authorOrCreator})
+                        </div>
                       </div>
-                      <p className="text-xs text-[#F4EBDD]/90 font-medium">
-                        {item.simpleExplanation}
-                      </p>
-                      <p className="text-xs text-[#BDB4A4] leading-relaxed">
-                        {item.detailedContext}
-                      </p>
-                      <div className="pt-2 text-[10px] text-[#BDB4A4]/70 font-mono">
-                        Source: {item.sources[0]?.title} ({item.sources[0]?.authorOrCreator})
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -558,7 +622,7 @@ export default function Home() {
             <div>
               <div className="inline-flex items-center space-x-2 text-xs font-mono uppercase tracking-wider text-[#C7A45B] bg-[#191916] px-3.5 py-1.5 rounded-full border border-[#3B392F] mb-3">
                 <Sliders className="w-3.5 h-3.5" />
-                <span>Integrated Practice Suite</span>
+                <span>{lang === 'ml' ? 'സമഗ്ര സാധക കളരി' : 'Integrated Practice Suite'}</span>
               </div>
               <h2 className="text-3xl sm:text-4xl font-serif font-bold text-[#F4EBDD]">
                 {t.practiceStudioTitle}
@@ -587,7 +651,9 @@ export default function Home() {
                   {t.practiceLogTitle}
                 </h3>
                 <p className="text-xs text-[#BDB4A4] mt-0.5">
-                  Record focus areas, self-reflections, and tempo settings. Kept private to your account.
+                  {lang === 'ml'
+                    ? 'സാധക വിഷയങ്ങൾ, അനുഭവങ്ങൾ, വേഗത എന്നിവ രേഖപ്പെടുത്തുക. അക്കൗണ്ടിൽ സുരക്ഷിതമായി സൂക്ഷിക്കുന്നു.'
+                    : 'Record focus areas, self-reflections, and tempo settings. Kept private to your account.'}
                 </p>
               </div>
 

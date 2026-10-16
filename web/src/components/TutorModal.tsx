@@ -71,9 +71,11 @@ export const TutorModal: React.FC<TutorModalProps> = ({ isOpen, onClose, initial
       let confidence: 'high' | 'moderate' | 'uncertain' = 'high';
       let uncertaintyNote: string | undefined = undefined;
 
-      if (q.includes('mayamalavagowla') || q.includes('purandara') || q.includes('sarali')) {
+      if (q.includes('mayamalavagowla') || q.includes('purandara') || q.includes('sarali') || q.includes('മായാമാളവഗൗള')) {
         const raga = VERIFIED_RAGAS.find((r) => r.slug === 'mayamalavagowla')!;
-        answer = `Mayamalavagowla is the 15th Melakarta raga (S R₁ G₃ M₁ P D₁ N₃ Ṡ). Saint Purandara Dasa selected it in the 15th-16th century as the foundational training scale for all beginner exercises. Its defining genius is symmetrical geometry: both the lower tetrachord (Sa to Ma) and upper tetrachord (Pa to Tara Sa) consist of identical interval patterns (minor second, major second, minor second), allowing learners to develop exact pitch placement without acoustic confusion.`;
+        answer = lang === 'ml'
+          ? `മായാമാളവഗൗള 15-ാമത് മേളകർത്താ രാഗമാണ് (S R₁ G₃ M₁ P D₁ N₃ Ṡ). പതിനഞ്ചാം നൂറ്റാണ്ടിൽ പുരന്ദര ദാസർ എല്ലാ സംഗീത വിദ്യാർത്ഥികളുടെയും അടിസ്ഥാന പാഠങ്ങൾക്കായി ഈ രാഗം തിരഞ്ഞെടുത്തു. ഇതിന്റെ പൂർവ്വാംഗവും (സ മുതൽ മ വരെ) ഉത്തരാംഗവും (പ മുതൽ താര സ വരെ) ഒരേപോലെയുള്ള കൃത്യമായ സ്വരസ്ഥാന അകലങ്ങൾ പാലിക്കുന്നതിനാൽ, തുടക്കക്കാർക്ക് സ്വരസ്ഥാനങ്ങൾ സംശയമില്ലാതെ ഹൃദിസ്ഥമാക്കാൻ ഇത് ഏറ്റവും അനുയോജ്യമാണ്.`
+          : `Mayamalavagowla is the 15th Melakarta raga (S R₁ G₃ M₁ P D₁ N₃ Ṡ). Saint Purandara Dasa selected it in the 15th-16th century as the foundational training scale for all beginner exercises. Its defining genius is symmetrical geometry: both the lower tetrachord (Sa to Ma) and upper tetrachord (Pa to Tara Sa) consist of identical interval patterns (minor second, major second, minor second), allowing learners to develop exact pitch placement without acoustic confusion.`;
         citations = [
           {
             sourceTitle: raga.sources[0].title,
@@ -86,9 +88,11 @@ export const TutorModal: React.FC<TutorModalProps> = ({ isOpen, onClose, initial
             excerpt: 'Discussion of Purandara Dasa Abhyasa Gana codification in Mayamalavagowla.'
           }
         ];
-      } else if (q.includes('shankarabharanam') || q.includes('major scale')) {
+      } else if (q.includes('shankarabharanam') || q.includes('major scale') || q.includes('ശങ്കരാഭരണം')) {
         const raga = VERIFIED_RAGAS.find((r) => r.slug === 'shankarabharanam')!;
-        answer = `Dheerasankarabharanam is the 29th Melakarta (S R₂ G₃ M₁ P D₂ N₃ Ṡ). While it shares pitch positions with the Western Major scale (C D E F G A B C), it is distinctively rendered with rich Carnatic gamakas—notably the kampita (oscillation) on Gandharam and Nishadam, and subtle jarus (glides) connecting notes.`;
+        answer = lang === 'ml'
+          ? `ധീരശങ്കരാഭരണം 29-ാമത് മേളകർത്താ രാഗമാണ് (S R₂ G₃ M₁ P D₂ N₃ Ṡ). പാശ്ചാത്യ സംഗീതത്തിലെ മേജർ സ്കെയിലിന് (C Major) സമാനമായ സ്വരസ്ഥാനങ്ങളാണ് ഇതിലുള്ളതെങ്കിലും, ഗാന്ധാരത്തിലും നിഷാദത്തിലും വരുന്ന മനോഹരമായ കംപിത ഗമകങ്ങളും ജാരു പ്രയോഗങ്ങളുമാണ് ഇതിനെ തനതായ കർണ്ണാടക ഭാവത്തിലേക്ക് ഉയർത്തുന്നത്.`
+          : `Dheerasankarabharanam is the 29th Melakarta (S R₂ G₃ M₁ P D₂ N₃ Ṡ). While it shares pitch positions with the Western Major scale (C D E F G A B C), it is distinctively rendered with rich Carnatic gamakas—notably the kampita (oscillation) on Gandharam and Nishadam, and subtle jarus (glides) connecting notes.`;
         citations = [
           {
             sourceTitle: raga.sources[0].title,
@@ -96,9 +100,11 @@ export const TutorModal: React.FC<TutorModalProps> = ({ isOpen, onClose, initial
             excerpt: raga.sources[0].citation
           }
         ];
-      } else if (q.includes('adi tala') || q.includes('tala') || q.includes('laghu')) {
+      } else if (q.includes('adi tala') || q.includes('tala') || q.includes('laghu') || q.includes('ആദി താളം') || q.includes('താളം')) {
         const tala = VERIFIED_TALAS.find((t) => t.slug === 'adi-tala')!;
-        answer = `Adi Tala (Chatusra Jati Triputa Tala) has 8 aksharas structured as one Laghu (4 counts) followed by two Dhrutams (2 counts each): I₄ + O + O. The physical kriyas are: Beat 1 (Clap), Beats 2-4 (Pinky, Ring, Middle finger counts), Beat 5 (Clap), Beat 6 (Wave), Beat 7 (Clap), Beat 8 (Wave).`;
+        answer = lang === 'ml'
+          ? `ആദി താളം (ചതുശ്ര ജാതി ത്രിപുട താളം) 8 അക്ഷരങ്ങളുള്ള താളമാണ്: ഒരു ചതുശ്ര ലഘുവും (4 മാത്രകൾ) രണ്ട് ദ്രുതങ്ങളും (2+2 മാത്രകൾ): I₄ + O + O. കൈമുദ്രകൾ: അക്ഷരം 1 (തട്ട്), 2-4 (ചെറുവിരൽ, മോതിരവിരൽ, നടുവിരൽ എണ്ണൽ), അക്ഷരം 5 (തട്ട്), അക്ഷരം 6 (വീച്ചെടുക്കൽ), അക്ഷരം 7 (തട്ട്), അക്ഷരം 8 (വീച്ചെടുക്കൽ).`
+          : `Adi Tala (Chatusra Jati Triputa Tala) has 8 aksharas structured as one Laghu (4 counts) followed by two Dhrutams (2 counts each): I₄ + O + O. The physical kriyas are: Beat 1 (Clap), Beats 2-4 (Pinky, Ring, Middle finger counts), Beat 5 (Clap), Beat 6 (Wave), Beat 7 (Clap), Beat 8 (Wave).`;
         citations = [
           {
             sourceTitle: tala.sources[0].title,
@@ -106,9 +112,11 @@ export const TutorModal: React.FC<TutorModalProps> = ({ isOpen, onClose, initial
             excerpt: tala.sources[0].citation
           }
         ];
-      } else if (q.includes('veena') || q.includes('saraswati')) {
+      } else if (q.includes('veena') || q.includes('saraswati') || q.includes('വീണ')) {
         const inst = VERIFIED_INSTRUMENTS.find((i) => i.slug === 'saraswati-veena')!;
-        answer = `The Saraswati Veena is a 24-fret plucked chordophone sculpted from seasoned jackwood. It was codified in Thanjavur during the 17th century by Govinda Dikshitar. Gamakas are produced through lateral string deflection across fixed brass frets set into wax, closely emulating the human voice (gayaki style).`;
+        answer = lang === 'ml'
+          ? `സരസ്വതി വീണ 24 മെഴുകുതട്ടുകളുള്ള പ്ലാവ് തടിയിൽ കടഞ്ഞെടുത്ത തന്ത്രി വാദ്യമാണ്. പതിനേഴാം നൂറ്റാണ്ടിൽ തഞ്ചാവൂരിലെ ഗോവിന്ദ ദീക്ഷിതരാണ് ഇതിന്റെ ഇപ്പോഴത്തെ ഘടന ചിട്ടപ്പെടുത്തിയത്. തന്ത്രികൾ വശങ്ങളിലേക്ക് നിരക്കി മീട്ടുന്നതിലൂടെ മനുഷ്യ ശബ്ദത്തിലെ എല്ലാ സൂക്ഷ്മ ഗമകങ്ങളും ഇതിൽ നിന്ന് ഉത്പാദിപ്പിക്കാം (ഗായകി ശൈലി).`
+          : `The Saraswati Veena is a 24-fret plucked chordophone sculpted from seasoned jackwood. It was codified in Thanjavur during the 17th century by Govinda Dikshitar. Gamakas are produced through lateral string deflection across fixed brass frets set into wax, closely emulating the human voice (gayaki style).`;
         citations = [
           {
             sourceTitle: inst.sources[0].title,
@@ -116,9 +124,11 @@ export const TutorModal: React.FC<TutorModalProps> = ({ isOpen, onClose, initial
             excerpt: inst.sources[0].citation
           }
         ];
-      } else if (q.includes('mridangam') || q.includes('karanai')) {
+      } else if (q.includes('mridangam') || q.includes('karanai') || q.includes('മൃദംഗം')) {
         const inst = VERIFIED_INSTRUMENTS.find((i) => i.slug === 'mridangam')!;
-        answer = `The Mridangam is the primary Carnatic double-ended barrel drum. Its right head (valanthalai) contains the "karanai" (a permanent circular paste of iron powder and boiled rice) discovered by Nobel laureate Sir C.V. Raman to generate true harmonic overtones, allowing the drum to be tuned precisely to the vocalist's tonic pitch (Sa).`;
+        answer = lang === 'ml'
+          ? `മൃദംഗം കർണ്ണാടക കച്ചേരികളിലെ പ്രധാന ഇരട്ടമുഖ താളവാദ്യമാണ്. ഇതിന്റെ വലന്തലയിൽ ചേർത്തുവെച്ചിരിക്കുന്ന 'ചോറ്' (കരിമരുന്ന് / കിരണം) തികച്ചും സ്വാഭാവികമായ ഹാർമോണിക് അനുരണനങ്ങൾ നൽകുന്നുവെന്ന് നോബൽ സമ്മാന ജേതാവ് സർ സി.വി. രാമൻ ശാസ്ത്രീയമായി കണ്ടെത്തിയിട്ടുണ്ട്. ഇത് ഗായകന്റെ ആധാര ഷഡ്ജത്തിലേക്ക് കൃത്യമായി ശ്രുതി ചേർക്കാൻ സഹായിക്കുന്നു.`
+          : `The Mridangam is the primary Carnatic double-ended barrel drum. Its right head (valanthalai) contains the "karanai" (a permanent circular paste of iron powder and boiled rice) discovered by Nobel laureate Sir C.V. Raman to generate true harmonic overtones, allowing the drum to be tuned precisely to the vocalist's tonic pitch (Sa).`;
         citations = [
           {
             sourceTitle: inst.sources[0].title,
@@ -126,8 +136,10 @@ export const TutorModal: React.FC<TutorModalProps> = ({ isOpen, onClose, initial
             excerpt: inst.sources[0].citation
           }
         ];
-      } else if (q.includes('shruti') || q.includes('tonic') || q.includes('drone')) {
-        answer = `Shruti has two meanings: (1) The continuous reference pitch (Adhara Shadjam) provided by the Tambura, and (2) The 22 microtonal intervals within an octave in ancient Indian music theory. In Carnatic concerts, all artists synchronize strictly to one unchanging Shruti throughout the recital.`;
+      } else if (q.includes('shruti') || q.includes('tonic') || q.includes('drone') || q.includes('ശ്രുതി')) {
+        answer = lang === 'ml'
+          ? `ശ്രുതിക്ക് പ്രധാനമായും രണ്ട് അർത്ഥങ്ങളുണ്ട്: (1) തംബുരു നൽകുന്ന സ്ഥിരമായ ആധാര നാദം (ആധാര ഷഡ്ജം), (2) ഭാരതീയ സംഗീത ശാസ്ത്രത്തിൽ ഒരു സപ്തകത്തിൽ പറയുന്ന 22 സൂക്ഷ്മ ശ്രുതികൾ. കച്ചേരിയിലുടനീളം എല്ലാ കലാകാരന്മാരും ഈ ഒരു സ്ഥിര ശ്രുതിയിലേക്ക് ഐക്യപ്പെട്ടാണ് പാടുകയും വായിക്കുകയും ചെയ്യുന്നത്.`
+          : `Shruti has two meanings: (1) The continuous reference pitch (Adhara Shadjam) provided by the Tambura, and (2) The 22 microtonal intervals within an octave in ancient Indian music theory. In Carnatic concerts, all artists synchronize strictly to one unchanging Shruti throughout the recital.`;
         citations = [
           {
             sourceTitle: 'Natya Shastra (Chapter 28)',
@@ -136,9 +148,13 @@ export const TutorModal: React.FC<TutorModalProps> = ({ isOpen, onClose, initial
           }
         ];
       } else {
-        answer = `I do not have sufficient verified musicology documents in the NadaVerse peer-reviewed database to answer this specific inquiry with high authority. To maintain scholarly integrity, I refrain from fabricating speculative details. You may explore our verified records on Mayamalavagowla, Shankarabharanam, Kalyani, Adi Tala, Veena, or Mridangam.`;
+        answer = lang === 'ml'
+          ? `നാദവേഴ്സിന്റെ ആധികാരിക സംഗീത ഡാറ്റാബേസിൽ ഈ വിഷയത്തിൽ പൂർണ്ണ ശാസ്ത്രീയ വിവരങ്ങൾ കണ്ടെത്താനായില്ല. സംഗീത സത്യസന്ധത കാത്തുസൂക്ഷിക്കാൻ അനുമാനങ്ങൾ പറഞ്ഞുണ്ടാക്കുന്നില്ല. മായാമാളവഗൗള, ശങ്കരാഭരണം, കല്യാണി, ആദി താളം, വീണ, മൃദംഗം എന്നിവയെക്കുറിച്ച് ചോദിച്ചുനോക്കൂ.`
+          : `I do not have sufficient verified musicology documents in the NadaVerse peer-reviewed database to answer this specific inquiry with high authority. To maintain scholarly integrity, I refrain from fabricating speculative details. You may explore our verified records on Mayamalavagowla, Shankarabharanam, Kalyani, Adi Tala, Veena, or Mridangam.`;
         confidence = 'uncertain';
-        uncertaintyNote = 'Question outside currently reviewed knowledge corpus. Verified fallback applied.';
+        uncertaintyNote = lang === 'ml'
+          ? 'നാദവേഴ്സിന്റെ സംഗീത ബോർഡ് ഈ വിഷയത്തിൽ കൂടുതൽ ഗ്രന്ഥങ്ങൾ ചേർത്തുകൊണ്ടിരിക്കുന്നു.'
+          : 'Question outside currently reviewed knowledge corpus. Verified fallback applied.';
       }
 
       const tutorReply: Message = {

@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { BookOpen, CheckCircle2, ChevronRight, Volume2, Activity, Sparkles } from 'lucide-react';
 import { BEGINNER_LESSONS } from '../data/carnaticData';
+import { BEGINNER_LESSONS_ML } from '../data/malayalamTranslations';
 import { LessonItem } from '../types/carnatic';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -102,36 +103,47 @@ export const BeginnerPath: React.FC<BeginnerPathProps> = ({ onNavigateToPractice
       </div>
 
       {/* Active Lesson Content Box */}
-      <div className="bg-[#22221D] p-6 sm:p-8 rounded-2xl border border-[#3B392F]">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#3B392F]/60 gap-2">
-          <div>
-            <span className="text-xs font-mono uppercase tracking-wider text-[#C7A45B]">
-              {lang === 'ml' ? `ഘട്ടം ${activeLessonIndex + 1} / ${BEGINNER_LESSONS.length}` : `Step ${activeLessonIndex + 1} of ${BEGINNER_LESSONS.length}`}
-            </span>
-            <h3 className="text-xl sm:text-2xl font-serif font-bold text-[#F4EBDD] mt-1">
-              {lang === 'ml' && stepTitles[activeLessonIndex] ? `${stepTitles[activeLessonIndex]}: ${activeLesson.title.split(':')[1] || activeLesson.title}` : activeLesson.title}
-            </h3>
-            <p className="text-sm text-[#BDB4A4] italic mt-0.5">{activeLesson.subtitle}</p>
-          </div>
-        </div>
+      {(() => {
+        const mlLesson = BEGINNER_LESSONS_ML[activeLesson.id];
+        return (
+          <div className="bg-[#22221D] p-6 sm:p-8 rounded-2xl border border-[#3B392F]">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#3B392F]/60 gap-2">
+              <div>
+                <span className="text-xs font-mono uppercase tracking-wider text-[#C7A45B]">
+                  {lang === 'ml' ? `ഘട്ടം ${activeLessonIndex + 1} / ${BEGINNER_LESSONS.length}` : `Step ${activeLessonIndex + 1} of ${BEGINNER_LESSONS.length}`}
+                </span>
+                <h3 className="text-xl sm:text-2xl font-serif font-bold text-[#F4EBDD] mt-1">
+                  {lang === 'ml' && mlLesson ? mlLesson.titleMl : activeLesson.title}
+                </h3>
+                <p className="text-sm text-[#BDB4A4] italic mt-0.5">
+                  {lang === 'ml' && mlLesson ? mlLesson.subtitleMl : activeLesson.subtitle}
+                </p>
+              </div>
+            </div>
 
-        {/* Core Concept Banner */}
-        <div className="my-6 bg-[#191916] p-5 rounded-xl border border-[#3B392F] space-y-3">
-          <div className="text-xs font-mono uppercase text-[#C7A45B] tracking-wide">
-            {lang === 'ml' ? 'മുഖ്യ തത്വം:' : 'Key Insight:'}
-          </div>
-          <p className="text-[#F4EBDD] text-base leading-relaxed">{activeLesson.coreConcept}</p>
-          <p className="text-[#BDB4A4] text-sm leading-relaxed">{activeLesson.explanation}</p>
-        </div>
+            {/* Core Concept Banner */}
+            <div className="my-6 bg-[#191916] p-5 rounded-xl border border-[#3B392F] space-y-3">
+              <div className="text-xs font-mono uppercase text-[#C7A45B] tracking-wide">
+                {lang === 'ml' ? 'മുഖ്യ തത്വം:' : 'Key Insight:'}
+              </div>
+              <p className="text-[#F4EBDD] text-base leading-relaxed">
+                {lang === 'ml' && mlLesson ? mlLesson.coreConceptMl : activeLesson.coreConcept}
+              </p>
+              <p className="text-[#BDB4A4] text-sm leading-relaxed">
+                {lang === 'ml' && mlLesson ? mlLesson.explanationMl : activeLesson.explanation}
+              </p>
+            </div>
 
-        {/* Practice Prompt & Interactive Trigger */}
-        <div className="bg-[#11110F] p-5 rounded-xl border border-[#C7A45B]/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="space-y-1">
-            <span className="text-xs font-mono uppercase text-[#E0C98F] block font-semibold">
-              {lang === 'ml' ? 'പ്രാക്ടീസ് വ്യായാമം:' : 'Hands-On Exercise:'}
-            </span>
-            <p className="text-sm text-[#F4EBDD]">{activeLesson.practicePrompt}</p>
-          </div>
+            {/* Practice Prompt & Interactive Trigger */}
+            <div className="bg-[#11110F] p-5 rounded-xl border border-[#C7A45B]/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <span className="text-xs font-mono uppercase text-[#E0C98F] block font-semibold">
+                  {lang === 'ml' ? 'പ്രാക്ടീസ് വ്യായാമം:' : 'Hands-On Exercise:'}
+                </span>
+                <p className="text-sm text-[#F4EBDD]">
+                  {lang === 'ml' && mlLesson ? mlLesson.practicePromptMl : activeLesson.practicePrompt}
+                </p>
+              </div>
 
           <div className="flex items-center space-x-2 shrink-0">
             {activeLesson.interactiveTool === 'shruti' && onNavigateToPractice && (
@@ -177,8 +189,10 @@ export const BeginnerPath: React.FC<BeginnerPathProps> = ({ onNavigateToPractice
             </span>
             <ChevronRight className="w-4 h-4 text-[#C7A45B]" />
           </button>
+          </div>
         </div>
-      </div>
+      );
+    })()}
     </section>
   );
 };
