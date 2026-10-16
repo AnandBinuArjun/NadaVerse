@@ -19,8 +19,12 @@ class Settings(BaseSettings):
     
     # CORS
     CORS_ORIGINS: List[str] = [
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
+        origin.strip()
+        for origin in os.getenv(
+            "CORS_ORIGINS",
+            "http://localhost:3000,http://127.0.0.1:3000,https://nadaverse.abarjun.online",
+        ).split(",")
+        if origin.strip()
     ]
     
     # AI Gateway

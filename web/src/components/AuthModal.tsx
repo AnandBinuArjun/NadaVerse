@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import { X, User, Lock, Mail, ShieldCheck, LogOut, Trash2 } from 'lucide-react';
 
+import { API_BASE_URL } from '../lib/api';
+
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -33,8 +35,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     setIsLoading(true);
 
     const endpoint = isRegisterMode
-      ? 'http://localhost:8000/api/v1/auth/register'
-      : 'http://localhost:8000/api/v1/auth/login';
+      ? `${API_BASE_URL}/api/v1/auth/register`
+      : `${API_BASE_URL}/api/v1/auth/login`;
 
     const payload = isRegisterMode
       ? { email, password, display_name: displayName, experience_level: 'student' }

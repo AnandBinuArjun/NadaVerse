@@ -13,6 +13,7 @@ import { BeginnerPath } from '../components/BeginnerPath';
 import { TutorModal } from '../components/TutorModal';
 import { AuthModal } from '../components/AuthModal';
 import { VERIFIED_RAGAS, VERIFIED_INSTRUMENTS, VERIFIED_TALAS, GLOSSARY_TERMS, VERIFIED_COMPOSERS } from '../data/carnaticData';
+import { API_BASE_URL } from '../lib/api';
 import {
   Compass,
   Sliders,
@@ -62,7 +63,7 @@ export default function Home() {
 
     try {
       const token = typeof window !== 'undefined' ? localStorage.getItem('nadaverse_token') : null;
-      await fetch('http://localhost:8000/api/v1/practice/sessions', {
+      await fetch(`${API_BASE_URL}/api/v1/practice/sessions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

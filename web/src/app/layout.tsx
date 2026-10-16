@@ -16,8 +16,10 @@ export const viewport: Viewport = {
   themeColor: '#11110F',
 };
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://nadaverse.abarjun.online';
+
 export const metadata: Metadata = {
-  metadataBase: new URL('https://nadaverse.org'),
+  metadataBase: new URL(siteUrl),
   title: 'NadaVerse — Carnatic Music Discovery, Knowledge & Practice Platform',
   description:
     'Discover Carnatic music, understand its language, and practise with purpose. A completely free, peer-reviewed digital sanctuary with Web Audio Tanpura, Tala metronome, verified ragas, and grounded AI tutoring.',
@@ -36,6 +38,8 @@ export const metadata: Metadata = {
     title: 'NadaVerse — Carnatic Music For Everyone',
     description:
       'The Sovereign Digital Sanctuary of Carnatic Music. Completely free reference library and Web Audio practice studio.',
+    url: siteUrl,
+    siteName: 'NadaVerse',
     images: [{ url: '/logo.png', width: 1200, height: 800, alt: 'NadaVerse Logo Emblem' }],
   },
   keywords: [
