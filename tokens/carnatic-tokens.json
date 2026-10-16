@@ -1,0 +1,51 @@
+{
+  "name": "NadaVerse Carnatic Design Tokens",
+  "version": "1.0.0",
+  "description": "Cross-platform design tokens for Web and React Native / Expo mobile clients",
+  "color": {
+    "bg": {
+      "default": "#11110F",
+      "surface1": "#191916",
+      "surface2": "#22221D"
+    },
+    "border": {
+      "default": "#3B392F",
+      "subtle": "#2A2922"
+    },
+    "text": {
+      "primary": "#F4EBDD",
+      "secondary": "#BDB4A4",
+      "accent": "#C7A45B",
+      "accentSoft": "#E0C98F"
+    },
+    "semantic": {
+      "terracotta": "#A95E45",
+      "sage": "#87947A",
+      "success": "#6EA887",
+      "warning": "#D9A441",
+      "danger": "#E17D73"
+    }
+  },
+  "spacing": {
+    "unit": 4,
+    "xs": 4,
+    "sm": 8,
+    "md": 16,
+    "lg": 24,
+    "xl": 32,
+    "xxl": 48
+  },
+  "radius": {
+    "sm": 8,
+    "md": 14,
+    "lg": 22,
+    "full": 9999
+  },
+  "audio": {
+    "standardA4Hz": 440.0,
+    "defaultMiddleCHz": 261.63,
+    "defaultBpm": 72,
+    "minBpm": 30,
+    "maxBpm": 240
+  }
+}

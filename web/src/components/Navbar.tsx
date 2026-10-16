@@ -1,16 +1,24 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Volume2, VolumeX, Compass, Sparkles, Sliders, BookOpen } from 'lucide-react';
+import { Volume2, VolumeX, Compass, Sparkles, Sliders, BookOpen, User } from 'lucide-react';
 import { audioEngine, TONIC_OPTIONS } from '../lib/audioEngine';
 
 interface NavbarProps {
   onOpenTutor?: () => void;
+  onOpenAuth?: () => void;
+  currentUser?: { email: string; displayName: string } | null;
   activeSection?: string;
   onNavigate?: (section: string) => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onOpenTutor, activeSection = 'home', onNavigate }) => {
+export const Navbar: React.FC<NavbarProps> = ({
+  onOpenTutor,
+  onOpenAuth,
+  currentUser,
+  activeSection = 'home',
+  onNavigate
+}) => {
   const [isDroneOn, setIsDroneOn] = useState(false);
   const [selectedTonic, setSelectedTonic] = useState(TONIC_OPTIONS[0]); // C
 
@@ -115,7 +123,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenTutor, activeSection = 'ho
           </button>
         </nav>
 
-        {/* Global Quick Shruti Companion / Status */}
+        {/* Global Quick Shruti Companion / Status & Auth */}
         <div className="flex items-center space-x-3">
           <div className="flex items-center bg-[#191916] border border-[#3B392F] rounded-lg p-1 text-xs">
             <span className="text-[#BDB4A4] px-2 font-mono hidden sm:inline">Adhara Sa:</span>
@@ -155,6 +163,20 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenTutor, activeSection = 'ho
               )}
             </button>
           </div>
+
+          {/* Account & Profile Button */}
+          {onOpenAuth && (
+            <button
+              onClick={onOpenAuth}
+              className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-[#191916] hover:bg-[#22221D] border border-[#3B392F] text-xs text-[#F4EBDD] font-medium transition-colors"
+              aria-label="User account and preferences"
+            >
+              <User className="w-3.5 h-3.5 text-[#C7A45B]" />
+              <span className="hidden sm:inline">
+                {currentUser ? currentUser.displayName : 'Sign In'}
+              </span>
+            </button>
+          )}
         </div>
       </div>
     </header>

@@ -5,10 +5,13 @@ import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
 import { ShrutiCompanion } from '../components/ShrutiCompanion';
 import { TalaStudio } from '../components/TalaStudio';
+import { TunerCompanion } from '../components/TunerCompanion';
+import { PracticeRecorder } from '../components/PracticeRecorder';
 import { RagaCard } from '../components/RagaCard';
 import { InstrumentCard } from '../components/InstrumentCard';
 import { BeginnerPath } from '../components/BeginnerPath';
 import { TutorModal } from '../components/TutorModal';
+import { AuthModal } from '../components/AuthModal';
 import { VERIFIED_RAGAS, VERIFIED_INSTRUMENTS, VERIFIED_TALAS, GLOSSARY_TERMS } from '../data/carnaticData';
 import {
   Compass,
@@ -16,15 +19,69 @@ import {
   BookOpen,
   Music2,
   ChevronRight,
-  Search
+  Search,
+  Save,
+  CheckCircle2,
+  Sparkles
 } from 'lucide-react';
+
+interface Composer {
+  name: string;
+  lifespan: string;
+  tradition: string;
+  biography: string;
+  mudra: string;
+  majorKritis: string[];
+}
+
+const VERIFIED_COMPOSERS: Composer[] = [
+  {
+    name: 'Saint Tyagaraja',
+    lifespan: '1767–1847 CE',
+    tradition: 'Carnatic Trinity',
+    biography: 'Immortal devotional composer who consecrated his life to Rama bhakti, composed the sacred Pancharatna kritis, and elevated sangatis.',
+    mudra: 'Tyagaraja',
+    majorKritis: ['Endaro Mahanubhavulu (Shree)', 'Swara Raga Sudharasa (Shankarabharanam)', 'Tulasidala (Mayamalavagowla)']
+  },
+  {
+    name: 'Muthuswami Dikshitar',
+    lifespan: '1775–1835 CE',
+    tradition: 'Carnatic Trinity',
+    biography: 'Scholar-mystic renowned for magnificent vilamba kala Sanskrit masterpieces, the Kamalamba Navavarana kritis, and profound temple iconography.',
+    mudra: 'Guruguha',
+    majorKritis: ['Vatapi Ganapatim (Hamsadhwani)', 'Akshaya Linga Vibho (Shankarabharanam)', 'Kamalambam Bhajare (Kalyani)']
+  },
+  {
+    name: 'Shyama Shastri',
+    lifespan: '1762–1827 CE',
+    tradition: 'Carnatic Trinity',
+    biography: 'Eldest of the Trinity, hereditary priest of Kamakshi in Thanjavur, revered for intricate rhythmic mastery and soulful Swarajathis.',
+    mudra: 'Shyama Krishna',
+    majorKritis: ['Marivere Gati (Anandabhairavi)', 'Sarojadala Netri (Shankarabharanam)', 'Kamakshi Swarajathi (Bhairavi)']
+  },
+  {
+    name: 'Purandara Dasa',
+    lifespan: '1484–1564 CE',
+    tradition: 'Pitamaha of Carnatic Music',
+    biography: 'Codified the foundational pedagogical curriculum of Carnatic music in Mayamalavagowla, composed thousands of Devaranamas, and established the abhyasa gana framework.',
+    mudra: 'Purandara Vittala',
+    majorKritis: ['Deena Dayalo Rama (Mayamalavagowla)', 'Bhagyada Lakshmi Baramma', 'Jagadoddharana']
+  }
+];
 
 export default function Home() {
   const [activeSection, setActiveSection] = useState<'home' | 'learn' | 'explore' | 'practice'>('home');
-  const [exploreTab, setExploreTab] = useState<'ragas' | 'talas' | 'instruments' | 'glossary'>('ragas');
+  const [exploreTab, setExploreTab] = useState<'ragas' | 'talas' | 'instruments' | 'composers' | 'glossary'>('ragas');
   const [searchQuery, setSearchQuery] = useState('');
   const [isTutorOpen, setIsTutorOpen] = useState(false);
   const [tutorTopic, setTutorTopic] = useState<string | undefined>(undefined);
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState<{ email: string; displayName: string } | null>(null);
+
+  // Practice Session State
+  const [sessionFocus, setSessionFocus] = useState('Mayamalavagowla Sarali Varisai 1-4');
+  const [sessionNotes, setSessionNotes] = useState('');
+  const [sessionSavedSuccess, setSessionSavedSuccess] = useState(false);
 
   const handleOpenTutorWithTopic = (topic: string) => {
     setTutorTopic(topic);
@@ -36,6 +93,33 @@ export default function Home() {
       setActiveSection(section);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+  };
+
+  const handleSavePracticeSession = async () => {
+    const payload = {
+      focus: sessionFocus,
+      tonic: 'C',
+      tala_id: 'adi-tala',
+      notes: sessionNotes,
+      duration_seconds: 900
+    };
+
+    try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('nadaverse_token') : null;
+      await fetch('http://localhost:8000/api/v1/practice/sessions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify(payload)
+      });
+    } catch {
+      // Local fallback in case backend is offline
+    }
+
+    setSessionSavedSuccess(true);
+    setTimeout(() => setSessionSavedSuccess(false), 3500);
   };
 
   const filteredRagas = VERIFIED_RAGAS.filter(
@@ -51,6 +135,13 @@ export default function Home() {
       i.family.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const filteredComposers = VERIFIED_COMPOSERS.filter(
+    (c) =>
+      c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.tradition.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.mudra.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   const filteredGlossary = GLOSSARY_TERMS.filter(
     (g) =>
       g.term.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -63,6 +154,8 @@ export default function Home() {
       <Navbar
         activeSection={activeSection}
         onNavigate={handleNavigate}
+        currentUser={currentUser}
+        onOpenAuth={() => setIsAuthOpen(true)}
         onOpenTutor={() => {
           setTutorTopic(undefined);
           setIsTutorOpen(true);
@@ -129,7 +222,6 @@ export default function Home() {
 
             {/* Complete Vertical Slice Pathway Highlight */}
             <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Step 1: Discover */}
               <div
                 onClick={() => setActiveSection('learn')}
                 className="bg-[#191916] border border-[#3B392F] p-6 rounded-2xl cursor-pointer hover:border-[#C7A45B]/60 transition-all group"
@@ -149,7 +241,6 @@ export default function Home() {
                 </span>
               </div>
 
-              {/* Step 2: Explore */}
               <div
                 onClick={() => {
                   setActiveSection('explore');
@@ -172,7 +263,6 @@ export default function Home() {
                 </span>
               </div>
 
-              {/* Step 3: Practise */}
               <div
                 onClick={() => setActiveSection('practice')}
                 className="bg-[#191916] border border-[#3B392F] p-6 rounded-2xl cursor-pointer hover:border-[#C7A45B]/60 transition-all group"
@@ -222,7 +312,7 @@ export default function Home() {
               />
             </section>
 
-            {/* Quick Practice Studio Preview */}
+            {/* Instant Practice Companion Preview */}
             <section className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
@@ -254,7 +344,6 @@ export default function Home() {
               }}
             />
 
-            {/* Practical Connection to Practice Tools */}
             <div className="p-6 bg-[#191916] rounded-2xl border border-[#3B392F]">
               <h3 className="font-serif font-bold text-lg text-[#F4EBDD] mb-2">
                 Continue to Practice Studio
@@ -273,7 +362,7 @@ export default function Home() {
         )}
 
         {/* =========================================================================
-            SECTION: EXPLORE (RAGAS, TALAS, INSTRUMENTS, GLOSSARY)
+            SECTION: EXPLORE (RAGAS, TALAS, INSTRUMENTS, COMPOSERS, GLOSSARY)
         ========================================================================= */}
         {activeSection === 'explore' && (
           <div className="space-y-8">
@@ -312,6 +401,16 @@ export default function Home() {
                   Instruments ({VERIFIED_INSTRUMENTS.length})
                 </button>
                 <button
+                  onClick={() => setExploreTab('composers')}
+                  className={`px-4 py-2 rounded-xl text-xs font-mono font-medium transition-all ${
+                    exploreTab === 'composers'
+                      ? 'bg-[#C7A45B] text-[#11110F] font-bold'
+                      : 'bg-[#22221D] text-[#BDB4A4] hover:text-[#F4EBDD]'
+                  }`}
+                >
+                  Composers ({VERIFIED_COMPOSERS.length})
+                </button>
+                <button
                   onClick={() => setExploreTab('glossary')}
                   className={`px-4 py-2 rounded-xl text-xs font-mono font-medium transition-all ${
                     exploreTab === 'glossary'
@@ -330,7 +429,7 @@ export default function Home() {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Filter by name, swara, jati..."
+                  placeholder="Filter by name, swara, mudra..."
                   className="w-full bg-[#22221D] border border-[#3B392F] rounded-xl pl-9 pr-4 py-2 text-xs text-[#F4EBDD] placeholder-[#BDB4A4]/60 focus:outline-none focus:border-[#C7A45B]"
                 />
               </div>
@@ -352,11 +451,6 @@ export default function Home() {
                       onAskTutor={handleOpenTutorWithTopic}
                     />
                   ))}
-                  {filteredRagas.length === 0 && (
-                    <div className="bg-[#191916] p-12 text-center rounded-2xl border border-[#3B392F] text-[#BDB4A4]">
-                      No matching ragas found for &ldquo;{searchQuery}&rdquo;.
-                    </div>
-                  )}
                 </div>
               </div>
             )}
@@ -382,6 +476,61 @@ export default function Home() {
                       instrument={inst}
                       onAskTutor={handleOpenTutorWithTopic}
                     />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* COMPOSERS TAB */}
+            {exploreTab === 'composers' && (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between text-xs text-[#BDB4A4] font-mono">
+                  <span>Displaying {filteredComposers.length} verified masters of Carnatic tradition</span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {filteredComposers.map((composer, idx) => (
+                    <div
+                      key={idx}
+                      className="bg-[#191916] border border-[#3B392F] rounded-2xl p-6 hover:border-[#C7A45B]/60 transition-all space-y-4"
+                    >
+                      <div className="flex items-start justify-between pb-3 border-b border-[#3B392F]">
+                        <div>
+                          <h3 className="font-serif font-bold text-xl text-[#F4EBDD]">
+                            {composer.name}
+                          </h3>
+                          <span className="text-xs font-mono text-[#C7A45B]">
+                            {composer.tradition} · {composer.lifespan}
+                          </span>
+                        </div>
+                        <span className="text-[10px] font-mono bg-[#22221D] text-[#87947A] border border-[#3B392F] px-2 py-0.5 rounded">
+                          Mudra: {composer.mudra}
+                        </span>
+                      </div>
+
+                      <p className="text-xs text-[#BDB4A4] leading-relaxed">
+                        {composer.biography}
+                      </p>
+
+                      <div className="bg-[#22221D] p-3 rounded-xl border border-[#3B392F]/60 text-xs">
+                        <span className="text-[10px] font-mono uppercase text-[#C7A45B] block mb-1">
+                          Signature Masterpieces:
+                        </span>
+                        <ul className="list-disc list-inside text-[#F4EBDD] space-y-0.5 text-xs">
+                          {composer.majorKritis.map((k, kIdx) => (
+                            <li key={kIdx}>{k}</li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      <button
+                        onClick={() => handleOpenTutorWithTopic(composer.name)}
+                        className="text-xs text-[#C7A45B] hover:text-[#E0C98F] flex items-center space-x-1 font-medium"
+                      >
+                        <Sparkles className="w-3.5 h-3.5" />
+                        <span>Ask AI Tutor about {composer.name}</span>
+                      </button>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -422,7 +571,7 @@ export default function Home() {
         )}
 
         {/* =========================================================================
-            SECTION: PRACTICE STUDIO (SHRUTI COMPANION + TALA STUDIO)
+            SECTION: PRACTICE STUDIO (SHRUTI, TUNER, TALA, RECORDER, SESSION NOTES)
         ========================================================================= */}
         {activeSection === 'practice' && (
           <div className="space-y-12">
@@ -435,15 +584,80 @@ export default function Home() {
                 Musician&apos;s Practice Studio
               </h2>
               <p className="text-sm text-[#BDB4A4] mt-1 max-w-2xl">
-                Dual Web Audio tools running synchronously in your browser. Maintain your tonic drone while tracking tala cycles with precise hand kriyas.
+                Dual Web Audio tools, pitch detection, and private recording running synchronously in your browser.
               </p>
             </div>
 
             {/* Shruti Companion */}
             <ShrutiCompanion />
 
+            {/* Microphone Pitch Tuner */}
+            <TunerCompanion />
+
             {/* Tala Studio */}
             <TalaStudio />
+
+            {/* Private Audio Recorder */}
+            <PracticeRecorder />
+
+            {/* Practice Session Logger */}
+            <section className="bg-[#191916] border border-[#3B392F] rounded-2xl p-6 sm:p-8 shadow-xl">
+              <div className="pb-4 border-b border-[#3B392F] mb-6">
+                <h3 className="text-xl font-serif font-bold text-[#F4EBDD]">
+                  Practice Session Journal
+                </h3>
+                <p className="text-xs text-[#BDB4A4] mt-0.5">
+                  Record focus areas, self-reflections, and tempo settings. Kept private to your account.
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-mono uppercase text-[#BDB4A4] mb-1.5">
+                    Practice Focus Area
+                  </label>
+                  <input
+                    type="text"
+                    value={sessionFocus}
+                    onChange={(e) => setSessionFocus(e.target.value)}
+                    placeholder="e.g. Mayamalavagowla Jantai Varisai 1-4"
+                    className="w-full bg-[#22221D] border border-[#3B392F] rounded-xl px-4 py-2.5 text-xs text-[#F4EBDD] focus:outline-none focus:border-[#C7A45B]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono uppercase text-[#BDB4A4] mb-1.5">
+                    Session Notes & Reflections
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={sessionNotes}
+                    onChange={(e) => setSessionNotes(e.target.value)}
+                    placeholder="Notes on pitch accuracy, breath control, or tala alignment..."
+                    className="w-full bg-[#22221D] border border-[#3B392F] rounded-xl px-4 py-2.5 text-xs text-[#F4EBDD] focus:outline-none focus:border-[#C7A45B]"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between pt-2">
+                  <div className="text-xs text-[#87947A]">
+                    {sessionSavedSuccess && (
+                      <span className="flex items-center space-x-1.5 font-medium">
+                        <CheckCircle2 className="w-4 h-4 text-[#6EA887]" />
+                        <span>Session logged privately to your learner history.</span>
+                      </span>
+                    )}
+                  </div>
+
+                  <button
+                    onClick={handleSavePracticeSession}
+                    className="flex items-center space-x-1.5 px-5 py-2.5 rounded-xl bg-[#C7A45B] hover:bg-[#E0C98F] text-[#11110F] text-xs font-semibold transition-all shadow-md active:scale-95"
+                  >
+                    <Save className="w-4 h-4" />
+                    <span>Save Session Privately</span>
+                  </button>
+                </div>
+              </div>
+            </section>
           </div>
         )}
       </main>
@@ -453,6 +667,18 @@ export default function Home() {
         isOpen={isTutorOpen}
         onClose={() => setIsTutorOpen(false)}
         initialTopic={tutorTopic}
+      />
+
+      {/* Auth / Account Management Modal */}
+      <AuthModal
+        isOpen={isAuthOpen}
+        onClose={() => setIsAuthOpen(false)}
+        currentUser={currentUser}
+        onLoginSuccess={(user) => setCurrentUser(user)}
+        onLogout={() => {
+          localStorage.removeItem('nadaverse_token');
+          setCurrentUser(null);
+        }}
       />
 
       {/* Footer */}

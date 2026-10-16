@@ -1,44 +1,78 @@
 """
-NadaVerse Backend API Service
+NadaVerse Authoritative Backend API Service
 FastAPI-based modular monolith providing verified Carnatic content,
-practice session persistence, and grounded AI tutor orchestration.
+practice session persistence, user authentication, and grounded AI tutor orchestration.
 """
 
 from typing import List, Optional
 import uuid
 from datetime import datetime, timezone
-from fastapi import FastAPI, HTTPException, Query, status
+from contextlib import asynccontextmanager
+from fastapi import FastAPI, HTTPException, Query, Depends, Request, Response, status
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.schemas.content import RagaDetail, TalaDetail, InstrumentDetail, ReviewStatus
+from app.core.config import settings
+from app.db.session import engine, Base, get_db
+from app.models.entities import User, PracticeSession
+from app.schemas.content import RagaDetail, TalaDetail, InstrumentDetail
 from app.schemas.practice import PracticeSessionCreate, PracticeSessionOut
-from app.schemas.tutor import TutorMessageRequest, TutorResponse, TutorCitation
+from app.schemas.tutor import TutorMessageRequest, TutorResponse
+from app.api.deps import get_optional_current_user
+from app.api.v1.endpoints.auth import router as auth_router, user_router
+from app.api.v1.endpoints.search import router as search_router
+from app.services.ai_gateway import ai_gateway
 from app.data.verified_corpus import (
     VERIFIED_RAGAS_DATA,
     VERIFIED_TALAS_DATA,
     VERIFIED_INSTRUMENTS_DATA,
+    VERIFIED_COMPOSERS_DATA,
+    VERIFIED_COMPOSITIONS_DATA,
 )
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Initialize database tables
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    yield
+    await engine.dispose()
+
+
 app = FastAPI(
-    title="NadaVerse API",
+    title=settings.APP_NAME,
     version="1.0.0",
     description="The official authoritative API for NadaVerse Carnatic Music Platform.",
     docs_url="/docs",
     redoc_url="/redoc",
+    lifespan=lifespan,
 )
+
+# Security Headers Middleware
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response: Response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    return response
 
 # CORS Middleware configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# In-memory practice session store for development slice
-_PRACTICE_SESSIONS: List[PracticeSessionOut] = []
+# Register Routers
+app.include_router(auth_router, prefix=settings.API_V1_PREFIX)
+app.include_router(user_router, prefix=settings.API_V1_PREFIX)
+app.include_router(search_router, prefix=settings.API_V1_PREFIX)
 
 
 @app.get("/api/v1/health", tags=["System"])
@@ -47,6 +81,7 @@ async def health_check():
         "status": "healthy",
         "service": "nadaverse-api",
         "version": "1.0.0",
+        "environment": settings.APP_ENV,
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
@@ -115,30 +150,83 @@ async def get_instrument(slug: str):
 
 
 # -----------------------------------------------------------------------------
-# Practice Sessions
+# Content: Composers & Compositions
+# -----------------------------------------------------------------------------
+@app.get("/api/v1/composers", tags=["Composers"])
+async def list_composers():
+    return VERIFIED_COMPOSERS_DATA
+
+
+@app.get("/api/v1/compositions", tags=["Compositions"])
+async def list_compositions():
+    return VERIFIED_COMPOSITIONS_DATA
+
+
+# -----------------------------------------------------------------------------
+# Practice Sessions (Database Persisted with Guest or User Scope)
 # -----------------------------------------------------------------------------
 @app.post("/api/v1/practice/sessions", response_model=PracticeSessionOut, status_code=status.HTTP_201_CREATED, tags=["Practice"])
-async def create_practice_session(payload: PracticeSessionCreate):
+async def create_practice_session(
+    payload: PracticeSessionCreate,
+    current_user: Optional[User] = Depends(get_optional_current_user),
+    db: AsyncSession = Depends(get_db)
+):
     session_id = f"session_{uuid.uuid4().hex[:12]}"
     now = datetime.now(timezone.utc)
-    session = PracticeSessionOut(
+    user_id = current_user.id if current_user else "guest_session"
+
+    session = PracticeSession(
         id=session_id,
-        user_id="local_guest",
+        user_id=user_id,
         started_at=now,
-        ended_at=now,
         duration_seconds=payload.duration_seconds,
         focus=payload.focus,
-        tonic=payload.tonic,
-        tala_id=payload.tala_id,
+        tonic=payload.tonic or "C",
+        tala_id=payload.tala_id or "adi-tala",
         notes=payload.notes or "",
     )
-    _PRACTICE_SESSIONS.append(session)
-    return session
+    if current_user:
+        db.add(session)
+        await db.commit()
+
+    return PracticeSessionOut(
+        id=session.id,
+        user_id=session.user_id,
+        started_at=session.started_at,
+        ended_at=session.started_at,
+        duration_seconds=session.duration_seconds,
+        focus=session.focus,
+        tonic=session.tonic,
+        tala_id=session.tala_id,
+        notes=session.notes,
+    )
 
 
 @app.get("/api/v1/practice/sessions", response_model=List[PracticeSessionOut], tags=["Practice"])
-async def list_practice_sessions():
-    return _PRACTICE_SESSIONS
+async def list_practice_sessions(
+    current_user: Optional[User] = Depends(get_optional_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    if not current_user:
+        return []
+    
+    stmt = select(PracticeSession).where(PracticeSession.user_id == current_user.id).order_by(PracticeSession.started_at.desc())
+    res = await db.execute(stmt)
+    db_sessions = res.scalars().all()
+    return [
+        PracticeSessionOut(
+            id=s.id,
+            user_id=s.user_id,
+            started_at=s.started_at,
+            ended_at=s.started_at,
+            duration_seconds=s.duration_seconds,
+            focus=s.focus,
+            tonic=s.tonic,
+            tala_id=s.tala_id,
+            notes=s.notes,
+        )
+        for s in db_sessions
+    ]
 
 
 # -----------------------------------------------------------------------------
@@ -146,76 +234,8 @@ async def list_practice_sessions():
 # -----------------------------------------------------------------------------
 @app.post("/api/v1/tutor/messages", response_model=TutorResponse, tags=["AI Tutor"])
 async def tutor_chat(payload: TutorMessageRequest):
-    query_lower = payload.query.lower()
     conv_id = payload.conversation_id or f"conv_{uuid.uuid4().hex[:8]}"
-
-    citations: List[TutorCitation] = []
-    answer = ""
-    confidence = "high"
-    uncertainty_note = None
-
-    if "mayamalavagowla" in query_lower or "purandara" in query_lower or "sarali" in query_lower:
-        answer = (
-            "Mayamalavagowla is the 15th Melakarta raga (S R₁ G₃ M₁ P D₁ N₃ Ṡ). Saint Purandara Dasa "
-            "codified it in the 15th-16th century CE as the primary pedagogical training scale because of its "
-            "symmetrical interval architecture across Purvanga (Sa to Ma) and Uttaranga (Pa to Tara Sa). "
-            "Its semitone structure ensures immediate perception of pitch intervals for students."
-        )
-        citations.append(
-            TutorCitation(
-                content_slug="mayamalavagowla",
-                title="Sangita Sampradaya Pradarsini",
-                content_type="raga",
-                excerpt="Vidya Vilasini Press, Ettayapuram, 1904; Vol. 1, p. 112.",
-                source_attribution="Subbarama Dikshitar",
-            )
-        )
-    elif "shankarabharanam" in query_lower:
-        answer = (
-            "Dheerasankarabharanam (29th Melakarta) corresponds to the diatonic major scale. In Carnatic performance, "
-            "it is distinguished by rich oscillations (kampita gamaka) on Gandharam and Nishadam."
-        )
-        citations.append(
-            TutorCitation(
-                content_slug="shankarabharanam",
-                title="Ragas of South India",
-                content_type="raga",
-                excerpt="Indiana University Press, pp. 210–218.",
-                source_attribution="Walter Kaufmann",
-            )
-        )
-    elif "adi tala" in query_lower or "tala" in query_lower:
-        answer = (
-            "Adi Tala (Chatusra Jati Triputa Tala) consists of 8 aksharas: one Laghu of 4 counts followed by two "
-            "Dhrutams of 2 counts each (I₄ + O + O). The traditional kriyas are 1 clap + 3 finger taps, followed by "
-            "1 clap + 1 wave, and 1 clap + 1 wave."
-        )
-        citations.append(
-            TutorCitation(
-                content_slug="adi-tala",
-                title="Tala Guide: Structure & Practice",
-                content_type="tala",
-                excerpt="Journal of the Music Academy Madras, Vol. 48, pp. 78–92.",
-                source_attribution="Madras Music Academy Tala Research Committee",
-            )
-        )
-    else:
-        answer = (
-            "I do not possess sufficient reviewed musicological documentation in the NadaVerse database to answer "
-            "this question with verified certainty. To maintain scholarly accuracy, I do not extrapolate unverified claims."
-        )
-        confidence = "uncertain"
-        uncertainty_note = "Query outside currently reviewed corpus. Refusal/fallback triggered per agent rules."
-
-    return TutorResponse(
+    return await ai_gateway.generate_grounded_response(
         conversation_id=conv_id,
-        answer=answer,
-        citations=citations,
-        confidence_level=confidence,
-        uncertainty_note=uncertainty_note,
-        suggested_followups=[
-            "Why did Purandara Dasa choose Mayamalavagowla?",
-            "What are the kriyas of Adi Tala?",
-            "How does the Saraswati Veena produce gamakas?",
-        ],
+        query=payload.query
     )
