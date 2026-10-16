@@ -21,7 +21,7 @@ async def test_list_ragas_and_provenance():
         response = await ac.get("/api/v1/ragas")
     assert response.status_code == 200
     ragas = response.json()
-    assert len(ragas) >= 21
+    assert len(ragas) >= 30
 
     maya = next(r for r in ragas if r["slug"] == "mayamalavagowla")
     assert maya["melakarta_number"] == 15
@@ -59,31 +59,40 @@ async def test_list_talas_and_instruments():
         composers = (await ac.get("/api/v1/composers")).json()
         glossary = (await ac.get("/api/v1/glossary")).json()
 
-    assert len(talas) >= 10
+    assert len(talas) >= 14
     tala_slugs = {t["slug"] for t in talas}
     assert "adi-tala" in tala_slugs
     assert "chatusra-dhruva" in tala_slugs
     assert "khanda-ata" in tala_slugs
+    assert "tisra-triputa" in tala_slugs
+    assert "sankeerna-triputa" in tala_slugs
 
-    assert len(instruments) >= 15
+    assert len(instruments) >= 20
     inst_slugs = {i["slug"] for i in instruments}
     assert "saraswati-veena" in inst_slugs
     assert "chitravina" in inst_slugs
     assert "carnatic-mandolin" in inst_slugs
-    assert "idakka" in inst_slugs
+    assert "chenda" in inst_slugs
+    assert "panchamukha-vadyam" in inst_slugs
+    assert "mayuri-veena" in inst_slugs
 
-    assert len(composers) >= 15
+    assert len(composers) >= 20
     comp_slugs = {c["slug"] for c in composers}
     assert "tyagaraja" in comp_slugs
-    assert "oothukkadu-venkata-kavi" in comp_slugs
-    assert "thanjavur-quartet" in comp_slugs
+    assert "jayadeva" in comp_slugs
+    assert "kshetrayya" in comp_slugs
+    assert "muthiah-bhagavatar" in comp_slugs
+    assert "lalgudi-jayaraman" in comp_slugs
 
-    assert len(glossary) >= 36
+    assert len(glossary) >= 48
     term_names = {g["term"] for g in glossary}
     assert "Shruti" in term_names
     assert "Nyasa" in term_names
     assert "Vivadi" in term_names
     assert "Tillana" in term_names
+    assert "Anudhrutam" in term_names
+    assert "Laghu" in term_names
+    assert "RTP (Ragam-Tanam-Pallavi)" in term_names
 
 
 @pytest.mark.asyncio
@@ -243,6 +252,9 @@ async def test_expanded_corpus_and_glossary():
         assert "abhogi" in raga_slugs
         assert "charukesi" in raga_slugs
         assert "madhyamavati" in raga_slugs
+        assert "nata" in raga_slugs
+        assert "varali" in raga_slugs
+        assert "khamas" in raga_slugs
 
         # Check talas
         talas = (await ac.get("/api/v1/talas")).json()
@@ -251,6 +263,8 @@ async def test_expanded_corpus_and_glossary():
         assert "tisra-eka" in tala_slugs
         assert "khanda-triputa" in tala_slugs
         assert "misra-jhampa" in tala_slugs
+        assert "chatusra-eka" in tala_slugs
+        assert "tisra-rupaka" in tala_slugs
 
         # Check instruments
         instruments = (await ac.get("/api/v1/instruments")).json()
@@ -260,6 +274,8 @@ async def test_expanded_corpus_and_glossary():
         assert "morsing" in inst_slugs
         assert "nadaswaram" in inst_slugs
         assert "thavil" in inst_slugs
+        assert "maddalam" in inst_slugs
+        assert "yazh" in inst_slugs
 
         # Check composers
         composers = (await ac.get("/api/v1/composers")).json()
@@ -269,11 +285,14 @@ async def test_expanded_corpus_and_glossary():
         assert "gopalakrishna-bharati" in comp_slugs
         assert "annamacharya" in comp_slugs
         assert "patnam-subramanya-iyer" in comp_slugs
+        assert "narayana-teertha" in comp_slugs
 
         # Check glossary endpoint
         glossary = (await ac.get("/api/v1/glossary")).json()
-        assert len(glossary) >= 15
+        assert len(glossary) >= 48
         terms = [g["term"] for g in glossary]
+        assert "Arudi" in terms
+        assert "Swarajati" in terms
         assert "Niraval" in terms
         assert "Kalpanaswara" in terms
         assert "Sthayi" in terms

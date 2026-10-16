@@ -823,6 +823,347 @@ export const VERIFIED_RAGAS: RagaItem[] = [
     reviewStatus: 'expert_reviewed',
     reviewerName: 'NadaVerse Editorial Musicology Board',
     reviewedAt: '2026-10-15'
+  },
+  {
+    id: 'raga-nata',
+    slug: 'nata',
+    canonicalName: 'Nata',
+    alternateNames: ['Nāṭa'],
+    melakartaNumber: 36,
+    isMelakarta: false,
+    parentRaga: 'Chalanata (36th Melakarta)',
+    arohanam: 'S R₃ G₃ M₁ P D₃ N₃ Ṡ',
+    avarohanam: 'Ṡ N₃ P M₁ R₃ S',
+    arohanamSwaras: ['Sa', 'Shatshruti Rishabham (R3)', 'Antara Gandharam (G3)', 'Shuddha Madhyamam (M1)', 'Panchamam (P)', 'Shatshruti Dhaivatam (D3)', 'Kakali Nishadam (N3)', 'Tara Sa (Ṡ)'],
+    avarohanamSwaras: ['Tara Sa (Ṡ)', 'Kakali Nishadam (N3)', 'Panchamam (P)', 'Shuddha Madhyamam (M1)', 'Shatshruti Rishabham (R3)', 'Sa'],
+    swaraDetails: [
+      { symbol: 'S', name: 'Shadjam', ratio: 1.0, ratioFraction: '1/1', westernEquivalentNote: 'C', swarasthana: 'Adhara Shadjam' },
+      { symbol: 'R₃', name: 'Shatshruti Rishabham', ratio: 6 / 5, ratioFraction: '6/5', westernEquivalentNote: 'Eb', swarasthana: 'Sharp second (enharmonic to minor third)' },
+      { symbol: 'G₃', name: 'Antara Gandharam', ratio: 5 / 4, ratioFraction: '5/4', westernEquivalentNote: 'E', swarasthana: 'Major third' },
+      { symbol: 'M₁', name: 'Shuddha Madhyamam', ratio: 4 / 3, ratioFraction: '4/3', westernEquivalentNote: 'F', swarasthana: 'Perfect fourth' },
+      { symbol: 'P', name: 'Panchamam', ratio: 3 / 2, ratioFraction: '3/2', westernEquivalentNote: 'G', swarasthana: 'Invariable fifth' },
+      { symbol: 'D₃', name: 'Shatshruti Dhaivatam', ratio: 9 / 5, ratioFraction: '9/5', westernEquivalentNote: 'Bb', swarasthana: 'Sharp sixth (enharmonic to minor seventh)' },
+      { symbol: 'N₃', name: 'Kakali Nishadam', ratio: 15 / 8, ratioFraction: '15/8', westernEquivalentNote: 'B', swarasthana: 'Major seventh' },
+      { symbol: 'Ṡ', name: 'Tara Shadjam', ratio: 2.0, ratioFraction: '2/1', westernEquivalentNote: "C'", swarasthana: 'Higher tonic' }
+    ],
+    characteristicPhrases: ['S R₃ G₃ M₁ P', 'Ṡ N₃ P M₁ R₃ S', 'P M₁ R₃ S, S R₃ S'],
+    rasaAndMood: 'Heroic courage (Veera), auspiciousness (Mangalam), and blazing energy. The primary Ghana raga of invocations.',
+    educationalSummary: 'The first of the revered Ghana Ragas. Audava in descent, famed for vivadi power and commanding presence.',
+    historicalContext: 'Traditionally opens concerts and temple celebrations to banish inauspiciousness.',
+    pedagogicalSignificance: 'Introduces students to Shatshruti swaras (R3, D3) and energetic rhythmic attack.',
+    famousCompositions: [
+      { title: 'Jagadanandakaraka', composer: 'Saint Tyagaraja', tala: 'Adi', language: 'Sanskrit' },
+      { title: 'Mahaganapatim', composer: 'Muthuswami Dikshitar', tala: 'Eka', language: 'Sanskrit' },
+      { title: 'Sarasiruhaasana', composer: 'Puliyur Doraiswami Iyer', tala: 'Adi', language: 'Sanskrit' }
+    ],
+    sources: [{ title: 'Sangita Sampradaya Pradarsini', authorOrCreator: 'Subbarama Dikshitar', citation: '1904.', publicationYear: 1904 }],
+    rights: { status: 'public_domain', rightsHolder: 'Carnatic Cultural Heritage' },
+    reviewStatus: 'expert_reviewed',
+    reviewerName: 'NadaVerse Editorial Musicology Board',
+    reviewedAt: '2026-10-15'
+  },
+  {
+    id: 'raga-gowla',
+    slug: 'gowla',
+    canonicalName: 'Gowla',
+    alternateNames: ['Gauḷa'],
+    melakartaNumber: 15,
+    isMelakarta: false,
+    parentRaga: 'Mayamalavagowla (15th Melakarta)',
+    arohanam: 'S R₁ M₁ P N₃ Ṡ',
+    avarohanam: 'Ṡ N₃ P M₁ R₁ G₃ M₁ R₁ S',
+    arohanamSwaras: ['Sa', 'Shuddha Rishabham (R1)', 'Shuddha Madhyamam (M1)', 'Panchamam (P)', 'Kakali Nishadam (N3)', 'Tara Sa (Ṡ)'],
+    avarohanamSwaras: ['Tara Sa (Ṡ)', 'Kakali Nishadam (N3)', 'Panchamam (P)', 'Shuddha Madhyamam (M1)', 'Shuddha Rishabham (R1)', 'Antara Gandharam (G3)', 'Shuddha Madhyamam (M1)', 'Shuddha Rishabham (R1)', 'Sa'],
+    swaraDetails: [
+      { symbol: 'S', name: 'Shadjam', ratio: 1.0, ratioFraction: '1/1', westernEquivalentNote: 'C', swarasthana: 'Adhara Shadjam' },
+      { symbol: 'R₁', name: 'Shuddha Rishabham', ratio: 16 / 15, ratioFraction: '16/15', westernEquivalentNote: 'Db', swarasthana: 'Minor second' },
+      { symbol: 'G₃', name: 'Antara Gandharam', ratio: 5 / 4, ratioFraction: '5/4', westernEquivalentNote: 'E', swarasthana: 'Major third (in vakra loop)' },
+      { symbol: 'M₁', name: 'Shuddha Madhyamam', ratio: 4 / 3, ratioFraction: '4/3', westernEquivalentNote: 'F', swarasthana: 'Perfect fourth' },
+      { symbol: 'P', name: 'Panchamam', ratio: 3 / 2, ratioFraction: '3/2', westernEquivalentNote: 'G', swarasthana: 'Invariable fifth' },
+      { symbol: 'N₃', name: 'Kakali Nishadam', ratio: 15 / 8, ratioFraction: '15/8', westernEquivalentNote: 'B', swarasthana: 'Major seventh' },
+      { symbol: 'Ṡ', name: 'Tara Shadjam', ratio: 2.0, ratioFraction: '2/1', westernEquivalentNote: "C'", swarasthana: 'Higher tonic' }
+    ],
+    characteristicPhrases: ['M₁ R₁ G₃ M₁ R₁ S', 'S R₁ M₁ P N₃ Ṡ', 'Ṡ N₃ P M₁ R₁ S'],
+    rasaAndMood: 'Deep surrender, solemn devotion, and philosophical weight. The second Ghana raga.',
+    educationalSummary: 'Famed for its signature vakra phrase M₁ R₁ G₃ M₁ R₁ S featuring profound kampita oscillation on Shuddha Rishabham.',
+    historicalContext: 'One of the oldest documented classical scales in South Indian music history.',
+    pedagogicalSignificance: 'Cultivates the discipline of heavy gamaka execution on Rishabham.',
+    famousCompositions: [
+      { title: 'Dudukugala (2nd Pancharatna)', composer: 'Saint Tyagaraja', tala: 'Adi', language: 'Telugu' },
+      { title: 'Sri Mahaganapati Ravatumam', composer: 'Muthuswami Dikshitar', tala: 'Tisra Eka', language: 'Sanskrit' },
+      { title: 'Pranamamyaham', composer: 'Mysore Vasudevachar', tala: 'Adi', language: 'Sanskrit' }
+    ],
+    sources: [{ title: 'South Indian Music (Book III)', authorOrCreator: 'Prof. P. Sambamoorthy', citation: '1964.', publicationYear: 1964 }],
+    rights: { status: 'public_domain', rightsHolder: 'Carnatic Cultural Heritage' },
+    reviewStatus: 'expert_reviewed',
+    reviewerName: 'NadaVerse Editorial Musicology Board',
+    reviewedAt: '2026-10-15'
+  },
+  {
+    id: 'raga-varali',
+    slug: 'varali',
+    canonicalName: 'Varali',
+    alternateNames: ['Varāḷi'],
+    melakartaNumber: 39,
+    isMelakarta: false,
+    parentRaga: 'Jhalavarali (39th Melakarta)',
+    arohanam: 'S G₁ R₁ G₁ M₂ P D₁ N₃ Ṡ',
+    avarohanam: 'Ṡ N₃ D₁ P M₂ G₁ R₁ S',
+    arohanamSwaras: ['Sa', 'Shuddha Gandharam (G1)', 'Shuddha Rishabham (R1)', 'Shuddha Gandharam (G1)', 'Prati Madhyamam (M2)', 'Panchamam (P)', 'Shuddha Dhaivatam (D1)', 'Kakali Nishadam (N3)', 'Tara Sa (Ṡ)'],
+    avarohanamSwaras: ['Tara Sa (Ṡ)', 'Kakali Nishadam (N3)', 'Shuddha Dhaivatam (D1)', 'Panchamam (P)', 'Prati Madhyamam (M2)', 'Shuddha Gandharam (G1)', 'Shuddha Rishabham (R1)', 'Sa'],
+    swaraDetails: [
+      { symbol: 'S', name: 'Shadjam', ratio: 1.0, ratioFraction: '1/1', westernEquivalentNote: 'C', swarasthana: 'Adhara Shadjam' },
+      { symbol: 'R₁', name: 'Shuddha Rishabham', ratio: 16 / 15, ratioFraction: '16/15', westernEquivalentNote: 'Db', swarasthana: 'Minor second' },
+      { symbol: 'G₁', name: 'Shuddha Gandharam', ratio: 256 / 243, ratioFraction: '256/243', westernEquivalentNote: 'Dbb', swarasthana: 'Grave second/minor third microtone' },
+      { symbol: 'M₂', name: 'Prati Madhyamam', ratio: 45 / 32, ratioFraction: '45/32', westernEquivalentNote: 'F#', swarasthana: 'Augmented fourth' },
+      { symbol: 'P', name: 'Panchamam', ratio: 3 / 2, ratioFraction: '3/2', westernEquivalentNote: 'G', swarasthana: 'Invariable fifth' },
+      { symbol: 'D₁', name: 'Shuddha Dhaivatam', ratio: 8 / 5, ratioFraction: '8/5', westernEquivalentNote: 'Ab', swarasthana: 'Minor sixth' },
+      { symbol: 'N₃', name: 'Kakali Nishadam', ratio: 15 / 8, ratioFraction: '15/8', westernEquivalentNote: 'B', swarasthana: 'Major seventh' },
+      { symbol: 'Ṡ', name: 'Tara Shadjam', ratio: 2.0, ratioFraction: '2/1', westernEquivalentNote: "C'", swarasthana: 'Higher tonic' }
+    ],
+    characteristicPhrases: ['S G₁ R₁ G₁ M₂ P', 'Ṡ N₃ D₁ P M₂ G₁ R₁ S', 'P M₂ G₁ R₁ S'],
+    rasaAndMood: 'Heart-wrenching pathos, sublime spiritual surrender, and mystical longing. The third Ghana raga.',
+    educationalSummary: 'One of the most profound ragas in existence. Ancient lore advised that Varali should be learned only through direct oral listening.',
+    historicalContext: 'Immortalized in Tyagarajas 3rd Pancharatna and Dikshitars temple masterpieces.',
+    pedagogicalSignificance: 'Mastery of microtonal handling of Shuddha Gandharam and Prati Madhyamam.',
+    famousCompositions: [
+      { title: 'Kana Kana Ruchira (3rd Pancharatna)', composer: 'Saint Tyagaraja', tala: 'Adi', language: 'Telugu' },
+      { title: 'Mamava Meenakshi', composer: 'Muthuswami Dikshitar', tala: 'Rupaka', language: 'Sanskrit' },
+      { title: 'Ka Va Va', composer: 'Papanasam Sivan', tala: 'Adi', language: 'Tamil' }
+    ],
+    sources: [{ title: 'Sangita Sampradaya Pradarsini', authorOrCreator: 'Subbarama Dikshitar', citation: '1904.', publicationYear: 1904 }],
+    rights: { status: 'public_domain', rightsHolder: 'Carnatic Cultural Heritage' },
+    reviewStatus: 'expert_reviewed',
+    reviewerName: 'NadaVerse Editorial Musicology Board',
+    reviewedAt: '2026-10-15'
+  },
+  {
+    id: 'raga-arabhi',
+    slug: 'arabhi',
+    canonicalName: 'Arabhi',
+    alternateNames: ['Ārabhi', 'Aarabhi'],
+    melakartaNumber: 29,
+    isMelakarta: false,
+    parentRaga: 'Dheerasankarabharanam (29th Melakarta)',
+    arohanam: 'S R₂ M₁ P D₂ Ṡ',
+    avarohanam: 'Ṡ N₃ D₂ P M₁ G₃ R₂ S',
+    arohanamSwaras: ['Sa', 'Chatushruti Rishabham (R2)', 'Shuddha Madhyamam (M1)', 'Panchamam (P)', 'Chatushruti Dhaivatam (D2)', 'Tara Sa (Ṡ)'],
+    avarohanamSwaras: ['Tara Sa (Ṡ)', 'Kakali Nishadam (N3)', 'Chatushruti Dhaivatam (D2)', 'Panchamam (P)', 'Shuddha Madhyamam (M1)', 'Antara Gandharam (G3)', 'Chatushruti Rishabham (R2)', 'Sa'],
+    swaraDetails: [
+      { symbol: 'S', name: 'Shadjam', ratio: 1.0, ratioFraction: '1/1', westernEquivalentNote: 'C', swarasthana: 'Adhara Shadjam' },
+      { symbol: 'R₂', name: 'Chatushruti Rishabham', ratio: 9 / 8, ratioFraction: '9/8', westernEquivalentNote: 'D', swarasthana: 'Major second' },
+      { symbol: 'G₃', name: 'Antara Gandharam', ratio: 5 / 4, ratioFraction: '5/4', westernEquivalentNote: 'E', swarasthana: 'Major third (slurred descent)' },
+      { symbol: 'M₁', name: 'Shuddha Madhyamam', ratio: 4 / 3, ratioFraction: '4/3', westernEquivalentNote: 'F', swarasthana: 'Perfect fourth' },
+      { symbol: 'P', name: 'Panchamam', ratio: 3 / 2, ratioFraction: '3/2', westernEquivalentNote: 'G', swarasthana: 'Invariable fifth' },
+      { symbol: 'D₂', name: 'Chatushruti Dhaivatam', ratio: 27 / 16, ratioFraction: '27/16', westernEquivalentNote: 'A', swarasthana: 'Major sixth' },
+      { symbol: 'N₃', name: 'Kakali Nishadam', ratio: 15 / 8, ratioFraction: '15/8', westernEquivalentNote: 'B', swarasthana: 'Major seventh' },
+      { symbol: 'Ṡ', name: 'Tara Shadjam', ratio: 2.0, ratioFraction: '2/1', westernEquivalentNote: "C'", swarasthana: 'Higher tonic' }
+    ],
+    characteristicPhrases: ['D₂ D₂ P M₁ G₃ R₂ S', 'S R₂ M₁ P D₂ Ṡ', 'M₁ P D₂ Ṡ, Ṡ N₃ D₂ P'],
+    rasaAndMood: 'Joyous triumph, courage (Veera), brightness, and divine celebration. The fourth Ghana raga.',
+    educationalSummary: 'Audava in ascent (omitting Ga and Ni) and sampurna in descent with subtle glides over Gandharam. Avoids resting on Ga to distinguish from Devagandhari.',
+    historicalContext: 'Immortalized in Tyagarajas 4th Pancharatna Sadhinchane.',
+    pedagogicalSignificance: 'Crucial for training students to differentiate closely allied ragas (Arabhi vs. Devagandhari).',
+    famousCompositions: [
+      { title: 'Sadhinchane (4th Pancharatna)', composer: 'Saint Tyagaraja', tala: 'Adi', language: 'Telugu' },
+      { title: 'Sri Saraswati Namostute', composer: 'Muthuswami Dikshitar', tala: 'Rupaka', language: 'Sanskrit' },
+      { title: 'Maragatha Manimaya', composer: 'Oothukkadu Venkata Kavi', tala: 'Adi', language: 'Sanskrit' }
+    ],
+    sources: [{ title: 'Ragas of South India', authorOrCreator: 'Walter Kaufmann', citation: '1976.', publicationYear: 1976 }],
+    rights: { status: 'public_domain', rightsHolder: 'Carnatic Cultural Heritage' },
+    reviewStatus: 'expert_reviewed',
+    reviewerName: 'NadaVerse Editorial Musicology Board',
+    reviewedAt: '2026-10-15'
+  },
+  {
+    id: 'raga-shree',
+    slug: 'shree',
+    canonicalName: 'Shree (Sri)',
+    alternateNames: ['Śrī', 'Sri'],
+    melakartaNumber: 22,
+    isMelakarta: false,
+    parentRaga: 'Kharaharapriya (22nd Melakarta)',
+    arohanam: 'S R₂ M₁ P N₂ Ṡ',
+    avarohanam: 'Ṡ N₂ P D₂ N₂ P M₁ R₂ G₂ R₂ S',
+    arohanamSwaras: ['Sa', 'Chatushruti Rishabham (R2)', 'Shuddha Madhyamam (M1)', 'Panchamam (P)', 'Kaisiki Nishadam (N2)', 'Tara Sa (Ṡ)'],
+    avarohanamSwaras: ['Tara Sa (Ṡ)', 'Kaisiki Nishadam (N2)', 'Panchamam (P)', 'Chatushruti Dhaivatam (D2)', 'Kaisiki Nishadam (N2)', 'Panchamam (P)', 'Shuddha Madhyamam (M1)', 'Chatushruti Rishabham (R2)', 'Sadharana Gandharam (G2)', 'Chatushruti Rishabham (R2)', 'Sa'],
+    swaraDetails: [
+      { symbol: 'S', name: 'Shadjam', ratio: 1.0, ratioFraction: '1/1', westernEquivalentNote: 'C', swarasthana: 'Adhara Shadjam' },
+      { symbol: 'R₂', name: 'Chatushruti Rishabham', ratio: 9 / 8, ratioFraction: '9/8', westernEquivalentNote: 'D', swarasthana: 'Major second' },
+      { symbol: 'G₂', name: 'Sadharana Gandharam', ratio: 6 / 5, ratioFraction: '6/5', westernEquivalentNote: 'Eb', swarasthana: 'Minor third (in vakra loop)' },
+      { symbol: 'M₁', name: 'Shuddha Madhyamam', ratio: 4 / 3, ratioFraction: '4/3', westernEquivalentNote: 'F', swarasthana: 'Perfect fourth' },
+      { symbol: 'P', name: 'Panchamam', ratio: 3 / 2, ratioFraction: '3/2', westernEquivalentNote: 'G', swarasthana: 'Invariable fifth' },
+      { symbol: 'D₂', name: 'Chatushruti Dhaivatam', ratio: 27 / 16, ratioFraction: '27/16', westernEquivalentNote: 'A', swarasthana: 'Major sixth' },
+      { symbol: 'N₂', name: 'Kaisiki Nishadam', ratio: 9 / 5, ratioFraction: '9/5', westernEquivalentNote: 'Bb', swarasthana: 'Minor seventh' },
+      { symbol: 'Ṡ', name: 'Tara Shadjam', ratio: 2.0, ratioFraction: '2/1', westernEquivalentNote: "C'", swarasthana: 'Higher tonic' }
+    ],
+    characteristicPhrases: ['R₂ M₁ P N₂ Ṡ', 'Ṡ N₂ P D₂ N₂ P M₁', 'R₂ G₂ R₂ S, S R₂ S'],
+    rasaAndMood: 'Mangalam (supreme auspiciousness), majestic prosperity, and sacred culmination. The fifth Ghana raga.',
+    educationalSummary: 'The sovereign concluding raga of ancient treatise music. Features the unforgettable vakra descent Ṡ N₂ P D₂ N₂ P M₁ R₂ G₂ R₂ S.',
+    historicalContext: 'Considered so sacred that many concerts concluded with Sri raga to invoke lasting divine grace.',
+    pedagogicalSignificance: 'Teaches advanced phrase-oriented vakra articulation.',
+    famousCompositions: [
+      { title: 'Endaro Mahanubhavulu (5th Pancharatna)', composer: 'Saint Tyagaraja', tala: 'Adi', language: 'Telugu' },
+      { title: 'Sri Kamalambike', composer: 'Muthuswami Dikshitar', tala: 'Khanda Eka', language: 'Sanskrit' },
+      { title: 'Nama Kusumamula', composer: 'Saint Tyagaraja', tala: 'Adi', language: 'Telugu' }
+    ],
+    sources: [{ title: 'Sangita Sampradaya Pradarsini', authorOrCreator: 'Subbarama Dikshitar', citation: '1904.', publicationYear: 1904 }],
+    rights: { status: 'public_domain', rightsHolder: 'Carnatic Cultural Heritage' },
+    reviewStatus: 'expert_reviewed',
+    reviewerName: 'NadaVerse Editorial Musicology Board',
+    reviewedAt: '2026-10-15'
+  },
+  {
+    id: 'raga-pantuvarali',
+    slug: 'pantuvarali',
+    canonicalName: 'Kamavardhani (Pantuvarali)',
+    alternateNames: ['Pantuvarāḷi', 'Kāmavardhani', 'Shubhaprada'],
+    melakartaNumber: 51,
+    isMelakarta: true,
+    chakra: 'Brahma (9th Chakra, 3rd Raga)',
+    arohanam: 'S R₁ G₃ M₂ P D₁ N₃ Ṡ',
+    avarohanam: 'Ṡ N₃ D₁ P M₂ G₃ R₁ S',
+    arohanamSwaras: ['Sa', 'Shuddha Rishabham (R1)', 'Antara Gandharam (G3)', 'Prati Madhyamam (M2)', 'Panchamam (P)', 'Shuddha Dhaivatam (D1)', 'Kakali Nishadam (N3)', 'Tara Sa (Ṡ)'],
+    avarohanamSwaras: ['Tara Sa (Ṡ)', 'Kakali Nishadam (N3)', 'Shuddha Dhaivatam (D1)', 'Panchamam (P)', 'Prati Madhyamam (M2)', 'Antara Gandharam (G3)', 'Shuddha Rishabham (R1)', 'Sa'],
+    swaraDetails: [
+      { symbol: 'S', name: 'Shadjam', ratio: 1.0, ratioFraction: '1/1', westernEquivalentNote: 'C', swarasthana: 'Adhara Shadjam' },
+      { symbol: 'R₁', name: 'Shuddha Rishabham', ratio: 16 / 15, ratioFraction: '16/15', westernEquivalentNote: 'Db', swarasthana: 'Minor second' },
+      { symbol: 'G₃', name: 'Antara Gandharam', ratio: 5 / 4, ratioFraction: '5/4', westernEquivalentNote: 'E', swarasthana: 'Major third' },
+      { symbol: 'M₂', name: 'Prati Madhyamam', ratio: 45 / 32, ratioFraction: '45/32', westernEquivalentNote: 'F#', swarasthana: 'Augmented fourth' },
+      { symbol: 'P', name: 'Panchamam', ratio: 3 / 2, ratioFraction: '3/2', westernEquivalentNote: 'G', swarasthana: 'Invariable fifth' },
+      { symbol: 'D₁', name: 'Shuddha Dhaivatam', ratio: 8 / 5, ratioFraction: '8/5', westernEquivalentNote: 'Ab', swarasthana: 'Minor sixth' },
+      { symbol: 'N₃', name: 'Kakali Nishadam', ratio: 15 / 8, ratioFraction: '15/8', westernEquivalentNote: 'B', swarasthana: 'Major seventh' },
+      { symbol: 'Ṡ', name: 'Tara Shadjam', ratio: 2.0, ratioFraction: '2/1', westernEquivalentNote: "C'", swarasthana: 'Higher tonic' }
+    ],
+    characteristicPhrases: ['S R₁ G₃ M₂ P', 'Ṡ N₃ D₁ P M₂ G₃ R₁ S', 'M₂ P D₁ N₃ Ṡ'],
+    rasaAndMood: 'Deep devotion, pleading, intense introspection, and twilight serenity. Corresponds to Puriya Dhanashree.',
+    educationalSummary: 'The 51st Melakarta. The Prati Madhyamam twin of Mayamalavagowla, renowned for stirring vilamba kritis.',
+    historicalContext: 'Extensively developed by Tyagaraja and Dikshitar, creating immortal benchmarks.',
+    pedagogicalSignificance: 'Develops intonational stability between Prati Madhyamam and Antara Gandharam.',
+    famousCompositions: [
+      { title: 'Aparama Bhakti', composer: 'Saint Tyagaraja', tala: 'Rupaka', language: 'Telugu' },
+      { title: 'Shambo Mahadeva', composer: 'Saint Tyagaraja', tala: 'Rupaka', language: 'Sanskrit' },
+      { title: 'Ramanatham Bhajeham', composer: 'Muthuswami Dikshitar', tala: 'Adi', language: 'Sanskrit' }
+    ],
+    sources: [{ title: 'Ragas of South India', authorOrCreator: 'Walter Kaufmann', citation: '1976.', publicationYear: 1976 }],
+    rights: { status: 'public_domain', rightsHolder: 'Carnatic Cultural Heritage' },
+    reviewStatus: 'expert_reviewed',
+    reviewerName: 'NadaVerse Editorial Musicology Board',
+    reviewedAt: '2026-10-15'
+  },
+  {
+    id: 'raga-shanmukhapriya',
+    slug: 'shanmukhapriya',
+    canonicalName: 'Shanmukhapriya',
+    alternateNames: ['Ṣaṇmukhapriyā', 'Chamara'],
+    melakartaNumber: 56,
+    isMelakarta: true,
+    chakra: 'Disi (10th Chakra, 2nd Raga)',
+    arohanam: 'S R₂ G₂ M₂ P D₁ N₂ Ṡ',
+    avarohanam: 'Ṡ N₂ D₁ P M₂ G₂ R₂ S',
+    arohanamSwaras: ['Sa', 'Chatushruti Rishabham (R2)', 'Sadharana Gandharam (G2)', 'Prati Madhyamam (M2)', 'Panchamam (P)', 'Shuddha Dhaivatam (D1)', 'Kaisiki Nishadam (N2)', 'Tara Sa (Ṡ)'],
+    avarohanamSwaras: ['Tara Sa (Ṡ)', 'Kaisiki Nishadam (N2)', 'Shuddha Dhaivatam (D1)', 'Panchamam (P)', 'Prati Madhyamam (M2)', 'Sadharana Gandharam (G2)', 'Chatushruti Rishabham (R2)', 'Sa'],
+    swaraDetails: [
+      { symbol: 'S', name: 'Shadjam', ratio: 1.0, ratioFraction: '1/1', westernEquivalentNote: 'C', swarasthana: 'Adhara Shadjam' },
+      { symbol: 'R₂', name: 'Chatushruti Rishabham', ratio: 9 / 8, ratioFraction: '9/8', westernEquivalentNote: 'D', swarasthana: 'Major second' },
+      { symbol: 'G₂', name: 'Sadharana Gandharam', ratio: 6 / 5, ratioFraction: '6/5', westernEquivalentNote: 'Eb', swarasthana: 'Minor third' },
+      { symbol: 'M₂', name: 'Prati Madhyamam', ratio: 45 / 32, ratioFraction: '45/32', westernEquivalentNote: 'F#', swarasthana: 'Augmented fourth' },
+      { symbol: 'P', name: 'Panchamam', ratio: 3 / 2, ratioFraction: '3/2', westernEquivalentNote: 'G', swarasthana: 'Invariable fifth' },
+      { symbol: 'D₁', name: 'Shuddha Dhaivatam', ratio: 8 / 5, ratioFraction: '8/5', westernEquivalentNote: 'Ab', swarasthana: 'Minor sixth' },
+      { symbol: 'N₂', name: 'Kaisiki Nishadam', ratio: 9 / 5, ratioFraction: '9/5', westernEquivalentNote: 'Bb', swarasthana: 'Minor seventh' },
+      { symbol: 'Ṡ', name: 'Tara Shadjam', ratio: 2.0, ratioFraction: '2/1', westernEquivalentNote: "C'", swarasthana: 'Higher tonic' }
+    ],
+    characteristicPhrases: ['R₂ G₂ M₂ P D₁ N₂ Ṡ', 'Ṡ N₂ D₁ P M₂ G₂ R₂ S', 'M₂ P D₁ N₂ Ṡ'],
+    rasaAndMood: 'Profound pathos, devotional yearning for Muruga, and majestic contemplation.',
+    educationalSummary: 'The 56th Melakarta. Prati Madhyamam twin of Natabhairavi. Extremely prominent in concerts and Bharatanatyam.',
+    historicalContext: 'A favourite scale in South Indian temples, evoking deep emotional resonance.',
+    pedagogicalSignificance: 'Teaches sharp fourth intonation over a minor third foundation.',
+    famousCompositions: [
+      { title: 'Marivere Dikkevaru', composer: 'Patnam Subramanya Iyer', tala: 'Adi', language: 'Telugu' },
+      { title: 'Valli Nayakane', composer: 'Harikesanallur Muthiah Bhagavatar', tala: 'Adi', language: 'Tamil' },
+      { title: 'Siddhi Vinayakam', composer: 'Muthuswami Dikshitar', tala: 'Rupaka', language: 'Sanskrit' }
+    ],
+    sources: [{ title: 'South Indian Music (Book III)', authorOrCreator: 'Prof. P. Sambamoorthy', citation: '1964.', publicationYear: 1964 }],
+    rights: { status: 'public_domain', rightsHolder: 'Carnatic Cultural Heritage' },
+    reviewStatus: 'expert_reviewed',
+    reviewerName: 'NadaVerse Editorial Musicology Board',
+    reviewedAt: '2026-10-15'
+  },
+  {
+    id: 'raga-khamas',
+    slug: 'khamas',
+    canonicalName: 'Khamas',
+    alternateNames: ['Khamās', 'Kāmās'],
+    melakartaNumber: 28,
+    isMelakarta: false,
+    parentRaga: 'Harikambhoji (28th Melakarta)',
+    arohanam: 'S M₁ G₃ M₁ P D₂ N₂ Ṡ',
+    avarohanam: 'Ṡ N₂ D₂ P M₁ G₃ R₂ S',
+    arohanamSwaras: ['Sa', 'Shuddha Madhyamam (M1)', 'Antara Gandharam (G3)', 'Shuddha Madhyamam (M1)', 'Panchamam (P)', 'Chatushruti Dhaivatam (D2)', 'Kaisiki Nishadam (N2)', 'Tara Sa (Ṡ)'],
+    avarohanamSwaras: ['Tara Sa (Ṡ)', 'Kaisiki Nishadam (N2)', 'Chatushruti Dhaivatam (D2)', 'Panchamam (P)', 'Shuddha Madhyamam (M1)', 'Antara Gandharam (G3)', 'Chatushruti Rishabham (R2)', 'Sa'],
+    swaraDetails: [
+      { symbol: 'S', name: 'Shadjam', ratio: 1.0, ratioFraction: '1/1', westernEquivalentNote: 'C', swarasthana: 'Adhara Shadjam' },
+      { symbol: 'R₂', name: 'Chatushruti Rishabham', ratio: 9 / 8, ratioFraction: '9/8', westernEquivalentNote: 'D', swarasthana: 'Major second (in descent)' },
+      { symbol: 'G₃', name: 'Antara Gandharam', ratio: 5 / 4, ratioFraction: '5/4', westernEquivalentNote: 'E', swarasthana: 'Major third' },
+      { symbol: 'M₁', name: 'Shuddha Madhyamam', ratio: 4 / 3, ratioFraction: '4/3', westernEquivalentNote: 'F', swarasthana: 'Perfect fourth' },
+      { symbol: 'P', name: 'Panchamam', ratio: 3 / 2, ratioFraction: '3/2', westernEquivalentNote: 'G', swarasthana: 'Invariable fifth' },
+      { symbol: 'D₂', name: 'Chatushruti Dhaivatam', ratio: 27 / 16, ratioFraction: '27/16', westernEquivalentNote: 'A', swarasthana: 'Major sixth' },
+      { symbol: 'N₂', name: 'Kaisiki Nishadam', ratio: 9 / 5, ratioFraction: '9/5', westernEquivalentNote: 'Bb', swarasthana: 'Minor seventh' },
+      { symbol: 'Ṡ', name: 'Tara Shadjam', ratio: 2.0, ratioFraction: '2/1', westernEquivalentNote: "C'", swarasthana: 'Higher tonic' }
+    ],
+    characteristicPhrases: ['S M₁ G₃ M₁ P', 'Ṡ N₂ D₂ P M₁ G₃ R₂ S', 'S N₃ D₂ N₂ Ṡ (Anya Swara N3)'],
+    rasaAndMood: 'Sensuous beauty, divine romantic yearning (Sringara), sweetness, and cheerful affection.',
+    educationalSummary: 'A popular Bhashanga janya raga omitting Sa-Ri in ascent and introducing Kakali Nishadam (N3) as a foreign note in special sancharas.',
+    historicalContext: 'Evolved into a major concert raga in the 19th and 20th centuries.',
+    pedagogicalSignificance: 'Illustrates how anya swaras are introduced without losing the parent raga moorings.',
+    famousCompositions: [
+      { title: 'Brochevarevarura', composer: 'Mysore Vasudevachar', tala: 'Adi', language: 'Telugu' },
+      { title: 'Seethapathi', composer: 'Saint Tyagaraja', tala: 'Adi', language: 'Telugu' },
+      { title: 'Theruvil Vaarano', composer: 'Gopalakrishna Bharati', tala: 'Rupaka', language: 'Tamil' }
+    ],
+    sources: [{ title: 'Great Composers (Vol. I)', authorOrCreator: 'Prof. P. Sambamoorthy', citation: '1968.', publicationYear: 1968 }],
+    rights: { status: 'public_domain', rightsHolder: 'Carnatic Cultural Heritage' },
+    reviewStatus: 'expert_reviewed',
+    reviewerName: 'NadaVerse Editorial Musicology Board',
+    reviewedAt: '2026-10-15'
+  },
+  {
+    id: 'raga-kapi',
+    slug: 'kapi',
+    canonicalName: 'Kapi',
+    alternateNames: ['Kāpi', 'Hindolagowla'],
+    melakartaNumber: 22,
+    isMelakarta: false,
+    parentRaga: 'Kharaharapriya (22nd Melakarta)',
+    arohanam: 'S R₂ M₁ P N₂ Ṡ',
+    avarohanam: 'Ṡ N₂ D₂ N₂ P M₁ G₂ R₂ S',
+    arohanamSwaras: ['Sa', 'Chatushruti Rishabham (R2)', 'Shuddha Madhyamam (M1)', 'Panchamam (P)', 'Kaisiki Nishadam (N2)', 'Tara Sa (Ṡ)'],
+    avarohanamSwaras: ['Tara Sa (Ṡ)', 'Kaisiki Nishadam (N2)', 'Chatushruti Dhaivatam (D2)', 'Kaisiki Nishadam (N2)', 'Panchamam (P)', 'Shuddha Madhyamam (M1)', 'Sadharana Gandharam (G2)', 'Chatushruti Rishabham (R2)', 'Sa'],
+    swaraDetails: [
+      { symbol: 'S', name: 'Shadjam', ratio: 1.0, ratioFraction: '1/1', westernEquivalentNote: 'C', swarasthana: 'Adhara Shadjam' },
+      { symbol: 'R₂', name: 'Chatushruti Rishabham', ratio: 9 / 8, ratioFraction: '9/8', westernEquivalentNote: 'D', swarasthana: 'Major second' },
+      { symbol: 'G₂', name: 'Sadharana Gandharam', ratio: 6 / 5, ratioFraction: '6/5', westernEquivalentNote: 'Eb', swarasthana: 'Minor third' },
+      { symbol: 'M₁', name: 'Shuddha Madhyamam', ratio: 4 / 3, ratioFraction: '4/3', westernEquivalentNote: 'F', swarasthana: 'Perfect fourth' },
+      { symbol: 'P', name: 'Panchamam', ratio: 3 / 2, ratioFraction: '3/2', westernEquivalentNote: 'G', swarasthana: 'Invariable fifth' },
+      { symbol: 'D₂', name: 'Chatushruti Dhaivatam', ratio: 27 / 16, ratioFraction: '27/16', westernEquivalentNote: 'A', swarasthana: 'Major sixth' },
+      { symbol: 'N₂', name: 'Kaisiki Nishadam', ratio: 9 / 5, ratioFraction: '9/5', westernEquivalentNote: 'Bb', swarasthana: 'Minor seventh' },
+      { symbol: 'Ṡ', name: 'Tara Shadjam', ratio: 2.0, ratioFraction: '2/1', westernEquivalentNote: "C'", swarasthana: 'Higher tonic' }
+    ],
+    characteristicPhrases: ['R₂ M₁ P N₂ Ṡ', 'Ṡ N₂ D₂ N₂ P M₁ G₂ R₂ S', 'G₃ M₁ P (Anya Swara G3)', 'P D₁ N₂ Ṡ (Anya Swara D1)'],
+    rasaAndMood: 'Heart-touching pathos, sweet yearning, compassion (Karuna), and supreme surrender.',
+    educationalSummary: 'One of the most emotional Bhashanga ragas. Features multiple anya swaras (Antara Ga, Shuddha Dha, Kakali Ni) in devotional pieces.',
+    historicalContext: 'Immortalized in Purandara Dasas Jagadoddharana and modern classical devaranamas.',
+    pedagogicalSignificance: 'Advanced study in tasteful microtonal ornamentation without corrupting raga bhava.',
+    famousCompositions: [
+      { title: 'Jagadoddharana', composer: 'Purandara Dasa', tala: 'Adi', language: 'Kannada' },
+      { title: 'Meevalla Gunadosha', composer: 'Saint Tyagaraja', tala: 'Kapi', language: 'Telugu' },
+      { title: 'Enna Thavam Seithanai', composer: 'Papanasam Sivan', tala: 'Adi', language: 'Tamil' }
+    ],
+    sources: [{ title: 'Ragas of South India', authorOrCreator: 'Walter Kaufmann', citation: '1976.', publicationYear: 1976 }],
+    rights: { status: 'public_domain', rightsHolder: 'Carnatic Cultural Heritage' },
+    reviewStatus: 'expert_reviewed',
+    reviewerName: 'NadaVerse Editorial Musicology Board',
+    reviewedAt: '2026-10-15'
   }
 ];
 
@@ -1514,6 +1855,115 @@ export const VERIFIED_INSTRUMENTS: InstrumentItem[] = [
     reviewStatus: 'expert_reviewed',
     reviewerName: 'NadaVerse Organology Board',
     reviewedAt: '2026-10-15'
+  },
+  {
+    id: 'inst-chenda',
+    slug: 'chenda',
+    canonicalName: 'Chenda',
+    family: 'Membranophone',
+    materials: ['Hollowed Jackwood cylindrical body', 'Cowhide parchment heads', 'Hemp rope tensioners with wooden rings'],
+    anatomy: [
+      { part: 'Koodu (Body)', function: 'Long cylindrical hollow resonator that produces massive acoustic volume.' },
+      { part: 'Edanthala (Left Face)', function: 'Thin skin face played with slender curved sticks for high-speed rolls and intricate jatis.' },
+      { part: 'Valanthala (Right Face)', function: 'Thick layered bass face struck for deep ceremonial booms in temple rituals.' }
+    ],
+    playingTechnique: 'Slung vertically across the shoulder. The artist strikes the top face using two flexible curved tamarind wood sticks or one stick and the left palm. Celebrated for astounding speed and dynamics in Melam ensembles.',
+    tuningSystem: 'Fixed high tension tuned for immense outdoor acoustic projection.',
+    roleInConcert: 'The commanding festival percussion instrument of Kerala, anchoring temple Melams and Kathakali.',
+    historicalContext: 'Ancient classical Asura-Vadyam cited in Kerala temple treatises for over a millennium.',
+    samples: [],
+    sources: [{ title: 'The Art of Chenda in Kerala', authorOrCreator: 'L. S. Rajagopalan', citation: '1985.', publicationYear: 1985 }],
+    rights: { status: 'public_domain', rightsHolder: 'Carnatic Cultural Heritage' },
+    reviewStatus: 'expert_reviewed',
+    reviewerName: 'NadaVerse Organology Board',
+    reviewedAt: '2026-10-15'
+  },
+  {
+    id: 'inst-maddalam',
+    slug: 'maddalam',
+    canonicalName: 'Maddalam (Shuddha Maddalam)',
+    family: 'Membranophone',
+    materials: ['Jackwood barrel body', 'Buffalo and cow skin layered heads', 'Rice paste and iron loading mixture'],
+    anatomy: [
+      { part: 'Right Head (Valanthala)', function: 'Tuned precisely to Adhara Shadjam with permanent black loading paste.' },
+      { part: 'Left Head (Idanthala)', function: 'Loaded with damp paste before performance to yield rich booming resonance.' },
+      { part: 'Body', function: 'Heavy wooden barrel strapped horizontally around the waist.' }
+    ],
+    playingTechnique: 'Strapped around the waist of the standing performer. The player’s right fingers wear cloth wraps dipped in paste, striking intricate syllables while the left palm modulates bass tones.',
+    tuningSystem: 'Tuned to the tonic Adhara Shadjam (Sa), providing harmonic foundation.',
+    roleInConcert: 'Crucial rhythm foundation in Panchavadyam, Kathakali, and temple Sopana music.',
+    historicalContext: 'Ancient Vedic percussion instrument mentioned in the Natya Shastra as the King of Drums (Mridanga / Mardala).',
+    samples: [],
+    sources: [{ title: 'Percussion Heritage of South India', authorOrCreator: 'Prof. P. Sambamoorthy', citation: '1976.', publicationYear: 1976 }],
+    rights: { status: 'public_domain', rightsHolder: 'Carnatic Cultural Heritage' },
+    reviewStatus: 'expert_reviewed',
+    reviewerName: 'NadaVerse Organology Board',
+    reviewedAt: '2026-10-15'
+  },
+  {
+    id: 'inst-yazh',
+    slug: 'yazh',
+    canonicalName: 'Yazh (Ancient Dravidian Harp)',
+    family: 'Chordophone',
+    materials: ['Carved single wood resonator', 'Gut and silk strings', 'Animal hide soundboard'],
+    anatomy: [
+      { part: 'Boat-shaped Resonator (Patthar)', function: 'Hollow wooden body covered with hide acting as the acoustic soundboard.' },
+      { part: 'Curved Arm (Thandu)', function: 'Gracefully curved wooden arch to which strings are fastened.' },
+      { part: 'Strings (Narambu)', function: 'Individual tuned strings for each note of the ancient Tamil pans.' }
+    ],
+    playingTechnique: 'Held horizontally or upright against the chest and plucked with fingers of both hands, with each string dedicated to a specific scale degree.',
+    tuningSystem: 'Diatonic open strings calibrated to ancient Tamil pans (Palai system, precursor to Melakartas).',
+    roleInConcert: 'Primordial ancestral harp of South India, revered in historical research and revival recitals.',
+    historicalContext: 'Extensively documented in Sangam literature, particularly the Silappadikaram (2nd century CE). Predecessor of the Veena.',
+    samples: [],
+    sources: [{ title: 'Yazh Nool', authorOrCreator: 'Swami Vipulananda', citation: 'Karanthai Tamil Sangam, 1947.', publicationYear: 1947 }],
+    rights: { status: 'public_domain', rightsHolder: 'Carnatic Cultural Heritage' },
+    reviewStatus: 'expert_reviewed',
+    reviewerName: 'NadaVerse Organology Board',
+    reviewedAt: '2026-10-15'
+  },
+  {
+    id: 'inst-panchamukha-vadyam',
+    slug: 'panchamukha-vadyam',
+    canonicalName: 'Panchamukha Vadyam (Five-Faced Pot Drum)',
+    family: 'Membranophone',
+    materials: ['Cast bronze body weighing ~500 kg', 'Five treated deer/goat skin heads', 'Central resonance chamber'],
+    anatomy: [
+      { part: 'Central Pot (Kudam)', function: 'Massive bronze resonator mounted on a wheeled carriage.' },
+      { part: 'Five Necks & Faces', function: 'Named after Shiva’s five faces: Sadyojata, Vamadeva, Aghora, Tatpurusha, and Ishana.' }
+    ],
+    playingTechnique: 'The seated master strikes the five heads with bare hands and fingertips, producing five distinct resonant tones tuned to swaras.',
+    tuningSystem: 'Each of the five faces is tuned to distinct harmonic intervals relative to the tonic.',
+    roleInConcert: 'Legendary temple ceremonial drum preserved and performed exclusively at the Thyagarajaswami temple in Tiruvarur.',
+    historicalContext: 'Chola dynasty royal marvel (12th century CE). One of the rarest acoustic wonders of South India.',
+    samples: [],
+    sources: [{ title: 'Temple Instruments of Tamil Nadu', authorOrCreator: 'B. M. Sundaram', citation: '1986.', publicationYear: 1986 }],
+    rights: { status: 'public_domain', rightsHolder: 'Carnatic Cultural Heritage' },
+    reviewStatus: 'expert_reviewed',
+    reviewerName: 'NadaVerse Organology Board',
+    reviewedAt: '2026-10-15'
+  },
+  {
+    id: 'inst-mayuri-veena',
+    slug: 'mayuri-veena',
+    canonicalName: 'Mayuri Veena (Taus / Peacock Lute)',
+    family: 'Chordophone',
+    materials: ['Carved peacock body resonator of Jackwood', 'Movable metal frets', 'Parchment soundboard', 'Horsehair bow'],
+    anatomy: [
+      { part: 'Peacock Resonator', function: 'Elaborately carved and painted wooden peacock body with parchment belly.' },
+      { part: 'Fretboard', function: 'Wide neck with arched brass frets allowing heavy sideways string deflection.' },
+      { part: 'Sympathetic Strings', function: 'Extensive bank of resonance strings producing ethereal sustain.' }
+    ],
+    playingTechnique: 'Played with a horsehair bow while left-hand fingers stop the melodic string along the frets. Combines the sustained singing tone of the violin with the microtonal fretted intervals of the veena.',
+    tuningSystem: 'Main strings tuned to Sa, Pa, Sa, Pa with 14 sympathetic resonance strings.',
+    roleInConcert: 'Rare and visually stunning classical concert instrument evoking deep, soulful gayaki expression.',
+    historicalContext: 'Created in 17th-century India and utilized in temple sanctuaries and devotional courts.',
+    samples: [],
+    sources: [{ title: 'Musical Instruments of India', authorOrCreator: 'B. C. Deva', citation: '1977.', publicationYear: 1977 }],
+    rights: { status: 'public_domain', rightsHolder: 'Carnatic Cultural Heritage' },
+    reviewStatus: 'expert_reviewed',
+    reviewerName: 'NadaVerse Organology Board',
+    reviewedAt: '2026-10-15'
   }
 ];
 
@@ -1895,6 +2345,114 @@ export const GLOSSARY_TERMS: GlossaryTerm[] = [
     detailedContext: 'One of the Panchadasa (15) Gamakas. Divided into Ullaasita (upward glide, e.g. Sa sliding smoothly to Pa) and Dhaala (downward glide, e.g. Tara Sa sliding down to Ma) without hearing intermediate chromatic steps.',
     relatedTerms: ['Gamaka', 'Kampitam', 'Nokku'],
     sources: [{ title: 'Sangita Sampradaya Pradarsini', authorOrCreator: 'Subbarama Dikshitar', citation: '1904.' }]
+  },
+  {
+    term: 'Anudhrutam',
+    transliteration: 'Anudhrutam',
+    category: 'Rhythm',
+    simpleExplanation: 'An atomic metric unit of tala consisting of a single clap (U = 1 count).',
+    detailedContext: 'The shortest of the six Shadangas. Represented with a crescent symbol (U) and counted with a single downward clap without finger counts or waves. Crucial constituent of Jhampa Tala.',
+    relatedTerms: ['Dhrutam', 'Laghu', 'Anga', 'Tala'],
+    sources: [{ title: 'South Indian Music (Book IV)', authorOrCreator: 'Prof. P. Sambamoorthy', citation: '1965.' }]
+  },
+  {
+    term: 'Laghu',
+    transliteration: 'Laghu',
+    category: 'Rhythm',
+    simpleExplanation: 'The primary variable metric limb of a tala (clap + finger counts).',
+    detailedContext: 'Represented by a vertical stroke (I). Its duration varies according to Jati: Tisra (3), Chatusra (4), Khanda (5), Misra (7), or Sankeerna (9). The single most dynamic structural element in the 35 Tala system.',
+    relatedTerms: ['Jati', 'Dhrutam', 'Anga', 'Tala'],
+    sources: [{ title: 'The Tala System of South Indian Music', authorOrCreator: 'Dr. N. Ramanathan', citation: '1988.' }]
+  },
+  {
+    term: 'Dhrutam',
+    transliteration: 'Dhrutam',
+    category: 'Rhythm',
+    simpleExplanation: 'A fixed 2-count metric limb consisting of one clap followed by a wave (O = 2 counts).',
+    detailedContext: 'Represented by a circle (O). Unlike the Laghu, its duration is invariable regardless of Jati. Forms the steady pendulum pulse of Adi, Rupaka, and Triputa talas.',
+    relatedTerms: ['Laghu', 'Anudhrutam', 'Anga', 'Veechu'],
+    sources: [{ title: 'Tala Guide: Structure & Practice', authorOrCreator: 'Madras Music Academy', citation: '1977.' }]
+  },
+  {
+    term: 'Avartanam',
+    transliteration: 'Āvartanam',
+    category: 'Rhythm',
+    simpleExplanation: 'One complete, unbroken cycle of a tala from the initial beat to the final count.',
+    detailedContext: 'Music and improvisation unfold across multiple avarthanams. Landing on the eduppu at the exact moment an avarthanam concludes is the supreme test of rhythmic virtuosity.',
+    relatedTerms: ['Tala', 'Eduppu', 'Korvai', 'Laya'],
+    sources: [{ title: 'Rhythmic Principles in South Indian Music', authorOrCreator: 'Trichy Sankaran', citation: '1994.' }]
+  },
+  {
+    term: 'Kala',
+    transliteration: 'Kāla (Speed Levels)',
+    category: 'Rhythm',
+    simpleExplanation: 'The doubling or halving of rhythmic speed while keeping the metronome pulse constant.',
+    detailedContext: 'Classified into Prathama Kala (1st speed, 1 note per count), Dviteeya Kala (2nd speed, 2 notes per count), and Triteeya Kala (3rd speed, 4 notes per count). Essential discipline for Varnam singing.',
+    relatedTerms: ['Gati / Nadai', 'Laya', 'Varnam'],
+    sources: [{ title: 'Teaching of Music', authorOrCreator: 'Prof. P. Sambamoorthy', citation: '1966.' }]
+  },
+  {
+    term: 'Arudi',
+    transliteration: 'Arudi',
+    category: 'Rhythm',
+    simpleExplanation: 'The precise structural pause or rhythmic resting point in a Pallavi.',
+    detailedContext: 'In Ragam-Tanam-Pallavi, the Arudi marks the profound caesura dividing the first half (Purvanga) and the second half (Uttaranga). The soloist typically lands on a sustained note accompanied by a silent gap or mridangam accent.',
+    relatedTerms: ['Pallavi', 'RTP', 'Laya', 'Eduppu'],
+    sources: [{ title: 'The Art and Science of Carnatic Music', authorOrCreator: 'Vidya Shankar', citation: '1983.' }]
+  },
+  {
+    term: 'RTP (Ragam-Tanam-Pallavi)',
+    transliteration: 'Rāgam-Tānam-Pallavi',
+    category: 'Manodharma',
+    simpleExplanation: 'The apex intellectual and aesthetic centerpiece of a classical Carnatic recital.',
+    detailedContext: 'Comprises three exhaustive movements: Ragam (elaborate unmetered alapana), Tanam (pulsating rhythmic improvisation), and Pallavi (complex mathematical lyric line improvised across nadai, anuloma, pratiloma, and ragamalika swaras).',
+    relatedTerms: ['Alapana', 'Tanam', 'Pallavi', 'Manodharma'],
+    sources: [{ title: 'Music Academy Madras Journal', authorOrCreator: 'Dr. V. Raghavan', citation: '1965.' }]
+  },
+  {
+    term: 'Tanam',
+    transliteration: 'Tānam',
+    category: 'Manodharma',
+    simpleExplanation: 'Rhythmic, unmetered melodic improvisation using energetic syllables and pulsating momentum.',
+    detailedContext: 'Derived from Anantam (infinite). Sung with syllables such as Aa-nam-tha-ta-nam in medium tempo (madhyama kala). On the Veena, Tanam is revered as the supreme showcase of plucking dexterity (meet).',
+    relatedTerms: ['RTP', 'Alapana', 'Manodharma', 'Saraswati Veena'],
+    sources: [{ title: 'The Veena and Its Technique', authorOrCreator: 'S. Balachander', citation: '1968.' }]
+  },
+  {
+    term: 'Swarajati',
+    transliteration: 'Svarajati',
+    category: 'Structure',
+    simpleExplanation: 'A musical form featuring alternating swaras and sahitya syllables, mastered by Shyama Shastri.',
+    detailedContext: 'Originally a dance form that evolved into monumental concert pieces. Shyama Shastri composed the immortal Ratnatraya (three gems) in Bhairavi, Yadukulakambhoji, and Anandabhairavi.',
+    relatedTerms: ['Shyama Shastri', 'Varnam', 'Kriti'],
+    sources: [{ title: 'Great Composers: Shyama Shastri', authorOrCreator: 'Prof. P. Sambamoorthy', citation: '1970.' }]
+  },
+  {
+    term: 'Geetham',
+    transliteration: 'Gītam',
+    category: 'Structure',
+    simpleExplanation: 'An introductory melodic composition without sangatis, taught directly after Alankaras.',
+    detailedContext: 'Characterized by uniform tempo, continuous sahityam, and simple melodic contours. Purandara Dasa composed foundational Pillari Geethams in Malahari in praise of Ganesha to start vocal training.',
+    relatedTerms: ['Purandara Dasa', 'Abhyasa Gana', 'Varnam'],
+    sources: [{ title: 'South Indian Music (Book I)', authorOrCreator: 'Prof. P. Sambamoorthy', citation: '1960.' }]
+  },
+  {
+    term: 'Jatiswaram',
+    transliteration: 'Jatisvaram',
+    category: 'Structure',
+    simpleExplanation: 'A celebratory piece set to swara patterns and rhythmic jatis without lyrical text.',
+    detailedContext: 'Prominent in the Bharatanatyam Margam following the Alarippu. Focuses purely on pure dance (Nritta) and geometric synchronization between footwork and swara phrases.',
+    relatedTerms: ['Thanjavur Quartet', 'Varnam', 'Laya'],
+    sources: [{ title: 'The Tanjore Quartet and Their Art', authorOrCreator: 'K. P. Kittappa Pillai', citation: '1980.' }]
+  },
+  {
+    term: 'Padam',
+    transliteration: 'Padam',
+    category: 'Literature',
+    simpleExplanation: 'A slow, expressive composition devoted to Madhura Bhakti (divine love) and nuanced Abhinaya.',
+    detailedContext: 'Composed in dignified vilamba kala. Explores the metaphors of the human soul (Nayika) yearning for the supreme divine (Nayaka). Mastered by Kshetrayya and Ghanam Krishna Iyer.',
+    relatedTerms: ['Kshetrayya', 'Kriti', 'Vilamba Kala'],
+    sources: [{ title: 'Teaching of Music', authorOrCreator: 'Prof. P. Sambamoorthy', citation: '1966.' }]
   }
 ];
 
@@ -2195,6 +2753,106 @@ export const VERIFIED_COMPOSERS: ComposerItem[] = [
     ],
     sources: [
       { title: 'The Tanjore Quartet and Their Art', authorOrCreator: 'K. P. Kittappa Pillai', citation: '1980.' }
+    ]
+  },
+  {
+    id: 'comp-jayadeva',
+    slug: 'jayadeva',
+    name: 'Jayadeva',
+    lifespan: '12th Century CE',
+    birthplace: 'Kenduli Sasan, Odisha',
+    primaryLanguages: ['Sanskrit'],
+    tradition: 'Gita Govinda Pioneer',
+    biography: 'Sanskrit poet-mystic who authored the immortal Gita Govinda (Ashtapadis), depicting the divine love of Radha and Krishna. His 24 Ashtapadis laid the foundation for devotional singing across both Carnatic and Hindustani classical traditions.',
+    signatureMudra: 'Jayadeva / Kaviraja',
+    majorKritis: [
+      'Pralaya Payodhi Jale (Dashavatara Ashtapadi)',
+      'Chandana Charchita (Ragamalika)',
+      'Pashyati Dishi Dishi (Kalyani)',
+      'Yahi Madhava (Sindhubhairavi)'
+    ],
+    sources: [
+      { title: 'Gita Govinda: Love Song of the Dark Lord', authorOrCreator: 'Barbara Stoler Miller', citation: 'Columbia University Press, 1977.' }
+    ]
+  },
+  {
+    id: 'comp-narayana-teertha',
+    slug: 'narayana-teertha',
+    name: 'Narayana Teertha',
+    lifespan: '1650–1745 CE',
+    birthplace: 'Kaza, Andhra Pradesh / Varahur, Tamil Nadu',
+    primaryLanguages: ['Sanskrit'],
+    tradition: 'Tarangini Saint & Bhagavata Mela Master',
+    biography: 'Advaita sanyasi who authored the monumental Sanskrit dance-opera Krishna Leela Tarangini. His songs (Tarangams) are celebrated for sparkling rhythmic jatis and are danced with brass plates in traditional recitals.',
+    signatureMudra: 'Narayana Teertha',
+    majorKritis: [
+      'Govardhana Giridhara (Darbari Kanada / Hindolam - Adi)',
+      'Jaya Jaya Swamin (Nata - Adi)',
+      'Alokaye Rukmini Kalyana (Kambhoji - Adi)',
+      'Marakata Mani Maya (Dwijavanthi - Adi)'
+    ],
+    sources: [
+      { title: 'Krishna Leela Tarangini', authorOrCreator: 'Dr. V. Raghavan', citation: 'Music Academy Madras, 1971.' }
+    ]
+  },
+  {
+    id: 'comp-kshetrayya',
+    slug: 'kshetrayya',
+    name: 'Kshetrayya (Kshetragna)',
+    lifespan: '1600–1680 CE',
+    birthplace: 'Movva, Krishna district, Andhra Pradesh',
+    primaryLanguages: ['Telugu'],
+    tradition: 'Padam Emperor of South India',
+    biography: 'The supreme architect of the classical Padam. Composed hundreds of immortal songs in slow tempo (vilamba kala) portraying Madhura Bhakti and intricate nayika-nayaka bhavas dedicated to Lord Muvvagopala.',
+    signatureMudra: 'Muvvagopala',
+    majorKritis: [
+      'Aligite Bhagyamae (Huseni - Misra Chapu)',
+      'Yentati Kuluke (Kalyani - Rupaka)',
+      'Vadaraka Pove (Kambhoji - Misra Chapu)',
+      'Ksheera Sagara Shayana (Anandabhairavi - Adi)'
+    ],
+    sources: [
+      { title: 'Kshetrayya Padamulu', authorOrCreator: 'Prof. P. Sambamoorthy', citation: '1962.' }
+    ]
+  },
+  {
+    id: 'comp-muthiah-bhagavatar',
+    slug: 'muthiah-bhagavatar',
+    name: 'Harikesanallur Muthiah Bhagavatar',
+    lifespan: '1877–1945 CE',
+    birthplace: 'Harikesanallur, Tamil Nadu',
+    primaryLanguages: ['Sanskrit', 'Telugu', 'Tamil', 'Kannada'],
+    tradition: 'Royal Asthana Vidwan & Raga Creator',
+    biography: 'Prolific genius who composed ~400 kritis. Created new ragas including Niroshta (which omits labial notes Ma and Pa so lips never meet), Mohanakalyani, and Hamsanandi. First Principal of the Madras Music Academy Teachers College of Music.',
+    signatureMudra: 'Harikesa',
+    majorKritis: [
+      'Valli Nayakane (Shanmukhapriya - Adi)',
+      'Bhuvaneswariya (Mohanakalyani - Adi)',
+      'Raja Raja Radhite (Niroshta - Rupaka)',
+      'Siddhi Vinayakam (Mohanakalyani - Adi)'
+    ],
+    sources: [
+      { title: 'Sangita Svara Prastara Sagaram', authorOrCreator: 'Harikesanallur Muthiah Bhagavatar', citation: '1934.' }
+    ]
+  },
+  {
+    id: 'comp-lalgudi-jayaraman',
+    slug: 'lalgudi-jayaraman',
+    name: 'Lalgudi G. Jayaraman',
+    lifespan: '1930–2014 CE',
+    birthplace: 'Lalgudi, Tiruchirappalli, Tamil Nadu',
+    primaryLanguages: ['Tamil', 'Telugu', 'Sanskrit'],
+    tradition: 'Shishya Parampara of Tyagaraja & Modern Violin Pioneer',
+    biography: 'Legendary violin maestro and composer who revolutionized concert aesthetics. Created universally admired Varnams, Tillanas, and operatic masterworks marked by breathtaking melodic elegance, laya symmetry, and emotional perfection.',
+    signatureMudra: 'Lalgudi',
+    majorKritis: [
+      'Tillana in Desh (Adi)',
+      'Tillana in Dwijavanthi (Adi)',
+      'Tillana in Sindhubhairavi (Adi)',
+      'Charukesi Pada Varnam (Innum En Manam - Adi)'
+    ],
+    sources: [
+      { title: 'Lalgudi: A Violin Odyssey', authorOrCreator: 'Lakshmi Devnath', citation: '2018.' }
     ]
   }
 ];
