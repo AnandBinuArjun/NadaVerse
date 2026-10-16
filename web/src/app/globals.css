@@ -1,0 +1,83 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: dark;
+  --nv-bg: #11110f;
+  --nv-surface-1: #191916;
+  --nv-surface-2: #22221d;
+  --nv-border: #3b392f;
+  --nv-border-subtle: #2a2922;
+  --nv-ivory: #f4ebdd;
+  --nv-muted: #bdb4a4;
+  --nv-gold: #c7a45b;
+  --nv-gold-soft: #e0c98f;
+  --nv-gold-glow: rgba(199, 164, 91, 0.15);
+  --nv-terracotta: #a95e45;
+  --nv-sage: #87947a;
+  --nv-success: #6ea887;
+  --nv-warning: #d9a441;
+  --nv-danger: #e17d73;
+}
+
+@theme {
+  --color-nv-bg: var(--nv-bg);
+  --color-nv-surface-1: var(--nv-surface-1);
+  --color-nv-surface-2: var(--nv-surface-2);
+  --color-nv-border: var(--nv-border);
+  --color-nv-border-subtle: var(--nv-border-subtle);
+  --color-nv-ivory: var(--nv-ivory);
+  --color-nv-muted: var(--nv-muted);
+  --color-nv-gold: var(--nv-gold);
+  --color-nv-gold-soft: var(--nv-gold-soft);
+  --color-nv-gold-glow: var(--nv-gold-glow);
+  --color-nv-terracotta: var(--nv-terracotta);
+  --color-nv-sage: var(--nv-sage);
+  --color-nv-success: var(--nv-success);
+  --color-nv-warning: var(--nv-warning);
+  --color-nv-danger: var(--nv-danger);
+}
+
+body {
+  background-color: var(--nv-bg);
+  color: var(--nv-ivory);
+  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--nv-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--nv-border);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--nv-gold);
+}
+
+/* Accessible focus ring */
+:focus-visible {
+  outline: 2px solid var(--nv-gold);
+  outline-offset: 2px;
+}
+
+/* Support for prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
