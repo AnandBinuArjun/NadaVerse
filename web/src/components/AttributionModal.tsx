@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { X, BookOpen, Scroll, CheckCircle2, Award } from 'lucide-react';
+import { X, BookOpen, Scroll, CheckCircle2 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 interface AttributionModalProps {

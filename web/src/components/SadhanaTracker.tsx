@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Flame, Clock, Award, Download, FileText, Calendar, Plus, Check } from 'lucide-react';
+import { Flame, Clock, Award, Download, FileText } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 export interface PracticeSessionRecord {
@@ -219,7 +219,7 @@ export const SadhanaTracker: React.FC = () => {
               </div>
               {session.notes && (
                 <p className="text-[#BDB4A4] text-xs italic font-light max-w-xl">
-                  "{session.notes}"
+                  &ldquo;{session.notes}&rdquo;
                 </p>
               )}
             </div>

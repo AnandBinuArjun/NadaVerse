@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Music, Layout, Sliders, Volume2, Sparkles } from 'lucide-react';
+import { Music, Layout, Sliders, Sparkles } from 'lucide-react';
 import { audioEngine } from '../lib/audioEngine';
 import { VERIFIED_RAGAS } from '../data/carnaticData';
 import { RagaItem } from '../types/carnatic';

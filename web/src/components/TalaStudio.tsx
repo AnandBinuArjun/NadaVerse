@@ -56,6 +56,31 @@ export const TalaStudio: React.FC = () => {
     }
   };
 
+  const handleBpmChange = (newBpm: number) => {
+    const clamped = Math.max(30, Math.min(220, newBpm));
+    setBpm(clamped);
+    audioEngine.setTalaBpm(clamped);
+  };
+
+  const handleTapTempo = () => {
+    const now = performance.now();
+    const recentTaps = tapTimesRef.current.filter((t) => now - t < 3000);
+    recentTaps.push(now);
+    tapTimesRef.current = recentTaps;
+
+    if (recentTaps.length >= 2) {
+      const intervals = [];
+      for (let i = 1; i < recentTaps.length; i++) {
+        intervals.push(recentTaps[i] - recentTaps[i - 1]);
+      }
+      const avgIntervalMs = intervals.reduce((a, b) => a + b, 0) / intervals.length;
+      if (avgIntervalMs > 0) {
+        const calculatedBpm = Math.round(60000 / avgIntervalMs);
+        handleBpmChange(calculatedBpm);
+      }
+    }
+  };
+
   useEffect(() => {
     const unsubTala = practiceShortcuts.subscribe('toggle_tala', () => {
       handleTogglePlay();
@@ -101,31 +126,6 @@ export const TalaStudio: React.FC = () => {
     if (next && !isSolkattuMode) {
       setIsSolkattuMode(true);
       audioEngine.setSolkattuMode(true);
-    }
-  };
-
-  const handleBpmChange = (newBpm: number) => {
-    const clamped = Math.max(30, Math.min(220, newBpm));
-    setBpm(clamped);
-    audioEngine.setTalaBpm(clamped);
-  };
-
-  const handleTapTempo = () => {
-    const now = performance.now();
-    const recentTaps = tapTimesRef.current.filter((t) => now - t < 3000);
-    recentTaps.push(now);
-    tapTimesRef.current = recentTaps;
-
-    if (recentTaps.length >= 2) {
-      const intervals = [];
-      for (let i = 1; i < recentTaps.length; i++) {
-        intervals.push(recentTaps[i] - recentTaps[i - 1]);
-      }
-      const avgIntervalMs = intervals.reduce((a, b) => a + b, 0) / intervals.length;
-      if (avgIntervalMs > 0) {
-        const calculatedBpm = Math.round(60000 / avgIntervalMs);
-        handleBpmChange(calculatedBpm);
-      }
     }
   };
 

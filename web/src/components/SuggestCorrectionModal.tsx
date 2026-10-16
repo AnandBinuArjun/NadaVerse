@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { BookOpen, ShieldCheck, CheckCircle2, X, Send, Sparkles } from 'lucide-react';
+import { BookOpen, CheckCircle2, X, Send } from 'lucide-react';
 import { API_BASE_URL } from '../lib/api';
 import { useLanguage } from '../context/LanguageContext';
 

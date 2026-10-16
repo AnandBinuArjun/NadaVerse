@@ -1,14 +1,12 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Sparkles,
-  Music,
   CheckCircle2,
   ChevronRight,
   ChevronLeft,
   X,
-  Sliders,
   Volume2
 } from 'lucide-react';
 import { audioEngine, NoteName } from '../lib/audioEngine';

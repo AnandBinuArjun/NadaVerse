@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { ShieldCheck, BookOpen, Lock } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 interface FooterProps {
