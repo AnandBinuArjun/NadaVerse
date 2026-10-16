@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { BookOpen, CheckCircle2, ChevronRight, Volume2, Activity, Sparkles } from 'lucide-react';
 import { BEGINNER_LESSONS } from '../data/carnaticData';
 import { LessonItem } from '../types/carnatic';
+import { useLanguage } from '../context/LanguageContext';
 
 interface BeginnerPathProps {
   onNavigateToPractice?: (tool: 'shruti' | 'tala') => void;
@@ -11,6 +12,7 @@ interface BeginnerPathProps {
 }
 
 export const BeginnerPath: React.FC<BeginnerPathProps> = ({ onNavigateToPractice, onOpenTutor }) => {
+  const { lang, t } = useLanguage();
   const [activeLessonIndex, setActiveLessonIndex] = useState(0);
   const [completedLessons, setCompletedLessons] = useState<number[]>([]);
 
@@ -25,6 +27,8 @@ export const BeginnerPath: React.FC<BeginnerPathProps> = ({ onNavigateToPractice
     }
   };
 
+  const stepTitles = [t.step1Title, t.step2Title, t.step3Title];
+
   return (
     <section className="bg-[#191916] border border-[#3B392F] rounded-2xl p-6 sm:p-8 shadow-xl">
       {/* Header */}
@@ -32,21 +36,23 @@ export const BeginnerPath: React.FC<BeginnerPathProps> = ({ onNavigateToPractice
         <div>
           <div className="flex items-center space-x-2 text-[#C7A45B] text-xs font-mono uppercase tracking-wider mb-1">
             <BookOpen className="w-4 h-4" />
-            <span>Orientation Pathway</span>
+            <span>{lang === 'ml' ? 'പ്രാരംഭ പാഠങ്ങൾ' : 'Orientation Pathway'}</span>
           </div>
           <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#F4EBDD]">
-            Start Here: Orientation to Sound & Rhythm
+            {t.beginnerTitle}
           </h2>
           <p className="text-sm text-[#BDB4A4] mt-1 max-w-xl">
-            A beginner-friendly entry into the foundations of South Indian classical music. No prior music theory required.
+            {t.beginnerSubtitle}
           </p>
         </div>
 
         {/* Progress Tracker */}
         <div className="flex items-center space-x-2 text-xs font-mono bg-[#22221D] px-3.5 py-1.5 rounded-full border border-[#3B392F]">
-          <span className="text-[#BDB4A4]">Progress:</span>
+          <span className="text-[#BDB4A4]">{lang === 'ml' ? 'പുരോഗതി:' : 'Progress:'}</span>
           <span className="text-[#C7A45B] font-bold">
-            {completedLessons.length} of {BEGINNER_LESSONS.length} Complete
+            {lang === 'ml' 
+              ? `${completedLessons.length} / ${BEGINNER_LESSONS.length} പൂർത്തിയായി` 
+              : `${completedLessons.length} of ${BEGINNER_LESSONS.length} Complete`}
           </span>
         </div>
       </div>
@@ -80,14 +86,14 @@ export const BeginnerPath: React.FC<BeginnerPathProps> = ({ onNavigateToPractice
 
               <div>
                 <span className="text-xs font-mono text-[#C7A45B] block">
-                  Module {idx + 1} · {lesson.estimatedMinutes} mins
+                  {lang === 'ml' ? `പാഠം ${idx + 1}` : `Module ${idx + 1}`} · {lesson.estimatedMinutes} {lang === 'ml' ? 'മിനിറ്റ്' : 'mins'}
                 </span>
                 <span
                   className={`text-sm font-serif font-semibold block mt-0.5 ${
                     isCurrent ? 'text-[#F4EBDD]' : 'text-[#BDB4A4]'
                   }`}
                 >
-                  {lesson.title.split(':')[0]}
+                  {lang === 'ml' && stepTitles[idx] ? stepTitles[idx] : lesson.title.split(':')[0]}
                 </span>
               </div>
             </button>
@@ -100,10 +106,10 @@ export const BeginnerPath: React.FC<BeginnerPathProps> = ({ onNavigateToPractice
         <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#3B392F]/60 gap-2">
           <div>
             <span className="text-xs font-mono uppercase tracking-wider text-[#C7A45B]">
-              Step {activeLessonIndex + 1} of {BEGINNER_LESSONS.length}
+              {lang === 'ml' ? `ഘട്ടം ${activeLessonIndex + 1} / ${BEGINNER_LESSONS.length}` : `Step ${activeLessonIndex + 1} of ${BEGINNER_LESSONS.length}`}
             </span>
             <h3 className="text-xl sm:text-2xl font-serif font-bold text-[#F4EBDD] mt-1">
-              {activeLesson.title}
+              {lang === 'ml' && stepTitles[activeLessonIndex] ? `${stepTitles[activeLessonIndex]}: ${activeLesson.title.split(':')[1] || activeLesson.title}` : activeLesson.title}
             </h3>
             <p className="text-sm text-[#BDB4A4] italic mt-0.5">{activeLesson.subtitle}</p>
           </div>
@@ -112,7 +118,7 @@ export const BeginnerPath: React.FC<BeginnerPathProps> = ({ onNavigateToPractice
         {/* Core Concept Banner */}
         <div className="my-6 bg-[#191916] p-5 rounded-xl border border-[#3B392F] space-y-3">
           <div className="text-xs font-mono uppercase text-[#C7A45B] tracking-wide">
-            Key Insight:
+            {lang === 'ml' ? 'മുഖ്യ തത്വം:' : 'Key Insight:'}
           </div>
           <p className="text-[#F4EBDD] text-base leading-relaxed">{activeLesson.coreConcept}</p>
           <p className="text-[#BDB4A4] text-sm leading-relaxed">{activeLesson.explanation}</p>
@@ -122,7 +128,7 @@ export const BeginnerPath: React.FC<BeginnerPathProps> = ({ onNavigateToPractice
         <div className="bg-[#11110F] p-5 rounded-xl border border-[#C7A45B]/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <span className="text-xs font-mono uppercase text-[#E0C98F] block font-semibold">
-              Hands-On Exercise:
+              {lang === 'ml' ? 'പ്രാക്ടീസ് വ്യായാമം:' : 'Hands-On Exercise:'}
             </span>
             <p className="text-sm text-[#F4EBDD]">{activeLesson.practicePrompt}</p>
           </div>
@@ -134,7 +140,7 @@ export const BeginnerPath: React.FC<BeginnerPathProps> = ({ onNavigateToPractice
                 className="flex items-center space-x-1.5 px-4 py-2 rounded-lg bg-[#C7A45B] hover:bg-[#E0C98F] text-[#11110F] font-semibold text-xs transition-colors"
               >
                 <Volume2 className="w-3.5 h-3.5" />
-                <span>Open Shruti Tool</span>
+                <span>{lang === 'ml' ? 'ശ്രുതി ടൂൾ തുറക്കുക' : 'Open Shruti Tool'}</span>
               </button>
             )}
 
@@ -144,7 +150,7 @@ export const BeginnerPath: React.FC<BeginnerPathProps> = ({ onNavigateToPractice
                 className="flex items-center space-x-1.5 px-4 py-2 rounded-lg bg-[#C7A45B] hover:bg-[#E0C98F] text-[#11110F] font-semibold text-xs transition-colors"
               >
                 <Activity className="w-3.5 h-3.5" />
-                <span>Open Tala Studio</span>
+                <span>{lang === 'ml' ? 'താള സ്റ്റുഡിയോ തുറക്കുക' : 'Open Tala Studio'}</span>
               </button>
             )}
           </div>
@@ -157,7 +163,7 @@ export const BeginnerPath: React.FC<BeginnerPathProps> = ({ onNavigateToPractice
             className="flex items-center space-x-1 text-xs text-[#C7A45B] hover:text-[#E0C98F] font-medium transition-colors"
           >
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Ask Tutor about this lesson</span>
+            <span>{lang === 'ml' ? 'ഈ പാഠത്തെക്കുറിച്ച് ട്യൂട്ടറോട് ചോദിക്കുക' : 'Ask Tutor about this lesson'}</span>
           </button>
 
           <button
@@ -166,8 +172,8 @@ export const BeginnerPath: React.FC<BeginnerPathProps> = ({ onNavigateToPractice
           >
             <span>
               {completedLessons.includes(activeLessonIndex)
-                ? 'Review Next'
-                : 'Mark Complete & Continue'}
+                ? (lang === 'ml' ? 'അടുത്തത് കാണുക' : 'Review Next')
+                : t.markCompleteBtn}
             </span>
             <ChevronRight className="w-4 h-4 text-[#C7A45B]" />
           </button>

@@ -14,6 +14,8 @@ import { TutorModal } from '../components/TutorModal';
 import { AuthModal } from '../components/AuthModal';
 import { VERIFIED_RAGAS, VERIFIED_INSTRUMENTS, VERIFIED_TALAS, GLOSSARY_TERMS, VERIFIED_COMPOSERS } from '../data/carnaticData';
 import { API_BASE_URL } from '../lib/api';
+import { useLanguage } from '../context/LanguageContext';
+import { RAGA_ML_NAMES, COMPOSER_ML_NAMES } from '../lib/translations';
 import {
   Compass,
   Sliders,
@@ -27,6 +29,7 @@ import {
 } from 'lucide-react';
 
 export default function Home() {
+  const { lang, t } = useLanguage();
   const [activeSection, setActiveSection] = useState<'home' | 'learn' | 'explore' | 'practice'>('home');
   const [exploreTab, setExploreTab] = useState<'ragas' | 'talas' | 'instruments' | 'composers' | 'glossary'>('ragas');
   const [searchQuery, setSearchQuery] = useState('');
@@ -83,6 +86,7 @@ export default function Home() {
     (r) =>
       r.canonicalName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       r.alternateNames.some((n) => n.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (RAGA_ML_NAMES[r.slug] && RAGA_ML_NAMES[r.slug].includes(searchQuery)) ||
       r.chakra?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -95,6 +99,7 @@ export default function Home() {
   const filteredComposers = VERIFIED_COMPOSERS.filter(
     (c) =>
       c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (COMPOSER_ML_NAMES[c.name] && COMPOSER_ML_NAMES[c.name].includes(searchQuery)) ||
       c.tradition.toLowerCase().includes(searchQuery.toLowerCase()) ||
       c.signatureMudra.toLowerCase().includes(searchQuery.toLowerCase()) ||
       c.primaryLanguages.some((l) => l.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -132,17 +137,17 @@ export default function Home() {
                 <div className="max-w-2xl space-y-6">
                   <div className="inline-flex items-center space-x-2 text-xs font-mono uppercase tracking-wider text-[#C7A45B] bg-[#22221D] px-3.5 py-1.5 rounded-full border border-[#3B392F]">
                     <Music2 className="w-3.5 h-3.5" />
-                    <span>The Sovereign Digital Sanctuary of Carnatic Music</span>
+                    <span>{t.heroBadge}</span>
                   </div>
 
                   <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-bold text-[#F4EBDD] leading-[1.15] tracking-tight">
-                    Discover Carnatic music. <br />
-                    <span className="text-[#C7A45B]">Understand its language.</span> <br />
-                    Practise with purpose.
+                    {t.heroTitle1} <br />
+                    <span className="text-[#C7A45B]">{t.heroTitle2}</span> <br />
+                    {t.heroTitle3}
                   </h1>
 
                   <p className="text-base sm:text-lg text-[#BDB4A4] leading-relaxed max-w-2xl font-light">
-                    A peer-reviewed, completely free learning and practice platform. Connect foundational beginner orientation, verifiable raga and tala musicology, precision Web Audio practice companions, and grounded AI guidance.
+                    {t.heroDescription}
                   </p>
 
                   {/* Primary Action Buttons */}
@@ -152,7 +157,7 @@ export default function Home() {
                       className="flex items-center space-x-2 px-6 py-3.5 rounded-xl bg-[#C7A45B] hover:bg-[#E0C98F] text-[#11110F] font-semibold text-sm transition-all shadow-md active:scale-95"
                     >
                       <BookOpen className="w-4 h-4" />
-                      <span>Start Here: New to Carnatic?</span>
+                      <span>{t.heroStartBtn}</span>
                     </button>
 
                     <button
@@ -160,7 +165,7 @@ export default function Home() {
                       className="flex items-center space-x-2 px-6 py-3.5 rounded-xl bg-[#22221D] hover:bg-[#2A2A24] border border-[#3B392F] hover:border-[#C7A45B] text-[#F4EBDD] font-medium text-sm transition-all"
                     >
                       <Sliders className="w-4 h-4 text-[#C7A45B]" />
-                      <span>Open Practice Studio</span>
+                      <span>{t.heroPracticeBtn}</span>
                     </button>
 
                     <button
@@ -168,7 +173,7 @@ export default function Home() {
                       className="flex items-center space-x-2 px-5 py-3.5 rounded-xl bg-transparent hover:bg-[#191916] text-[#BDB4A4] hover:text-[#F4EBDD] text-sm transition-colors"
                     >
                       <Compass className="w-4 h-4" />
-                      <span>Explore Ragas & Instruments</span>
+                      <span>{t.heroExploreBtn}</span>
                     </button>
                   </div>
                 </div>
@@ -197,13 +202,13 @@ export default function Home() {
                   <BookOpen className="w-5 h-5" />
                 </div>
                 <h3 className="text-xl font-serif font-bold text-[#F4EBDD] mb-2 group-hover:text-[#C7A45B] transition-colors">
-                  1. Structured Orientation
+                  {t.card1Title}
                 </h3>
                 <p className="text-sm text-[#BDB4A4] leading-relaxed">
-                  Understand Adhara Shadjam (the eternal drone), the seven Sapta Swaras, and how Adi Tala measures time.
+                  {t.card1Desc}
                 </p>
                 <span className="inline-flex items-center space-x-1 text-xs font-mono text-[#C7A45B] mt-4 font-semibold">
-                  <span>Begin 3-part orientation</span>
+                  <span>{t.navStartHere}</span>
                   <ChevronRight className="w-3.5 h-3.5" />
                 </span>
               </div>
@@ -219,13 +224,13 @@ export default function Home() {
                   <Compass className="w-5 h-5" />
                 </div>
                 <h3 className="text-xl font-serif font-bold text-[#F4EBDD] mb-2 group-hover:text-[#C7A45B] transition-colors">
-                  2. Verified Raga & Tala Knowledge
+                  {t.card2Title}
                 </h3>
                 <p className="text-sm text-[#BDB4A4] leading-relaxed">
-                  Audition Mayamalavagowla, Shankarabharanam, and Saraswati Veena with verified sources from Subbarama Dikshitar and Sambamoorthy.
+                  {t.card2Desc}
                 </p>
                 <span className="inline-flex items-center space-x-1 text-xs font-mono text-[#C7A45B] mt-4 font-semibold">
-                  <span>Explore Verified Corpus</span>
+                  <span>{t.navExplore}</span>
                   <ChevronRight className="w-3.5 h-3.5" />
                 </span>
               </div>
@@ -238,13 +243,13 @@ export default function Home() {
                   <Sliders className="w-5 h-5" />
                 </div>
                 <h3 className="text-xl font-serif font-bold text-[#F4EBDD] mb-2 group-hover:text-[#C7A45B] transition-colors">
-                  3. Precision Practice Studio
+                  {t.card3Title}
                 </h3>
                 <p className="text-sm text-[#BDB4A4] leading-relaxed">
-                  Tune with the Web Audio Tanpura harmonic drone, audition Just Intonation swara intervals, and lock your laya with the Tala metronome.
+                  {t.card3Desc}
                 </p>
                 <span className="inline-flex items-center space-x-1 text-xs font-mono text-[#C7A45B] mt-4 font-semibold">
-                  <span>Launch Practice Studio</span>
+                  <span>{t.navPracticeStudio}</span>
                   <ChevronRight className="w-3.5 h-3.5" />
                 </span>
               </div>
@@ -345,7 +350,7 @@ export default function Home() {
                       : 'bg-[#22221D] text-[#BDB4A4] hover:text-[#F4EBDD]'
                   }`}
                 >
-                  Ragas ({VERIFIED_RAGAS.length})
+                  {t.tabRagas} ({VERIFIED_RAGAS.length})
                 </button>
                 <button
                   onClick={() => setExploreTab('talas')}
@@ -355,7 +360,7 @@ export default function Home() {
                       : 'bg-[#22221D] text-[#BDB4A4] hover:text-[#F4EBDD]'
                   }`}
                 >
-                  Talas ({VERIFIED_TALAS.length})
+                  {t.tabTalas} ({VERIFIED_TALAS.length})
                 </button>
                 <button
                   onClick={() => setExploreTab('instruments')}
@@ -365,7 +370,7 @@ export default function Home() {
                       : 'bg-[#22221D] text-[#BDB4A4] hover:text-[#F4EBDD]'
                   }`}
                 >
-                  Instruments ({VERIFIED_INSTRUMENTS.length})
+                  {t.tabInstruments} ({VERIFIED_INSTRUMENTS.length})
                 </button>
                 <button
                   onClick={() => setExploreTab('composers')}
@@ -375,7 +380,7 @@ export default function Home() {
                       : 'bg-[#22221D] text-[#BDB4A4] hover:text-[#F4EBDD]'
                   }`}
                 >
-                  Composers ({VERIFIED_COMPOSERS.length})
+                  {t.tabComposers} ({VERIFIED_COMPOSERS.length})
                 </button>
                 <button
                   onClick={() => setExploreTab('glossary')}
@@ -385,7 +390,7 @@ export default function Home() {
                       : 'bg-[#22221D] text-[#BDB4A4] hover:text-[#F4EBDD]'
                   }`}
                 >
-                  Glossary ({GLOSSARY_TERMS.length})
+                  {t.tabGlossary} ({GLOSSARY_TERMS.length})
                 </button>
               </div>
 
@@ -396,7 +401,7 @@ export default function Home() {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Filter by name, swara, mudra..."
+                  placeholder={t.searchPlaceholder}
                   className="w-full bg-[#22221D] border border-[#3B392F] rounded-xl pl-9 pr-4 py-2 text-xs text-[#F4EBDD] placeholder-[#BDB4A4]/60 focus:outline-none focus:border-[#C7A45B]"
                 />
               </div>
@@ -464,7 +469,9 @@ export default function Home() {
                       <div className="flex items-start justify-between pb-3 border-b border-[#3B392F]">
                         <div>
                           <h3 className="font-serif font-bold text-xl text-[#F4EBDD]">
-                            {composer.name}
+                            {lang === 'ml' && COMPOSER_ML_NAMES[composer.name]
+                              ? `${COMPOSER_ML_NAMES[composer.name]} (${composer.name})`
+                              : composer.name}
                           </h3>
                           <span className="text-xs font-mono text-[#C7A45B]">
                             {composer.tradition} · {composer.lifespan}
@@ -554,10 +561,10 @@ export default function Home() {
                 <span>Integrated Practice Suite</span>
               </div>
               <h2 className="text-3xl sm:text-4xl font-serif font-bold text-[#F4EBDD]">
-                Musician&apos;s Practice Studio
+                {t.practiceStudioTitle}
               </h2>
               <p className="text-sm text-[#BDB4A4] mt-1 max-w-2xl">
-                Dual Web Audio tools, pitch detection, and private recording running synchronously in your browser.
+                {t.practiceStudioSubtitle}
               </p>
             </div>
 
@@ -577,7 +584,7 @@ export default function Home() {
             <section className="bg-[#191916] border border-[#3B392F] rounded-2xl p-6 sm:p-8 shadow-xl">
               <div className="pb-4 border-b border-[#3B392F] mb-6">
                 <h3 className="text-xl font-serif font-bold text-[#F4EBDD]">
-                  Practice Session Journal
+                  {t.practiceLogTitle}
                 </h3>
                 <p className="text-xs text-[#BDB4A4] mt-0.5">
                   Record focus areas, self-reflections, and tempo settings. Kept private to your account.
@@ -587,7 +594,7 @@ export default function Home() {
               <div className="space-y-4">
                 <div>
                   <label className="block text-xs font-mono uppercase text-[#BDB4A4] mb-1.5">
-                    Practice Focus Area
+                    {t.sessionFocus}
                   </label>
                   <input
                     type="text"
@@ -600,7 +607,7 @@ export default function Home() {
 
                 <div>
                   <label className="block text-xs font-mono uppercase text-[#BDB4A4] mb-1.5">
-                    Session Notes & Reflections
+                    {t.sessionNotes}
                   </label>
                   <textarea
                     rows={3}
@@ -616,7 +623,7 @@ export default function Home() {
                     {sessionSavedSuccess && (
                       <span className="flex items-center space-x-1.5 font-medium">
                         <CheckCircle2 className="w-4 h-4 text-[#6EA887]" />
-                        <span>Session logged privately to your learner history.</span>
+                        <span>{t.sessionSavedMsg}</span>
                       </span>
                     )}
                   </div>
@@ -626,7 +633,7 @@ export default function Home() {
                     className="flex items-center space-x-1.5 px-5 py-2.5 rounded-xl bg-[#C7A45B] hover:bg-[#E0C98F] text-[#11110F] text-xs font-semibold transition-all shadow-md active:scale-95"
                   >
                     <Save className="w-4 h-4" />
-                    <span>Save Session Privately</span>
+                    <span>{t.saveSessionBtn}</span>
                   </button>
                 </div>
               </div>

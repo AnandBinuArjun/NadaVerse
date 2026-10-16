@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { X, Send, Sparkles, BookOpen, AlertCircle, ShieldCheck } from 'lucide-react';
 import { VERIFIED_RAGAS, VERIFIED_TALAS, VERIFIED_INSTRUMENTS } from '../data/carnaticData';
+import { useLanguage } from '../context/LanguageContext';
 
 interface Citation {
   sourceTitle: string;
@@ -27,6 +28,7 @@ interface TutorModalProps {
 }
 
 export const TutorModal: React.FC<TutorModalProps> = ({ isOpen, onClose, initialTopic }) => {
+  const { lang, t } = useLanguage();
   const [query, setQuery] = useState(
     initialTopic ? `Why is ${initialTopic} significant in Carnatic music?` : ''
   );
@@ -34,9 +36,11 @@ export const TutorModal: React.FC<TutorModalProps> = ({ isOpen, onClose, initial
     {
       id: 'welcome-msg',
       sender: 'tutor',
-      text: 'Namaskaram. I am the NadaVerse AI Tutor, grounded exclusively in verified Carnatic musicology sources. Ask me about raga structures, swara intervals, tala angas, or instrument history.',
+      text: lang === 'ml'
+        ? 'നമസ്കാരം. ആധികാരിക കർണ്ണാടക സംഗീത ശാസ്ത്ര ഗ്രന്ഥങ്ങളെ അടിസ്ഥാനമാക്കിയുള്ള നാദവേഴ്സ് എഐ ട്യൂട്ടറാണ് ഞാൻ. രാഗ ഘടന, സ്വരസ്ഥാനങ്ങൾ, താള അംഗങ്ങൾ, വാദ്യ ചരിത്രം എന്നിവയെക്കുറിച്ച് എന്നോട് ചോദിക്കാം.'
+        : 'Namaskaram. I am the NadaVerse AI Tutor, grounded exclusively in verified Carnatic musicology sources. Ask me about raga structures, swara intervals, tala angas, or instrument history.',
       confidence: 'high',
-      timestamp: 'Just now'
+      timestamp: lang === 'ml' ? 'ഇപ്പോൾ' : 'Just now'
     }
   ]);
   const [isLoading, setIsLoading] = useState(false);
@@ -168,11 +172,11 @@ export const TutorModal: React.FC<TutorModalProps> = ({ isOpen, onClose, initial
             </div>
             <div>
               <h2 id="tutor-dialog-title" className="text-lg font-serif font-bold text-[#F4EBDD]">
-                NadaVerse Grounded AI Tutor
+                {t.tutorTitle}
               </h2>
               <span className="text-[11px] text-[#87947A] flex items-center space-x-1 font-mono">
                 <ShieldCheck className="w-3 h-3" />
-                <span>Grounded Retrieval · Verifiable Citations</span>
+                <span>{t.tutorGroundingNotice}</span>
               </span>
             </div>
           </div>
@@ -217,7 +221,7 @@ export const TutorModal: React.FC<TutorModalProps> = ({ isOpen, onClose, initial
                     <div className="mt-3 pt-3 border-t border-[#3B392F]/60 text-xs">
                       <div className="flex items-center space-x-1 text-[#C7A45B] font-mono mb-1.5 uppercase tracking-wider text-[10px]">
                         <BookOpen className="w-3 h-3" />
-                        <span>Verified Citations:</span>
+                        <span>{lang === 'ml' ? 'ആധികാരിക സ്രോതസ്സുകൾ:' : 'Verified Citations:'}</span>
                       </div>
                       <div className="space-y-1">
                         {msg.citations.map((c, i) => (
@@ -244,7 +248,7 @@ export const TutorModal: React.FC<TutorModalProps> = ({ isOpen, onClose, initial
           {isLoading && (
             <div className="flex items-center space-x-2 text-xs text-[#C7A45B] font-mono p-2">
               <Sparkles className="w-4 h-4 animate-spin" />
-              <span>Consulting verified Carnatic musicology sources...</span>
+              <span>{lang === 'ml' ? 'ആധികാരിക ഗ്രന്ഥങ്ങളിൽ പരിശോധിക്കുന്നു...' : 'Consulting verified Carnatic musicology sources...'}</span>
             </div>
           )}
         </div>
@@ -252,7 +256,10 @@ export const TutorModal: React.FC<TutorModalProps> = ({ isOpen, onClose, initial
         {/* Pedagogical Disclaimer & Input Box */}
         <div className="p-4 border-t border-[#3B392F] bg-[#11110F]">
           <div className="text-[11px] text-[#BDB4A4] mb-3 px-1">
-            <strong>Pedagogical Notice:</strong> NadaVerse AI Tutor is an educational reference companion grounded in verified texts. It does not replace the experiential guidance of an authentic Guru.
+            <strong>{lang === 'ml' ? 'അധ്യാപന നിർദ്ദേശം:' : 'Pedagogical Notice:'}</strong>{' '}
+            {lang === 'ml'
+              ? 'നാദവേഴ്സ് എഐ ട്യൂട്ടർ ഒരു ശാസ്ത്രീയ പഠന സഹായി മാത്രമാണ്. ഒരു സദ്ഗുരുവിന്റെ പ്രായോഗിക ശിക്ഷണത്തിന് ഇത് പകരമാവില്ല.'
+              : 'NadaVerse AI Tutor is an educational reference companion grounded in verified texts. It does not replace the experiential guidance of an authentic Guru.'}
           </div>
 
           <form
@@ -266,7 +273,7 @@ export const TutorModal: React.FC<TutorModalProps> = ({ isOpen, onClose, initial
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Ask about Mayamalavagowla, Adi Tala, Veena, or Swaras..."
+              placeholder={t.tutorPlaceholder}
               className="flex-1 bg-[#22221D] border border-[#3B392F] rounded-xl px-4 py-2.5 text-sm text-[#F4EBDD] placeholder-[#BDB4A4]/60 focus:outline-none focus:border-[#C7A45B]"
               aria-label="Ask the AI Tutor a question"
             />

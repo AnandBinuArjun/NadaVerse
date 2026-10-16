@@ -5,8 +5,11 @@ import { Play, Pause, Activity, Disc3 } from 'lucide-react';
 import { audioEngine } from '../lib/audioEngine';
 import { VERIFIED_TALAS } from '../data/carnaticData';
 import { TalaItem } from '../types/carnatic';
+import { useLanguage } from '../context/LanguageContext';
+import { TALA_ML_NAMES } from '../lib/translations';
 
 export const TalaStudio: React.FC = () => {
+  const { lang, t } = useLanguage();
   const [selectedTala, setSelectedTala] = useState<TalaItem>(VERIFIED_TALAS[0]); // Adi Tala
   const [bpm, setBpm] = useState(72);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -118,12 +121,12 @@ export const TalaStudio: React.FC = () => {
             {isPlaying ? (
               <>
                 <Pause className="w-5 h-5 fill-current" />
-                <span>Stop Tala</span>
+                <span>{t.stopMetronome}</span>
               </>
             ) : (
               <>
                 <Play className="w-5 h-5 fill-current" />
-                <span>Start Tala Cycle</span>
+                <span>{t.startMetronome}</span>
               </>
             )}
           </button>
@@ -133,11 +136,12 @@ export const TalaStudio: React.FC = () => {
       {/* Tala Selector Tabs */}
       <div className="pt-6">
         <label className="block text-xs uppercase tracking-wider font-mono text-[#BDB4A4] mb-3">
-          Select Tala Framework
+          {t.talaSelector}
         </label>
         <div className="flex flex-wrap gap-2 sm:gap-3">
           {VERIFIED_TALAS.map((tala) => {
             const isSelected = selectedTala.slug === tala.slug;
+            const mlName = TALA_ML_NAMES[tala.slug];
             return (
               <button
                 key={tala.slug}
@@ -148,9 +152,11 @@ export const TalaStudio: React.FC = () => {
                     : 'bg-[#22221D] border-[#3B392F] text-[#BDB4A4] hover:text-[#F4EBDD] hover:border-[#3B392F]/80'
                 }`}
               >
-                <div className="text-sm font-semibold">{tala.canonicalName}</div>
+                <div className="text-sm font-semibold">
+                  {lang === 'ml' && mlName ? mlName : tala.canonicalName}
+                </div>
                 <div className="text-[11px] text-[#C7A45B] font-mono mt-0.5">
-                  {tala.angasFormula} ({tala.totalAksharas} Aksharas)
+                  {tala.angasFormula} ({tala.totalAksharas} {t.aksharas})
                 </div>
               </button>
             );

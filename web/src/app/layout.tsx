@@ -57,6 +57,8 @@ export const metadata: Metadata = {
   authors: [{ name: 'NadaVerse Musicology Board' }],
 };
 
+import { LanguageProvider } from '../context/LanguageContext';
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -67,7 +69,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} bg-[#11110F] text-[#F4EBDD] min-h-full flex flex-col antialiased`}
       >
-        {children}
+        <LanguageProvider>{children}</LanguageProvider>
       </body>
     </html>
   );

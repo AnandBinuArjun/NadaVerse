@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import { Volume2, ShieldCheck, BookOpen, Sparkles } from 'lucide-react';
 import { RagaItem, SwaraInfo } from '../types/carnatic';
 import { audioEngine } from '../lib/audioEngine';
+import { useLanguage } from '../context/LanguageContext';
+import { RAGA_ML_NAMES } from '../lib/translations';
 
 interface RagaCardProps {
   raga: RagaItem;
@@ -11,6 +13,7 @@ interface RagaCardProps {
 }
 
 export const RagaCard: React.FC<RagaCardProps> = ({ raga, onAskTutor }) => {
+  const { lang, t } = useLanguage();
   const [activeSwaraSymbol, setActiveSwaraSymbol] = useState<string | null>(null);
   const [isPlayingScale, setIsPlayingScale] = useState(false);
 
@@ -38,6 +41,8 @@ export const RagaCard: React.FC<RagaCardProps> = ({ raga, onAskTutor }) => {
     setIsPlayingScale(false);
   };
 
+  const malayalamName = RAGA_ML_NAMES[raga.slug];
+
   return (
     <div className="bg-[#191916] border border-[#3B392F] rounded-2xl p-6 sm:p-8 hover:border-[#C7A45B]/60 transition-all shadow-md">
       {/* Header: Title, Melakarta, Review Badge */}
@@ -45,11 +50,11 @@ export const RagaCard: React.FC<RagaCardProps> = ({ raga, onAskTutor }) => {
         <div>
           <div className="flex items-center space-x-2.5 mb-1">
             <h3 className="text-2xl font-serif font-bold text-[#F4EBDD]">
-              {raga.canonicalName}
+              {lang === 'ml' && malayalamName ? `${malayalamName} (${raga.canonicalName})` : raga.canonicalName}
             </h3>
             {raga.melakartaNumber && (
               <span className="text-xs bg-[#22221D] text-[#C7A45B] border border-[#3B392F] px-2 py-0.5 rounded font-mono font-medium">
-                Melakarta #{raga.melakartaNumber}
+                {t.melakarta} #{raga.melakartaNumber}
               </span>
             )}
           </div>
@@ -86,13 +91,13 @@ export const RagaCard: React.FC<RagaCardProps> = ({ raga, onAskTutor }) => {
 
         <div className="space-y-2">
           <div className="flex flex-col sm:flex-row sm:items-baseline sm:space-x-2">
-            <span className="text-xs text-[#C7A45B] font-mono font-bold w-20">Arohanam:</span>
+            <span className="text-xs text-[#C7A45B] font-mono font-bold w-28">{t.arohanam}:</span>
             <span className="font-serif text-lg tracking-wider text-[#F4EBDD]">
               {raga.arohanam}
             </span>
           </div>
           <div className="flex flex-col sm:flex-row sm:items-baseline sm:space-x-2">
-            <span className="text-xs text-[#C7A45B] font-mono font-bold w-20">Avarohanam:</span>
+            <span className="text-xs text-[#C7A45B] font-mono font-bold w-28">{t.avarohanam}:</span>
             <span className="font-serif text-lg tracking-wider text-[#F4EBDD]">
               {raga.avarohanam}
             </span>

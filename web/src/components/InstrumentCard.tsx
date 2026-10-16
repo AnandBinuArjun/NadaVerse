@@ -3,6 +3,8 @@
 import React from 'react';
 import { ShieldCheck, BookOpen, Layers, Sparkles } from 'lucide-react';
 import { InstrumentItem } from '../types/carnatic';
+import { useLanguage } from '../context/LanguageContext';
+import { INSTRUMENT_ML_NAMES } from '../lib/translations';
 
 interface InstrumentCardProps {
   instrument: InstrumentItem;
@@ -10,6 +12,9 @@ interface InstrumentCardProps {
 }
 
 export const InstrumentCard: React.FC<InstrumentCardProps> = ({ instrument, onAskTutor }) => {
+  const { lang, t } = useLanguage();
+  const malayalamName = INSTRUMENT_ML_NAMES[instrument.slug];
+
   return (
     <div className="bg-[#191916] border border-[#3B392F] rounded-2xl p-6 sm:p-8 hover:border-[#C7A45B]/60 transition-all shadow-md">
       {/* Title & Family */}
@@ -17,7 +22,7 @@ export const InstrumentCard: React.FC<InstrumentCardProps> = ({ instrument, onAs
         <div>
           <div className="flex items-center space-x-2 mb-1">
             <h3 className="text-2xl font-serif font-bold text-[#F4EBDD]">
-              {instrument.canonicalName}
+              {lang === 'ml' && malayalamName ? `${malayalamName} (${instrument.canonicalName})` : instrument.canonicalName}
             </h3>
             <span className="text-xs bg-[#22221D] text-[#C7A45B] border border-[#3B392F] px-2 py-0.5 rounded font-mono font-medium">
               {instrument.family}

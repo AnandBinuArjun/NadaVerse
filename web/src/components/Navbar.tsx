@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Volume2, VolumeX, Compass, Sparkles, Sliders, BookOpen, User } from 'lucide-react';
+import { Volume2, VolumeX, Compass, Sparkles, Sliders, BookOpen, User, Globe } from 'lucide-react';
 import { audioEngine, TONIC_OPTIONS } from '../lib/audioEngine';
+import { useLanguage } from '../context/LanguageContext';
 
 interface NavbarProps {
   onOpenTutor?: () => void;
@@ -19,6 +20,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   activeSection = 'home',
   onNavigate
 }) => {
+  const { lang, setLang, t } = useLanguage();
   const [isDroneOn, setIsDroneOn] = useState(false);
   const [selectedTonic, setSelectedTonic] = useState(TONIC_OPTIONS[0]); // C
 
@@ -59,10 +61,10 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
             <div>
               <span className="font-serif tracking-wide text-xl font-bold text-[#F4EBDD] block leading-tight">
-                NadaVerse
+                {t.brandName}
               </span>
               <span className="text-[11px] tracking-wider uppercase text-[#BDB4A4] block">
-                Carnatic Music For Everyone
+                {t.brandSubtitle}
               </span>
             </div>
           </button>
@@ -78,7 +80,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 : 'text-[#F4EBDD] hover:text-[#C7A45B] hover:bg-[#191916]/50'
             }`}
           >
-            Overview
+            {t.navOverview}
           </button>
 
           <button
@@ -90,7 +92,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             }`}
           >
             <BookOpen className="w-4 h-4 text-[#C7A45B]" />
-            <span>Start Here</span>
+            <span>{t.navStartHere}</span>
           </button>
 
           <button
@@ -102,7 +104,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             }`}
           >
             <Compass className="w-4 h-4 text-[#C7A45B]" />
-            <span>Explore</span>
+            <span>{t.navExplore}</span>
           </button>
 
           <button
@@ -114,7 +116,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             }`}
           >
             <Sliders className="w-4 h-4 text-[#C7A45B]" />
-            <span>Practice Studio</span>
+            <span>{t.navPracticeStudio}</span>
           </button>
 
           <button
@@ -123,23 +125,51 @@ export const Navbar: React.FC<NavbarProps> = ({
             aria-label="Open Grounded AI Music Tutor"
           >
             <Sparkles className="w-4 h-4 text-[#C7A45B]" />
-            <span>AI Tutor</span>
+            <span>{t.navAiTutor}</span>
           </button>
         </nav>
 
         {/* Global Quick Shruti Companion / Status & Auth */}
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-2 sm:space-x-3">
+          {/* Language Switcher */}
+          <div className="flex items-center bg-[#191916] border border-[#3B392F] rounded-lg p-0.5 text-xs">
+            <button
+              onClick={() => setLang('en')}
+              className={`px-2 py-1 rounded text-xs font-medium transition-all ${
+                lang === 'en'
+                  ? 'bg-[#C7A45B] text-[#11110F] font-semibold shadow-xs'
+                  : 'text-[#BDB4A4] hover:text-[#F4EBDD]'
+              }`}
+              title="English"
+              aria-label="Switch to English"
+            >
+              EN
+            </button>
+            <button
+              onClick={() => setLang('ml')}
+              className={`px-2 py-1 rounded text-xs font-medium transition-all ${
+                lang === 'ml'
+                  ? 'bg-[#C7A45B] text-[#11110F] font-semibold shadow-xs'
+                  : 'text-[#BDB4A4] hover:text-[#F4EBDD]'
+              }`}
+              title="മലയാളം (Malayalam)"
+              aria-label="മലയാളത്തിലേക്ക് മാറ്റുക"
+            >
+              മലയാളം
+            </button>
+          </div>
+
           <div className="flex items-center bg-[#191916] border border-[#3B392F] rounded-lg p-1 text-xs">
-            <span className="text-[#BDB4A4] px-2 font-mono hidden sm:inline">Adhara Sa:</span>
+            <span className="text-[#BDB4A4] px-2 font-mono hidden sm:inline">{t.adharaSa}</span>
             <select
               value={selectedTonic.name}
               onChange={handleTonicChange}
               className="bg-[#22221D] text-[#F4EBDD] rounded px-2 py-1 text-xs border border-[#3B392F] focus:outline-none focus:border-[#C7A45B]"
               aria-label="Select global tonic pitch"
             >
-              {TONIC_OPTIONS.map((t) => (
-                <option key={t.name} value={t.name}>
-                  {t.name} ({t.kattai})
+              {TONIC_OPTIONS.map((tOpt) => (
+                <option key={tOpt.name} value={tOpt.name}>
+                  {tOpt.name} ({tOpt.kattai})
                 </option>
               ))}
             </select>
@@ -157,12 +187,12 @@ export const Navbar: React.FC<NavbarProps> = ({
               {isDroneOn ? (
                 <>
                   <Volume2 className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">Drone Active</span>
+                  <span className="hidden sm:inline">{t.droneActive}</span>
                 </>
               ) : (
                 <>
                   <VolumeX className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">Play Shruti</span>
+                  <span className="hidden sm:inline">{t.playShruti}</span>
                 </>
               )}
             </button>
@@ -177,7 +207,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               <User className="w-3.5 h-3.5 text-[#C7A45B]" />
               <span className="hidden sm:inline">
-                {currentUser ? currentUser.displayName : 'Sign In'}
+                {currentUser ? currentUser.displayName : t.signIn}
               </span>
             </button>
           )}

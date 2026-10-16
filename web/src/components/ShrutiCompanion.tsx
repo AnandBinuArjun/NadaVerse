@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Volume2, Play, Pause, Info, Music2 } from 'lucide-react';
 import { audioEngine, TONIC_OPTIONS, TonicNote } from '../lib/audioEngine';
+import { useLanguage } from '../context/LanguageContext';
 
 interface SwaraButton {
   symbol: string;
@@ -29,6 +30,7 @@ const COMMON_SWARAS: SwaraButton[] = [
 ];
 
 export const ShrutiCompanion: React.FC = () => {
+  const { lang, t } = useLanguage();
   const [selectedTonic, setSelectedTonic] = useState<TonicNote>(TONIC_OPTIONS[0]);
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(0.75);
@@ -71,13 +73,15 @@ export const ShrutiCompanion: React.FC = () => {
         <div>
           <div className="flex items-center space-x-2 text-[#C7A45B] text-xs font-mono uppercase tracking-wider mb-1">
             <Music2 className="w-4 h-4" />
-            <span>Foundational Companion</span>
+            <span>{lang === 'ml' ? 'അടിസ്ഥാന ശ്രുതി സഹായി' : 'Foundational Companion'}</span>
           </div>
           <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#F4EBDD]">
-            Shruti & Tanpura Engine
+            {lang === 'ml' ? 'ശ്രുതി & തംബുരു എഞ്ചിൻ' : 'Shruti & Tanpura Engine'}
           </h2>
           <p className="text-sm text-[#BDB4A4] mt-1 max-w-xl">
-            Acoustically modeled 4-string Tambura with natural Jivari overtone resonance (Pa-Sa-Sa-Sa) and pure Just Intonation harmonic ratios.
+            {lang === 'ml'
+              ? 'സ്വാഭാവിക ജീവാരി നാദത്തോടുകൂടിയ 4-തന്ത്രി തംബുരു (പ-സ-സ-സ), ശുദ്ധ ജസ്റ്റ് ഇൻ്റോണേഷൻ അനുപാതങ്ങൾ.'
+              : 'Acoustically modeled 4-string Tambura with natural Jivari overtone resonance (Pa-Sa-Sa-Sa) and pure Just Intonation harmonic ratios.'}
           </p>
         </div>
 
@@ -95,12 +99,12 @@ export const ShrutiCompanion: React.FC = () => {
             {isPlaying ? (
               <>
                 <Pause className="w-5 h-5 fill-current" />
-                <span>Pause Drone</span>
+                <span>{lang === 'ml' ? 'ശ്രുതി നിർത്തുക' : 'Pause Drone'}</span>
               </>
             ) : (
               <>
                 <Play className="w-5 h-5 fill-current" />
-                <span>Begin Tanpura Drone</span>
+                <span>{lang === 'ml' ? 'തംബുരു ശ്രുതി ആരംഭിക്കുക' : 'Begin Tanpura Drone'}</span>
               </>
             )}
           </button>
@@ -113,7 +117,7 @@ export const ShrutiCompanion: React.FC = () => {
         <div className="lg:col-span-5 space-y-6">
           <div>
             <label className="block text-xs uppercase tracking-wider font-mono text-[#BDB4A4] mb-3">
-              Select Adhara Shadjam (Tonic Pitch)
+              {lang === 'ml' ? 'ആധാര ഷഡ്ജം തിരഞ്ഞെടുക്കുക (Tonic Pitch)' : 'Select Adhara Shadjam (Tonic Pitch)'}
             </label>
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
               {TONIC_OPTIONS.map((tonic) => {
@@ -141,7 +145,7 @@ export const ShrutiCompanion: React.FC = () => {
             <div className="flex items-center justify-between text-xs text-[#BDB4A4] mb-2 font-mono">
               <span className="flex items-center space-x-1.5">
                 <Volume2 className="w-3.5 h-3.5 text-[#C7A45B]" />
-                <span>Tambura Volume</span>
+                <span>{lang === 'ml' ? 'തംബുരു ശബ്ദം' : 'Tambura Volume'}</span>
               </span>
               <span>{Math.round(volume * 100)}%</span>
             </div>
@@ -170,11 +174,11 @@ export const ShrutiCompanion: React.FC = () => {
             </div>
             <div className="text-xs">
               <div className="text-[#F4EBDD] font-medium">
-                {isPlaying ? 'Resonance Active: ' : 'Drone Standby'}
+                {isPlaying ? (lang === 'ml' ? 'നാദം സജീവം: ' : 'Resonance Active: ') : (lang === 'ml' ? 'സ്റ്റാൻഡ്ബൈ: ' : 'Drone Standby: ')}
                 <span className="text-[#C7A45B] font-mono">{selectedTonic.name}</span> ({selectedTonic.frequency.toFixed(2)} Hz)
               </div>
               <div className="text-[#BDB4A4] mt-0.5">
-                Harmonic sequence: Pa (196 Hz) · Sa (261 Hz) · Sa (262 Hz) · Low Sa (131 Hz)
+                {lang === 'ml' ? 'സ്വര ശ്രേണി: പ (196 Hz) · സ (261 Hz) · സ (262 Hz) · മന്ദ്ര സ (131 Hz)' : 'Harmonic sequence: Pa (196 Hz) · Sa (261 Hz) · Sa (262 Hz) · Low Sa (131 Hz)'}
               </div>
             </div>
           </div>
@@ -185,10 +189,12 @@ export const ShrutiCompanion: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-lg font-serif font-semibold text-[#F4EBDD]">
-                Interactive Swara Auditioning
+                {lang === 'ml' ? 'സ്വര സ്ഥാനങ്ങൾ കേൾക്കാം' : 'Interactive Swara Auditioning'}
               </h3>
               <p className="text-xs text-[#BDB4A4]">
-                Click any note to hear its pure harmonic ratio relative to your active Sa ({selectedTonic.name}):
+                {lang === 'ml'
+                  ? `തിരഞ്ഞെടുത്ത സാ-യുമായുള്ള (${selectedTonic.name}) ശുദ്ധ ശ്രുതി അനുപാതം കേൾക്കാൻ അമർത്തുക:`
+                  : `Click any note to hear its pure harmonic ratio relative to your active Sa (${selectedTonic.name}):`}
               </p>
             </div>
           </div>
@@ -239,7 +245,10 @@ export const ShrutiCompanion: React.FC = () => {
           <div className="flex items-start space-x-2 text-xs text-[#BDB4A4] bg-[#22221D]/40 p-3 rounded-lg border border-[#3B392F]/60">
             <Info className="w-4 h-4 text-[#C7A45B] shrink-0 mt-0.5" />
             <span>
-              <strong>Musicological Integrity Note:</strong> A detected pitch alone is not equivalent to a swara. Swara expression in Carnatic music arises from relation to the tonic (Adhara Shadjam), contextual raga sancharas, and microtonal gamakas.
+              <strong>{lang === 'ml' ? 'സംഗീതശാസ്ത്ര തത്വം:' : 'Musicological Integrity Note:'}</strong>{' '}
+              {lang === 'ml'
+                ? 'കേവല ആവൃത്തി (pitch) മാത്രമല്ല സ്വരം. ആധാര ഷഡ്ജവുമായുള്ള ബന്ധം, രാഗ സഞ്ചാരം, ഗമകം എന്നിവ ചേരുമ്പോഴാണ് സ്വരഭാവം കൈവരുന്നത്.'
+                : 'A detected pitch alone is not equivalent to a swara. Swara expression in Carnatic music arises from relation to the tonic (Adhara Shadjam), contextual raga sancharas, and microtonal gamakas.'}
             </span>
           </div>
         </div>

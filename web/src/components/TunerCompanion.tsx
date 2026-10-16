@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Mic, MicOff, AlertCircle, Info, Activity } from 'lucide-react';
 import { TONIC_OPTIONS, TonicNote } from '../lib/audioEngine';
+import { useLanguage } from '../context/LanguageContext';
 
 interface TunerCompanionProps {
   activeTonic?: TonicNote;
@@ -11,6 +12,7 @@ interface TunerCompanionProps {
 export const TunerCompanion: React.FC<TunerCompanionProps> = ({
   activeTonic = TONIC_OPTIONS[0] // default C (261.63 Hz)
 }) => {
+  const { lang, t } = useLanguage();
   const [isListening, setIsListening] = useState(false);
   const [detectedHz, setDetectedHz] = useState<number | null>(null);
   const [centsDiff, setCentsDiff] = useState<number>(0);
@@ -171,13 +173,13 @@ export const TunerCompanion: React.FC<TunerCompanionProps> = ({
         <div>
           <div className="flex items-center space-x-2 text-[#C7A45B] text-xs font-mono uppercase tracking-wider mb-1">
             <Activity className="w-4 h-4" />
-            <span>Acoustic Pitch Awareness</span>
+            <span>{lang === 'ml' ? 'ശബ്ദ ആവൃത്തി നിരീക്ഷണം' : 'Acoustic Pitch Awareness'}</span>
           </div>
           <h3 className="text-xl sm:text-2xl font-serif font-bold text-[#F4EBDD]">
-            Microphone Pitch Display & Tuner
+            {lang === 'ml' ? 'മൈക്രോഫോൺ പിച്ച് ട്യൂണർ' : 'Microphone Pitch Display & Tuner'}
           </h3>
           <p className="text-xs text-[#BDB4A4] mt-0.5">
-            Target Reference: <span className="text-[#C7A45B] font-mono font-bold">{activeTonic.name}</span> ({activeTonic.kattai} · {activeTonic.frequency.toFixed(1)} Hz)
+            {lang === 'ml' ? 'ലക്ഷ്യ ശ്രുതി:' : 'Target Reference:'} <span className="text-[#C7A45B] font-mono font-bold">{activeTonic.name}</span> ({activeTonic.kattai} · {activeTonic.frequency.toFixed(1)} Hz)
           </p>
         </div>
 
@@ -193,12 +195,12 @@ export const TunerCompanion: React.FC<TunerCompanionProps> = ({
           {isListening ? (
             <>
               <MicOff className="w-4 h-4" />
-              <span>Stop Tuner</span>
+              <span>{lang === 'ml' ? 'ട്യൂണർ നിർത്തുക' : 'Stop Tuner'}</span>
             </>
           ) : (
             <>
               <Mic className="w-4 h-4 text-[#C7A45B]" />
-              <span>Enable Pitch Tuner</span>
+              <span>{lang === 'ml' ? 'പിച്ച് ട്യൂണർ തുടങ്ങുക' : 'Enable Pitch Tuner'}</span>
             </>
           )}
         </button>
@@ -217,10 +219,12 @@ export const TunerCompanion: React.FC<TunerCompanionProps> = ({
           <div className="space-y-4 w-full max-w-md">
             <div>
               <div className="text-4xl sm:text-5xl font-mono font-bold text-[#F4EBDD]">
-                {detectedHz ? `${detectedHz.toFixed(1)} Hz` : 'Listening...'}
+                {detectedHz ? `${detectedHz.toFixed(1)} Hz` : (lang === 'ml' ? 'കേൾക്കുന്നു...' : 'Listening...')}
               </div>
               <div className="text-xs text-[#BDB4A4] font-mono mt-1">
-                {detectedHz ? `Signal Clarity: ${clarity}%` : 'Sing or play into your microphone'}
+                {detectedHz
+                  ? (lang === 'ml' ? `സിഗ്നൽ വ്യക്തത: ${clarity}%` : `Signal Clarity: ${clarity}%`)
+                  : (lang === 'ml' ? 'മൈക്രോഫോണിലേക്ക് പാടുകയോ വായിക്കുകയോ ചെയ്യുക' : 'Sing or play into your microphone')}
               </div>
             </div>
 
@@ -228,11 +232,11 @@ export const TunerCompanion: React.FC<TunerCompanionProps> = ({
             {detectedHz && (
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-[11px] font-mono text-[#BDB4A4]">
-                  <span>-50 cents (Flat)</span>
+                  <span>-50 cents ({lang === 'ml' ? 'താഴ്ന്നത്' : 'Flat'})</span>
                   <span className={`font-bold ${Math.abs(centsDiff) <= 5 ? 'text-[#6EA887]' : 'text-[#C7A45B]'}`}>
                     {centsDiff > 0 ? `+${centsDiff}` : centsDiff} cents
                   </span>
-                  <span>+50 cents (Sharp)</span>
+                  <span>+50 cents ({lang === 'ml' ? 'ഉയർന്നത്' : 'Sharp'})</span>
                 </div>
 
                 <div className="w-full bg-[#11110F] h-3 rounded-full overflow-hidden border border-[#3B392F] relative">
@@ -252,9 +256,15 @@ export const TunerCompanion: React.FC<TunerCompanionProps> = ({
         ) : (
           <div className="py-6 space-y-2 text-[#BDB4A4]">
             <Mic className="w-10 h-10 mx-auto text-[#3B392F]" />
-            <p className="text-sm">Tuner is currently idle. Click &ldquo;Enable Pitch Tuner&rdquo; to begin real-time pitch analysis.</p>
+            <p className="text-sm">
+              {lang === 'ml'
+                ? 'ട്യൂണർ ഇപ്പോൾ നിർജ്ജീവമാണ്. തത്സമയ പിച്ച് വിശകലനത്തിനായി "പിച്ച് ട്യൂണർ തുടങ്ങുക" അമർത്തുക.'
+                : 'Tuner is currently idle. Click "Enable Pitch Tuner" to begin real-time pitch analysis.'}
+            </p>
             <span className="text-[11px] font-mono block text-[#87947A]">
-              Microphone access is private, permission-aware, and processed 100% locally on your device.
+              {lang === 'ml'
+                ? 'മൈക്രോഫോൺ വിവരങ്ങൾ പൂർണ്ണമായും സ്വകാര്യമാണ്, ഉപകരണത്തിൽ തന്നെ പ്രോസസ്സ് ചെയ്യുന്നു.'
+                : 'Microphone access is private, permission-aware, and processed 100% locally on your device.'}
             </span>
           </div>
         )}
@@ -264,7 +274,10 @@ export const TunerCompanion: React.FC<TunerCompanionProps> = ({
       <div className="flex items-start space-x-2 text-xs text-[#BDB4A4] bg-[#11110F] p-3.5 rounded-xl border border-[#3B392F]/60">
         <Info className="w-4 h-4 text-[#C7A45B] shrink-0 mt-0.5" />
         <span>
-          <strong>Carnatic Accuracy Principle:</strong> Physical frequency in Hertz is raw acoustic data, not a definitive swara. Swara expression in Carnatic music requires contextual tonic alignment, raga sanchara, and gamaka oscillation.
+          <strong>{lang === 'ml' ? 'കർണ്ണാടക സംഗീത കൃത്യതാ തത്വം:' : 'Carnatic Accuracy Principle:'}</strong>{' '}
+          {lang === 'ml'
+            ? 'ഹെർട്സിലുള്ള ശബ്ദ ആവൃത്തി കേവല ഡാറ്റ മാത്രമാണ്. കർണ്ണാടക സംഗീതത്തിൽ സ്വരത്തിന് ആധാര ഷഡ്ജം, രാഗ സഞ്ചാരം, ഗമകങ്ങൾ എന്നിവ അത്യാവശ്യമാണ്.'
+            : 'Physical frequency in Hertz is raw acoustic data, not a definitive swara. Swara expression in Carnatic music requires contextual tonic alignment, raga sanchara, and gamaka oscillation.'}
         </span>
       </div>
     </div>
