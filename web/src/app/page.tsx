@@ -126,54 +126,63 @@ export default function Home() {
         {activeSection === 'home' && (
           <div className="space-y-12">
             {/* Hero Section */}
-            <section className="relative overflow-hidden rounded-3xl bg-[#191916] border border-[#3B392F] p-8 sm:p-12 lg:p-16">
-              <div className="relative z-10 max-w-3xl space-y-6">
-                <div className="inline-flex items-center space-x-2 text-xs font-mono uppercase tracking-wider text-[#C7A45B] bg-[#22221D] px-3.5 py-1.5 rounded-full border border-[#3B392F]">
-                  <Music2 className="w-3.5 h-3.5" />
-                  <span>The Sovereign Digital Sanctuary of Carnatic Music</span>
+            <section className="relative overflow-hidden rounded-3xl bg-[#191916] border border-[#3B392F] p-8 sm:p-12 lg:p-14">
+              <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-10">
+                <div className="max-w-2xl space-y-6">
+                  <div className="inline-flex items-center space-x-2 text-xs font-mono uppercase tracking-wider text-[#C7A45B] bg-[#22221D] px-3.5 py-1.5 rounded-full border border-[#3B392F]">
+                    <Music2 className="w-3.5 h-3.5" />
+                    <span>The Sovereign Digital Sanctuary of Carnatic Music</span>
+                  </div>
+
+                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-bold text-[#F4EBDD] leading-[1.15] tracking-tight">
+                    Discover Carnatic music. <br />
+                    <span className="text-[#C7A45B]">Understand its language.</span> <br />
+                    Practise with purpose.
+                  </h1>
+
+                  <p className="text-base sm:text-lg text-[#BDB4A4] leading-relaxed max-w-2xl font-light">
+                    A peer-reviewed, completely free learning and practice platform. Connect foundational beginner orientation, verifiable raga and tala musicology, precision Web Audio practice companions, and grounded AI guidance.
+                  </p>
+
+                  {/* Primary Action Buttons */}
+                  <div className="pt-2 flex flex-wrap gap-3 sm:gap-4 items-center">
+                    <button
+                      onClick={() => setActiveSection('learn')}
+                      className="flex items-center space-x-2 px-6 py-3.5 rounded-xl bg-[#C7A45B] hover:bg-[#E0C98F] text-[#11110F] font-semibold text-sm transition-all shadow-md active:scale-95"
+                    >
+                      <BookOpen className="w-4 h-4" />
+                      <span>Start Here: New to Carnatic?</span>
+                    </button>
+
+                    <button
+                      onClick={() => setActiveSection('practice')}
+                      className="flex items-center space-x-2 px-6 py-3.5 rounded-xl bg-[#22221D] hover:bg-[#2A2A24] border border-[#3B392F] hover:border-[#C7A45B] text-[#F4EBDD] font-medium text-sm transition-all"
+                    >
+                      <Sliders className="w-4 h-4 text-[#C7A45B]" />
+                      <span>Open Practice Studio</span>
+                    </button>
+
+                    <button
+                      onClick={() => setActiveSection('explore')}
+                      className="flex items-center space-x-2 px-5 py-3.5 rounded-xl bg-transparent hover:bg-[#191916] text-[#BDB4A4] hover:text-[#F4EBDD] text-sm transition-colors"
+                    >
+                      <Compass className="w-4 h-4" />
+                      <span>Explore Ragas & Instruments</span>
+                    </button>
+                  </div>
                 </div>
 
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-bold text-[#F4EBDD] leading-[1.15] tracking-tight">
-                  Discover Carnatic music. <br />
-                  <span className="text-[#C7A45B]">Understand its language.</span> <br />
-                  Practise with purpose.
-                </h1>
-
-                <p className="text-base sm:text-lg text-[#BDB4A4] leading-relaxed max-w-2xl font-light">
-                  A peer-reviewed, completely free learning and practice platform. Connect foundational beginner orientation, verifiable raga and tala musicology, precision Web Audio practice companions, and grounded AI guidance.
-                </p>
-
-                {/* Primary Action Buttons */}
-                <div className="pt-2 flex flex-wrap gap-3 sm:gap-4 items-center">
-                  <button
-                    onClick={() => setActiveSection('learn')}
-                    className="flex items-center space-x-2 px-6 py-3.5 rounded-xl bg-[#C7A45B] hover:bg-[#E0C98F] text-[#11110F] font-semibold text-sm transition-all shadow-md active:scale-95"
-                  >
-                    <BookOpen className="w-4 h-4" />
-                    <span>Start Here: New to Carnatic?</span>
-                  </button>
-
-                  <button
-                    onClick={() => setActiveSection('practice')}
-                    className="flex items-center space-x-2 px-6 py-3.5 rounded-xl bg-[#22221D] hover:bg-[#2A2A24] border border-[#3B392F] hover:border-[#C7A45B] text-[#F4EBDD] font-medium text-sm transition-all"
-                  >
-                    <Sliders className="w-4 h-4 text-[#C7A45B]" />
-                    <span>Open Practice Studio</span>
-                  </button>
-
-                  <button
-                    onClick={() => setActiveSection('explore')}
-                    className="flex items-center space-x-2 px-5 py-3.5 rounded-xl bg-transparent hover:bg-[#191916] text-[#BDB4A4] hover:text-[#F4EBDD] text-sm transition-colors"
-                  >
-                    <Compass className="w-4 h-4" />
-                    <span>Explore Ragas & Instruments</span>
-                  </button>
+                {/* Hero Logo Emblem */}
+                <div className="shrink-0 flex items-center justify-center">
+                  <div className="relative group">
+                    <div className="absolute -inset-2 bg-gradient-to-r from-[#C7A45B]/20 via-[#40826D]/20 to-[#C7A45B]/10 rounded-3xl blur-xl opacity-75 group-hover:opacity-100 transition-opacity" />
+                    <img
+                      src="/logo.png"
+                      alt="NadaVerse Carnatic Music Emblem"
+                      className="relative w-64 sm:w-80 lg:w-[360px] xl:w-[420px] rounded-2xl drop-shadow-2xl transition-transform duration-500 hover:scale-[1.02]"
+                    />
+                  </div>
                 </div>
-              </div>
-
-              {/* Subtle background acoustic motif */}
-              <div className="absolute right-0 bottom-0 top-0 w-1/3 pointer-events-none opacity-5 hidden lg:flex items-center justify-center font-serif text-[380px] text-[#C7A45B] select-none">
-                ॐ
               </div>
             </section>
 

@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="./assets/logo.png" alt="NadaVerse — Carnatic Music For Everyone" width="480" />
+</p>
+
 # NadaVerse — Carnatic Music Discovery & Practice Sanctuary
 
 > **Discover Carnatic music. Understand its language. Practise with purpose.**

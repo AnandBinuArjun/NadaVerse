@@ -10,9 +10,13 @@ export const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 pb-10 border-b border-[#3B392F]">
           {/* Col 1: Mission */}
           <div className="space-y-3 md:col-span-1">
-            <div className="flex items-center space-x-2 text-[#F4EBDD]">
-              <div className="w-7 h-7 rounded-full bg-[#191916] border border-[#C7A45B] flex items-center justify-center text-[#C7A45B] font-serif font-bold text-sm">
-                N
+            <div className="flex items-center space-x-2.5 text-[#F4EBDD]">
+              <div className="w-8 h-8 rounded-full overflow-hidden border border-[#C7A45B]/60 bg-[#191916] flex items-center justify-center shrink-0">
+                <img
+                  src="/logo.png"
+                  alt="NadaVerse Emblem"
+                  className="w-full h-full object-cover scale-110"
+                />
               </div>
               <span className="font-serif font-bold text-base tracking-wide">NadaVerse</span>
             </div>

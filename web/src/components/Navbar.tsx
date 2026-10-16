@@ -47,18 +47,22 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="flex items-center space-x-3">
           <button
             onClick={() => onNavigate && onNavigate('home')}
-            className="flex items-center space-x-2 text-left group"
+            className="flex items-center space-x-3 text-left group"
             aria-label="NadaVerse Home"
           >
-            <div className="w-9 h-9 rounded-full bg-[#191916] border border-[#C7A45B] flex items-center justify-center text-[#C7A45B] font-serif font-bold text-lg shadow-sm group-hover:bg-[#22221D] transition-colors">
-              N
+            <div className="w-10 h-10 rounded-full overflow-hidden border border-[#C7A45B]/60 bg-[#191916] flex items-center justify-center shadow-md group-hover:border-[#C7A45B] group-hover:scale-105 transition-all shrink-0">
+              <img
+                src="/logo.png"
+                alt="NadaVerse Emblem"
+                className="w-full h-full object-cover scale-110"
+              />
             </div>
             <div>
               <span className="font-serif tracking-wide text-xl font-bold text-[#F4EBDD] block leading-tight">
                 NadaVerse
               </span>
               <span className="text-[11px] tracking-wider uppercase text-[#BDB4A4] block">
-                Carnatic Sanctuary
+                Carnatic Music For Everyone
               </span>
             </div>
           </button>
