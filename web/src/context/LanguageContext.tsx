@@ -14,11 +14,11 @@ const LanguageContext = createContext<LanguageContextType>({
   lang: 'en',
   setLang: () => {},
   toggleLang: () => {},
-  t: TRANSLATIONS.en,
+  t: TRANSLATIONS.ml,
 });
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [lang, setLangState] = useState<Language>('en');
+  const [lang, setLangState] = useState<Language>('ml');
 
   useEffect(() => {
     try {

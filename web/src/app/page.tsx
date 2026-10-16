@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
 import { ShrutiCompanion } from '../components/ShrutiCompanion';
@@ -12,8 +12,15 @@ import { InstrumentCard } from '../components/InstrumentCard';
 import { BeginnerPath } from '../components/BeginnerPath';
 import { TutorModal } from '../components/TutorModal';
 import { AuthModal } from '../components/AuthModal';
+import { PrivacyModal } from '../components/PrivacyModal';
+import { AttributionModal } from '../components/AttributionModal';
+import { OnboardingModal, MusicianProfile } from '../components/OnboardingModal';
+import { SwarasthanaVisualizer } from '../components/SwarasthanaVisualizer';
+import { SadhanaTracker } from '../components/SadhanaTracker';
+import { SuggestCorrectionModal } from '../components/SuggestCorrectionModal';
 import { VERIFIED_RAGAS, VERIFIED_INSTRUMENTS, VERIFIED_TALAS, GLOSSARY_TERMS, VERIFIED_COMPOSERS } from '../data/carnaticData';
 import { API_BASE_URL } from '../lib/api';
+import { TONIC_OPTIONS, TonicNote, audioEngine } from '../lib/audioEngine';
 import { useLanguage } from '../context/LanguageContext';
 import { RAGA_ML_NAMES, COMPOSER_ML_NAMES } from '../lib/translations';
 import { GLOSSARY_ML_DATA, COMPOSER_ML_DATA } from '../data/malayalamTranslations';
@@ -26,7 +33,10 @@ import {
   Search,
   Save,
   CheckCircle2,
-  Sparkles
+  Sparkles,
+  Keyboard,
+  ShieldCheck,
+  Edit3
 } from 'lucide-react';
 
 export default function Home() {
@@ -37,6 +47,15 @@ export default function Home() {
   const [isTutorOpen, setIsTutorOpen] = useState(false);
   const [tutorTopic, setTutorTopic] = useState<string | undefined>(undefined);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
+  const [isAttributionOpen, setIsAttributionOpen] = useState(false);
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
+  const [isSuggestCorrectionOpen, setIsSuggestCorrectionOpen] = useState(false);
+  const [correctionTarget, setCorrectionTarget] = useState<{ name: string; type: 'raga' | 'composer' | 'tala' }>({
+    name: 'Mayamalavagowla',
+    type: 'raga'
+  });
+  const [activeTonic, setActiveTonic] = useState<TonicNote>(TONIC_OPTIONS[0]);
   const [currentUser, setCurrentUser] = useState<{ email: string; displayName: string } | null>(null);
 
   // Practice Session State
@@ -44,9 +63,35 @@ export default function Home() {
   const [sessionNotes, setSessionNotes] = useState('');
   const [sessionSavedSuccess, setSessionSavedSuccess] = useState(false);
 
+  // Initialize Onboarding and natural Adhara Sa from localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const completed = localStorage.getItem('nadaverse_onboarding_completed');
+      if (!completed) {
+        setIsOnboardingOpen(true);
+      }
+      const storedProfile = localStorage.getItem('nadaverse_musician_profile');
+      if (storedProfile) {
+        try {
+          const profile: MusicianProfile = JSON.parse(storedProfile);
+          const found = TONIC_OPTIONS.find((t) => t.name.startsWith(profile.tonic));
+          if (found) {
+            setActiveTonic(found);
+            audioEngine.setTonic(found.frequency);
+          }
+        } catch {}
+      }
+    }
+  }, []);
+
   const handleOpenTutorWithTopic = (topic: string) => {
     setTutorTopic(topic);
     setIsTutorOpen(true);
+  };
+
+  const handleOpenSuggestCorrection = (name: string, type: 'raga' | 'composer' | 'tala' = 'raga') => {
+    setCorrectionTarget({ name, type });
+    setIsSuggestCorrectionOpen(true);
   };
 
   const handleNavigate = (section: string) => {
@@ -58,12 +103,31 @@ export default function Home() {
 
   const handleSavePracticeSession = async () => {
     const payload = {
-      focus: sessionFocus,
-      tonic: 'C',
+      focus: sessionFocus || 'Mayamalavagowla Sarali Varisai',
+      tonic: activeTonic.name,
       tala_id: 'adi-tala',
       notes: sessionNotes,
       duration_seconds: 900
     };
+
+    // Save to local storage for SadhanaTracker instant reactivity
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = JSON.parse(localStorage.getItem('nadaverse_sadhana_sessions') || '[]');
+        const newRecord = {
+          id: `s-${Date.now()}`,
+          date: new Date().toISOString(),
+          focus: sessionFocus || 'Mayamalavagowla Sarali Varisai',
+          kattai: `${activeTonic.name} (${activeTonic.kattai})`,
+          tala: 'Adi Tala (8 aksharas)',
+          durationMinutes: 15,
+          notes: sessionNotes
+        };
+        stored.unshift(newRecord);
+        localStorage.setItem('nadaverse_sadhana_sessions', JSON.stringify(stored));
+        window.dispatchEvent(new Event('nadaverse:sadhana_updated'));
+      } catch {}
+    }
 
     try {
       const token = typeof window !== 'undefined' ? localStorage.getItem('nadaverse_token') : null;
@@ -127,7 +191,7 @@ export default function Home() {
   });
 
   return (
-    <div className="min-h-screen bg-[#11110F] text-[#F4EBDD] flex flex-col font-sans selection:bg-[#C7A45B]/30 selection:text-[#F4EBDD]">
+    <div className="min-h-screen bg-[#0d0c0a] bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(199,164,91,0.15),rgba(255,255,255,0))] text-[#F4EBDD] flex flex-col font-sans selection:bg-[#C7A45B]/30 selection:text-[#F4EBDD]">
       {/* Primary Navigation */}
       <Navbar
         activeSection={activeSection}
@@ -140,91 +204,105 @@ export default function Home() {
         }}
       />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-10 sm:space-y-16">
         {/* =========================================================================
             SECTION: HOME / HERO OVERVIEW
         ========================================================================= */}
         {activeSection === 'home' && (
-          <div className="space-y-12">
+          <div className="space-y-10 sm:space-y-16">
             {/* Hero Section */}
-            <section className="relative overflow-hidden rounded-3xl bg-[#191916] border border-[#3B392F] p-8 sm:p-12 lg:p-14">
-              <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-10">
-                <div className="max-w-2xl space-y-6">
-                  <div className="inline-flex items-center space-x-2 text-xs font-mono uppercase tracking-wider text-[#C7A45B] bg-[#22221D] px-3.5 py-1.5 rounded-full border border-[#3B392F]">
-                    <Music2 className="w-3.5 h-3.5" />
-                    <span>{t.heroBadge}</span>
+            <section className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-b from-[#181612]/95 via-[#13120e]/95 to-[#0f0e0b]/98 border border-[#C7A45B]/30 p-4 sm:p-8 lg:p-10 xl:p-12 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.8),0_0_50px_rgba(199,164,91,0.1)] backdrop-blur-2xl">
+              {/* Decorative Background Lighting */}
+              <div className="absolute top-0 right-1/4 w-96 h-96 bg-[#C7A45B]/10 rounded-full blur-3xl pointer-events-none ambient-aura" />
+              <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-[#C7A45B]/5 rounded-full blur-3xl pointer-events-none" />
+
+              <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 lg:gap-8 xl:gap-10 items-center">
+                <div className="lg:col-span-7 xl:col-span-7 space-y-4 sm:space-y-5 min-w-0">
+                  {/* Badge with Live Soundwave Indicator */}
+                  <div className="inline-flex items-center space-x-2.5 text-xs font-mono uppercase tracking-wider text-[#E8D7A8] bg-[#222019]/90 px-3.5 sm:px-4 py-1.5 rounded-full border border-[#C7A45B]/40 shadow-[0_0_15px_rgba(199,164,91,0.15)] max-w-full overflow-hidden">
+                    <Music2 className="w-4 h-4 text-[#C7A45B] shrink-0" />
+                    <span className="font-semibold truncate">{t.heroBadge}</span>
+                    <div className="hidden sm:flex items-center space-x-1 h-3.5 pl-1.5 border-l border-[#C7A45B]/40 shrink-0">
+                      <span className="soundwave-bar" />
+                      <span className="soundwave-bar" />
+                      <span className="soundwave-bar" />
+                      <span className="soundwave-bar" />
+                    </div>
                   </div>
 
-                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-bold text-[#F4EBDD] leading-[1.15] tracking-tight">
-                    {t.heroTitle1} <br />
-                    <span className="text-[#C7A45B]">{t.heroTitle2}</span> <br />
-                    {t.heroTitle3}
+                  <h1 className="text-2xl sm:text-3xl md:text-4xl xl:text-5xl font-serif font-bold text-[#F4EBDD] leading-[1.28] tracking-tight">
+                    <span className="block">{t.heroTitle1}</span>
+                    <span className="block nv-gold-gradient-text drop-shadow-[0_2px_12px_rgba(199,164,91,0.3)]">{t.heroTitle2}</span>
+                    <span className="block">{t.heroTitle3}</span>
                   </h1>
 
-                  <p className="text-base sm:text-lg text-[#BDB4A4] leading-relaxed max-w-2xl font-light">
+                  <p className="text-xs sm:text-base text-[#BDB4A4] leading-relaxed font-light max-w-xl">
                     {t.heroDescription}
                   </p>
 
                   {/* Primary Action Buttons */}
-                  <div className="pt-2 flex flex-wrap gap-3 sm:gap-4 items-center">
+                  <div className="pt-2 flex flex-col sm:flex-row gap-2.5 sm:gap-4 items-stretch sm:items-center w-full sm:w-auto">
                     <button
                       onClick={() => setActiveSection('learn')}
-                      className="flex items-center space-x-2 px-6 py-3.5 rounded-xl bg-[#C7A45B] hover:bg-[#E0C98F] text-[#11110F] font-semibold text-sm transition-all shadow-md active:scale-95"
+                      className="flex items-center justify-center space-x-2 px-5 sm:px-6 py-3.5 sm:py-3 rounded-xl bg-gradient-to-r from-[#DFB960] to-[#C7A45B] hover:brightness-110 text-[#11110F] font-bold text-xs sm:text-sm transition-all active:scale-95 cursor-pointer whitespace-nowrap shadow-lg shadow-[#C7A45B]/25 w-full sm:w-auto min-h-[44px]"
                     >
-                      <BookOpen className="w-4 h-4" />
+                      <BookOpen className="w-4 h-4 text-[#11110F] shrink-0" />
                       <span>{t.heroStartBtn}</span>
                     </button>
 
                     <button
                       onClick={() => setActiveSection('practice')}
-                      className="flex items-center space-x-2 px-6 py-3.5 rounded-xl bg-[#22221D] hover:bg-[#2A2A24] border border-[#3B392F] hover:border-[#C7A45B] text-[#F4EBDD] font-medium text-sm transition-all"
+                      className="flex items-center justify-center space-x-2 px-5 sm:px-6 py-3.5 sm:py-3 rounded-xl bg-[#1e1c17] hover:bg-[#282620] border border-[#C7A45B]/40 hover:border-[#C7A45B] hover:shadow-[0_0_20px_rgba(199,164,91,0.25)] text-[#F4EBDD] font-medium text-xs sm:text-sm transition-all duration-300 whitespace-nowrap shadow-sm w-full sm:w-auto min-h-[44px]"
                     >
-                      <Sliders className="w-4 h-4 text-[#C7A45B]" />
+                      <Sliders className="w-4 h-4 text-[#C7A45B] shrink-0" />
                       <span>{t.heroPracticeBtn}</span>
                     </button>
 
                     <button
                       onClick={() => setActiveSection('explore')}
-                      className="flex items-center space-x-2 px-5 py-3.5 rounded-xl bg-transparent hover:bg-[#191916] text-[#BDB4A4] hover:text-[#F4EBDD] text-sm transition-colors"
+                      className="flex items-center justify-center space-x-2 px-4 sm:px-5 py-3.5 sm:py-3 rounded-xl bg-[#14120e] hover:bg-[#1e1c17] border border-[#C7A45B]/25 hover:border-[#C7A45B]/50 text-[#BDB4A4] hover:text-[#F4EBDD] text-xs sm:text-sm transition-all duration-200 whitespace-nowrap shadow-sm w-full sm:w-auto min-h-[44px]"
                     >
-                      <Compass className="w-4 h-4" />
+                      <Compass className="w-4 h-4 text-[#C7A45B]/80 shrink-0" />
                       <span>{t.heroExploreBtn}</span>
                     </button>
                   </div>
                 </div>
 
-                {/* Hero Logo Emblem */}
-                <div className="shrink-0 flex items-center justify-center">
-                  <div className="relative group">
-                    <div className="absolute -inset-2 bg-gradient-to-r from-[#C7A45B]/20 via-[#40826D]/20 to-[#C7A45B]/10 rounded-3xl blur-xl opacity-75 group-hover:opacity-100 transition-opacity" />
-                    <img
-                      src="/logo.png"
-                      alt="NadaVerse Carnatic Music Emblem"
-                      className="relative w-64 sm:w-80 lg:w-[360px] xl:w-[420px] rounded-2xl drop-shadow-2xl transition-transform duration-500 hover:scale-[1.02]"
-                    />
+                {/* Hero Logo Emblem with Radiant Aura */}
+                <div className="lg:col-span-5 xl:col-span-5 flex items-center justify-center min-w-0 pt-2 lg:pt-0">
+                  <div className="relative group w-full max-w-[220px] sm:max-w-[300px] lg:max-w-[340px] xl:max-w-[380px]">
+                    <div className="absolute -inset-4 bg-gradient-to-r from-[#C7A45B]/30 via-[#E8D7A8]/20 to-[#C7A45B]/30 rounded-full blur-2xl opacity-75 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" />
+                    <div className="relative rounded-2xl sm:rounded-3xl p-2.5 sm:p-3 bg-gradient-to-b from-[#C7A45B]/30 to-[#191916]/80 border border-[#C7A45B]/40 shadow-2xl backdrop-blur-sm">
+                      <img
+                        src="/logo.png"
+                        alt="NadaVerse Carnatic Music Emblem"
+                        className="w-full h-auto rounded-xl sm:rounded-2xl drop-shadow-[0_15px_35px_rgba(0,0,0,0.8)] transition-transform duration-500 group-hover:scale-[1.02]"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
             </section>
 
-            {/* Complete Vertical Slice Pathway Highlight */}
-            <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Complete Vertical Slice Pathway Highlight Cards */}
+            <section className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
               <div
                 onClick={() => setActiveSection('learn')}
-                className="bg-[#191916] border border-[#3B392F] p-6 rounded-2xl cursor-pointer hover:border-[#C7A45B]/60 transition-all group"
+                className="nv-glass-card p-5 sm:p-7 lg:p-8 rounded-2xl sm:rounded-3xl cursor-pointer group relative overflow-hidden"
               >
-                <div className="w-10 h-10 rounded-xl bg-[#22221D] border border-[#3B392F] flex items-center justify-center text-[#C7A45B] group-hover:bg-[#C7A45B] group-hover:text-[#11110F] transition-colors mb-4">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-[#C7A45B]/5 rounded-bl-full group-hover:bg-[#C7A45B]/15 transition-all duration-500" />
+                <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-[#C7A45B]/25 to-[#C7A45B]/5 border border-[#C7A45B]/30 flex items-center justify-center text-[#E0C98F] group-hover:scale-110 group-hover:bg-[#C7A45B] group-hover:text-[#11110F] transition-all duration-300 mb-4 sm:mb-5 shadow-lg shadow-black/40">
                   <BookOpen className="w-5 h-5" />
                 </div>
-                <h3 className="text-xl font-serif font-bold text-[#F4EBDD] mb-2 group-hover:text-[#C7A45B] transition-colors">
+                <h3 className="text-lg sm:text-xl font-serif font-bold text-[#F4EBDD] mb-2 sm:mb-2.5 group-hover:text-[#E0C98F] transition-colors">
                   {t.card1Title}
                 </h3>
-                <p className="text-sm text-[#BDB4A4] leading-relaxed">
+                <p className="text-xs sm:text-sm text-[#BDB4A4] leading-relaxed">
                   {t.card1Desc}
                 </p>
-                <span className="inline-flex items-center space-x-1 text-xs font-mono text-[#C7A45B] mt-4 font-semibold">
+                <span className="inline-flex items-center space-x-1.5 text-xs font-mono text-[#C7A45B] mt-4 sm:mt-5 font-semibold group-hover:translate-x-1 transition-transform duration-300">
                   <span>{t.navStartHere}</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
+                  <ChevronRight className="w-4 h-4" />
                 </span>
               </div>
 
@@ -233,52 +311,60 @@ export default function Home() {
                   setActiveSection('explore');
                   setExploreTab('ragas');
                 }}
-                className="bg-[#191916] border border-[#3B392F] p-6 rounded-2xl cursor-pointer hover:border-[#C7A45B]/60 transition-all group"
+                className="nv-glass-card p-5 sm:p-7 lg:p-8 rounded-2xl sm:rounded-3xl cursor-pointer group relative overflow-hidden"
               >
-                <div className="w-10 h-10 rounded-xl bg-[#22221D] border border-[#3B392F] flex items-center justify-center text-[#C7A45B] group-hover:bg-[#C7A45B] group-hover:text-[#11110F] transition-colors mb-4">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-[#C7A45B]/5 rounded-bl-full group-hover:bg-[#C7A45B]/15 transition-all duration-500" />
+                <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-[#C7A45B]/25 to-[#C7A45B]/5 border border-[#C7A45B]/30 flex items-center justify-center text-[#E0C98F] group-hover:scale-110 group-hover:bg-[#C7A45B] group-hover:text-[#11110F] transition-all duration-300 mb-4 sm:mb-5 shadow-lg shadow-black/40">
                   <Compass className="w-5 h-5" />
                 </div>
-                <h3 className="text-xl font-serif font-bold text-[#F4EBDD] mb-2 group-hover:text-[#C7A45B] transition-colors">
+                <h3 className="text-lg sm:text-xl font-serif font-bold text-[#F4EBDD] mb-2 sm:mb-2.5 group-hover:text-[#E0C98F] transition-colors">
                   {t.card2Title}
                 </h3>
-                <p className="text-sm text-[#BDB4A4] leading-relaxed">
+                <p className="text-xs sm:text-sm text-[#BDB4A4] leading-relaxed">
                   {t.card2Desc}
                 </p>
-                <span className="inline-flex items-center space-x-1 text-xs font-mono text-[#C7A45B] mt-4 font-semibold">
+                <span className="inline-flex items-center space-x-1.5 text-xs font-mono text-[#C7A45B] mt-4 sm:mt-5 font-semibold group-hover:translate-x-1 transition-transform duration-300">
                   <span>{t.navExplore}</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
+                  <ChevronRight className="w-4 h-4" />
                 </span>
               </div>
 
               <div
                 onClick={() => setActiveSection('practice')}
-                className="bg-[#191916] border border-[#3B392F] p-6 rounded-2xl cursor-pointer hover:border-[#C7A45B]/60 transition-all group"
+                className="nv-glass-card p-5 sm:p-7 lg:p-8 rounded-2xl sm:rounded-3xl cursor-pointer group relative overflow-hidden"
               >
-                <div className="w-10 h-10 rounded-xl bg-[#22221D] border border-[#3B392F] flex items-center justify-center text-[#C7A45B] group-hover:bg-[#C7A45B] group-hover:text-[#11110F] transition-colors mb-4">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-[#C7A45B]/5 rounded-bl-full group-hover:bg-[#C7A45B]/15 transition-all duration-500" />
+                <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-[#C7A45B]/25 to-[#C7A45B]/5 border border-[#C7A45B]/30 flex items-center justify-center text-[#E0C98F] group-hover:scale-110 group-hover:bg-[#C7A45B] group-hover:text-[#11110F] transition-all duration-300 mb-4 sm:mb-5 shadow-lg shadow-black/40">
                   <Sliders className="w-5 h-5" />
                 </div>
-                <h3 className="text-xl font-serif font-bold text-[#F4EBDD] mb-2 group-hover:text-[#C7A45B] transition-colors">
+                <h3 className="text-lg sm:text-xl font-serif font-bold text-[#F4EBDD] mb-2 sm:mb-2.5 group-hover:text-[#E0C98F] transition-colors">
                   {t.card3Title}
                 </h3>
-                <p className="text-sm text-[#BDB4A4] leading-relaxed">
+                <p className="text-xs sm:text-sm text-[#BDB4A4] leading-relaxed">
                   {t.card3Desc}
                 </p>
-                <span className="inline-flex items-center space-x-1 text-xs font-mono text-[#C7A45B] mt-4 font-semibold">
+                <span className="inline-flex items-center space-x-1.5 text-xs font-mono text-[#C7A45B] mt-4 sm:mt-5 font-semibold group-hover:translate-x-1 transition-transform duration-300">
                   <span>{t.navPracticeStudio}</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
+                  <ChevronRight className="w-4 h-4" />
                 </span>
               </div>
             </section>
 
             {/* Featured Sample Content: Mayamalavagowla Vertical Slice */}
-            <section className="space-y-4">
-              <div className="flex items-center justify-between">
+            <section className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-2 border-b border-[#C7A45B]/20">
                 <div>
-                  <h2 className="text-2xl font-serif font-bold text-[#F4EBDD]">
-                    Featured Verified Work: Mayamalavagowla
+                  <div className="flex items-center space-x-2 text-xs font-mono uppercase tracking-wider text-[#C7A45B] mb-1">
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>{lang === 'ml' ? 'ശാസ്ത്രീയ മാതൃക' : 'Canonical Benchmark'}</span>
+                  </div>
+                  <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#F4EBDD]">
+                    {lang === 'ml' ? 'പ്രത്യേക ശാസ്ത്രീയ രാഗം: മായാമാളവഗൗള' : 'Featured Verified Work: Mayamalavagowla'}
                   </h2>
-                  <p className="text-sm text-[#BDB4A4]">
-                    The fundamental learning scale of South Indian classical music, codified by Purandara Dasa.
+                  <p className="text-sm text-[#BDB4A4] mt-1">
+                    {lang === 'ml'
+                      ? 'പുരന്ദര ദാസർ ചിട്ടപ്പെടുത്തിയ കർണ്ണാടക സംഗീതത്തിന്റെ പ്രാഥമിക അഭ്യസന രാഗം.'
+                      : 'The fundamental learning scale of South Indian classical music, codified by Purandara Dasa.'}
                   </p>
                 </div>
                 <button
@@ -286,30 +372,35 @@ export default function Home() {
                     setActiveSection('explore');
                     setExploreTab('ragas');
                   }}
-                  className="text-xs text-[#C7A45B] hover:text-[#E0C98F] font-mono flex items-center space-x-1"
+                  className="inline-flex items-center space-x-1.5 px-4 py-2 rounded-xl bg-[#1e1c17] hover:bg-[#282620] border border-[#C7A45B]/30 hover:border-[#C7A45B] text-xs text-[#E0C98F] font-mono transition-all self-start sm:self-auto shadow-sm"
                 >
-                  <span>View all ragas</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
+                  <span>{lang === 'ml' ? 'എല്ലാ രാഗങ്ങളും കാണുക' : 'View all ragas'}</span>
+                  <ChevronRight className="w-3.5 h-3.5 text-[#C7A45B]" />
                 </button>
               </div>
 
               <RagaCard
                 raga={VERIFIED_RAGAS[0]}
                 onAskTutor={handleOpenTutorWithTopic}
+                onSuggestCorrection={(name) => handleOpenSuggestCorrection(name, 'raga')}
               />
             </section>
 
             {/* Instant Practice Companion Preview */}
-            <section className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-2xl font-serif font-bold text-[#F4EBDD]">
-                    Instant Practice Companion
-                  </h2>
-                  <p className="text-sm text-[#BDB4A4]">
-                    Zero-latency Web Audio API Tanpura drone with Just Intonation swaras.
-                  </p>
+            <section className="space-y-6">
+              <div className="pb-2 border-b border-[#C7A45B]/20">
+                <div className="flex items-center space-x-2 text-xs font-mono uppercase tracking-wider text-[#C7A45B] mb-1">
+                  <Sliders className="w-3.5 h-3.5" />
+                  <span>{lang === 'ml' ? 'ശ്രുതി പരിശീലനം' : 'Shruti Practice'}</span>
                 </div>
+                <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#F4EBDD]">
+                  {lang === 'ml' ? 'തത്സമയ സാധക സഹായി' : 'Instant Practice Companion'}
+                </h2>
+                <p className="text-sm text-[#BDB4A4] mt-1">
+                  {lang === 'ml'
+                    ? 'ജസ്റ്റ് ഇൻ്റോണേഷൻ സ്വരങ്ങളോടുകൂടിയ വെബ് ഓഡിയോ തംബുരു ശ്രുതി.'
+                    : 'Zero-latency Web Audio API Tanpura drone with Just Intonation swaras.'}
+                </p>
               </div>
               <ShrutiCompanion />
             </section>
@@ -330,6 +421,9 @@ export default function Home() {
                 setIsTutorOpen(true);
               }}
             />
+
+            {/* Interactive Swarasthana Visualizer for Learning */}
+            <SwarasthanaVisualizer />
 
             <div className="p-6 bg-[#191916] rounded-2xl border border-[#3B392F]">
               <h3 className="font-serif font-bold text-lg text-[#F4EBDD] mb-2">
@@ -356,55 +450,55 @@ export default function Home() {
         {activeSection === 'explore' && (
           <div className="space-y-8">
             {/* Explore Navigation & Search */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#191916] p-4 sm:p-6 rounded-2xl border border-[#3B392F]">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 nv-glass-panel p-3.5 sm:p-6 rounded-2xl sm:rounded-3xl border border-[#C7A45B]/25 shadow-xl">
               {/* Category Tabs */}
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5 sm:gap-2">
                 <button
                   onClick={() => setExploreTab('ragas')}
-                  className={`px-4 py-2 rounded-xl text-xs font-mono font-medium transition-all ${
+                  className={`px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-xs font-mono font-medium transition-all ${
                     exploreTab === 'ragas'
-                      ? 'bg-[#C7A45B] text-[#11110F] font-bold'
-                      : 'bg-[#22221D] text-[#BDB4A4] hover:text-[#F4EBDD]'
+                      ? 'nv-gold-btn font-bold shadow-md shadow-[#C7A45B]/20'
+                      : 'bg-[#0d0c0a]/60 hover:bg-[#1e1c17] text-[#BDB4A4] hover:text-[#F4EBDD] border border-[#C7A45B]/15 hover:border-[#C7A45B]/30'
                   }`}
                 >
                   {t.tabRagas} ({VERIFIED_RAGAS.length})
                 </button>
                 <button
                   onClick={() => setExploreTab('talas')}
-                  className={`px-4 py-2 rounded-xl text-xs font-mono font-medium transition-all ${
+                  className={`px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-xs font-mono font-medium transition-all ${
                     exploreTab === 'talas'
-                      ? 'bg-[#C7A45B] text-[#11110F] font-bold'
-                      : 'bg-[#22221D] text-[#BDB4A4] hover:text-[#F4EBDD]'
+                      ? 'nv-gold-btn font-bold shadow-md shadow-[#C7A45B]/20'
+                      : 'bg-[#0d0c0a]/60 hover:bg-[#1e1c17] text-[#BDB4A4] hover:text-[#F4EBDD] border border-[#C7A45B]/15 hover:border-[#C7A45B]/30'
                   }`}
                 >
                   {t.tabTalas} ({VERIFIED_TALAS.length})
                 </button>
                 <button
                   onClick={() => setExploreTab('instruments')}
-                  className={`px-4 py-2 rounded-xl text-xs font-mono font-medium transition-all ${
+                  className={`px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-xs font-mono font-medium transition-all ${
                     exploreTab === 'instruments'
-                      ? 'bg-[#C7A45B] text-[#11110F] font-bold'
-                      : 'bg-[#22221D] text-[#BDB4A4] hover:text-[#F4EBDD]'
+                      ? 'nv-gold-btn font-bold shadow-md shadow-[#C7A45B]/20'
+                      : 'bg-[#0d0c0a]/60 hover:bg-[#1e1c17] text-[#BDB4A4] hover:text-[#F4EBDD] border border-[#C7A45B]/15 hover:border-[#C7A45B]/30'
                   }`}
                 >
                   {t.tabInstruments} ({VERIFIED_INSTRUMENTS.length})
                 </button>
                 <button
                   onClick={() => setExploreTab('composers')}
-                  className={`px-4 py-2 rounded-xl text-xs font-mono font-medium transition-all ${
+                  className={`px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-xs font-mono font-medium transition-all ${
                     exploreTab === 'composers'
-                      ? 'bg-[#C7A45B] text-[#11110F] font-bold'
-                      : 'bg-[#22221D] text-[#BDB4A4] hover:text-[#F4EBDD]'
+                      ? 'nv-gold-btn font-bold shadow-md shadow-[#C7A45B]/20'
+                      : 'bg-[#0d0c0a]/60 hover:bg-[#1e1c17] text-[#BDB4A4] hover:text-[#F4EBDD] border border-[#C7A45B]/15 hover:border-[#C7A45B]/30'
                   }`}
                 >
                   {t.tabComposers} ({VERIFIED_COMPOSERS.length})
                 </button>
                 <button
                   onClick={() => setExploreTab('glossary')}
-                  className={`px-4 py-2 rounded-xl text-xs font-mono font-medium transition-all ${
+                  className={`px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-xs font-mono font-medium transition-all ${
                     exploreTab === 'glossary'
-                      ? 'bg-[#C7A45B] text-[#11110F] font-bold'
-                      : 'bg-[#22221D] text-[#BDB4A4] hover:text-[#F4EBDD]'
+                      ? 'nv-gold-btn font-bold shadow-md shadow-[#C7A45B]/20'
+                      : 'bg-[#0d0c0a]/60 hover:bg-[#1e1c17] text-[#BDB4A4] hover:text-[#F4EBDD] border border-[#C7A45B]/15 hover:border-[#C7A45B]/30'
                   }`}
                 >
                   {t.tabGlossary} ({GLOSSARY_TERMS.length})
@@ -412,14 +506,14 @@ export default function Home() {
               </div>
 
               {/* Search Bar */}
-              <div className="relative w-full md:w-72">
-                <Search className="w-4 h-4 text-[#BDB4A4] absolute left-3 top-1/2 -translate-y-1/2" />
+              <div className="relative w-full md:w-80">
+                <Search className="w-4 h-4 text-[#C7A45B] absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder={t.searchPlaceholder}
-                  className="w-full bg-[#22221D] border border-[#3B392F] rounded-xl pl-9 pr-4 py-2 text-xs text-[#F4EBDD] placeholder-[#BDB4A4]/60 focus:outline-none focus:border-[#C7A45B]"
+                  className="w-full bg-[#0d0c0a]/80 border border-[#C7A45B]/25 rounded-xl pl-10 pr-4 py-2.5 text-xs text-[#F4EBDD] placeholder-[#BDB4A4]/50 focus:outline-none focus:border-[#C7A45B] focus:ring-1 focus:ring-[#C7A45B]/40 transition-all shadow-inner min-h-[40px]"
                 />
               </div>
             </div>
@@ -427,7 +521,7 @@ export default function Home() {
             {/* RAGAS TAB */}
             {exploreTab === 'ragas' && (
               <div className="space-y-6">
-                <div className="flex items-center justify-between text-xs text-[#BDB4A4] font-mono">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs text-[#BDB4A4] font-mono gap-1">
                   <span>
                     {lang === 'ml'
                       ? `${filteredRagas.length} ആധികാരിക രാഗ രേഖകൾ ലഭ്യമാണ്`
@@ -446,6 +540,7 @@ export default function Home() {
                       key={raga.id}
                       raga={raga}
                       onAskTutor={handleOpenTutorWithTopic}
+                      onSuggestCorrection={(name) => handleOpenSuggestCorrection(name, 'raga')}
                     />
                   ))}
                 </div>
@@ -493,69 +588,82 @@ export default function Home() {
                   </span>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                   {filteredComposers.map((composer, idx) => {
                     const ml = COMPOSER_ML_DATA[composer.name];
                     return (
                       <div
                         key={idx}
-                        className="bg-[#191916] border border-[#3B392F] rounded-2xl p-6 hover:border-[#C7A45B]/60 transition-all space-y-4"
+                        className="nv-glass-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-7 hover:border-[#C7A45B]/60 transition-all duration-300 space-y-3.5 sm:space-y-4 group relative overflow-hidden shadow-xl"
                       >
-                        <div className="flex items-start justify-between pb-3 border-b border-[#3B392F]">
+                        <div className="absolute top-0 right-0 w-36 h-36 bg-[#C7A45B]/5 rounded-bl-full pointer-events-none group-hover:bg-[#C7A45B]/10 transition-colors" />
+
+                        <div className="flex flex-col sm:flex-row sm:items-start justify-between pb-3.5 sm:pb-4 border-b border-[#C7A45B]/20 gap-2 relative z-10">
                           <div>
-                            <h3 className="font-serif font-bold text-xl text-[#F4EBDD]">
+                            <h3 className="font-serif font-bold text-xl sm:text-2xl text-[#F4EBDD] group-hover:text-[#E0C98F] transition-colors">
                               {lang === 'ml' && COMPOSER_ML_NAMES[composer.name]
                                 ? `${COMPOSER_ML_NAMES[composer.name]} (${composer.name})`
                                 : composer.name}
                             </h3>
-                            <span className="text-xs font-mono text-[#C7A45B]">
+                            <span className="text-xs font-mono text-[#C7A45B] block mt-0.5">
                               {lang === 'ml' && ml ? ml.traditionMl : composer.tradition} · {composer.lifespan}
                             </span>
                           </div>
-                          <span className="text-[10px] font-mono bg-[#22221D] text-[#87947A] border border-[#3B392F] px-2 py-0.5 rounded">
+                          <span className="text-[10px] sm:text-[11px] font-mono bg-[#C7A45B]/15 text-[#E0C98F] border border-[#C7A45B]/30 px-2.5 py-0.5 rounded-full shrink-0 self-start sm:self-auto">
                             {lang === 'ml' ? 'മുദ്ര: ' : 'Mudra: '}
                             {lang === 'ml' && ml ? ml.mudraMl : composer.signatureMudra}
                           </span>
                         </div>
 
-                        <div className="flex flex-wrap gap-2 text-[10px] font-mono text-[#BDB4A4]/80">
+                        <div className="flex flex-wrap gap-2 text-xs font-mono text-[#BDB4A4]/90 relative z-10">
                           <span>
                             {lang === 'ml' ? 'ജന്മസ്ഥലം: ' : 'Birthplace: '}
-                            {lang === 'ml' && ml ? ml.birthplaceMl : composer.birthplace}
+                            <strong className="text-[#F4EBDD]">{lang === 'ml' && ml ? ml.birthplaceMl : composer.birthplace}</strong>
                           </span>
                           <span>•</span>
                           <span>
                             {lang === 'ml' ? 'ഭാഷകൾ: ' : 'Languages: '}
-                            {lang === 'ml' && ml ? ml.languagesMl.join(', ') : composer.primaryLanguages.join(', ')}
+                            <strong className="text-[#F4EBDD]">{lang === 'ml' && ml ? ml.languagesMl.join(', ') : composer.primaryLanguages.join(', ')}</strong>
                           </span>
                         </div>
 
-                        <p className="text-xs text-[#BDB4A4] leading-relaxed">
+                        <p className="text-xs text-[#BDB4A4] leading-relaxed relative z-10">
                           {lang === 'ml' && ml ? ml.biographyMl : composer.biography}
                         </p>
 
-                        <div className="bg-[#22221D] p-3 rounded-xl border border-[#3B392F]/60 text-xs">
-                          <span className="text-[10px] font-mono uppercase text-[#C7A45B] block mb-1">
+                        <div className="bg-[#0d0c0a]/80 backdrop-blur-md p-3.5 sm:p-4 rounded-xl sm:rounded-2xl border border-[#C7A45B]/20 text-xs relative z-10">
+                          <span className="text-[11px] font-mono uppercase text-[#C7A45B] block mb-1.5 font-semibold">
                             {lang === 'ml' ? 'പ്രധാന അനശ്വര കൃതികൾ:' : 'Signature Masterpieces:'}
                           </span>
-                          <ul className="list-disc list-inside text-[#F4EBDD] space-y-0.5 text-xs">
+                          <ul className="list-disc list-inside text-[#F4EBDD] space-y-1 text-xs font-medium">
                             {composer.majorKritis.map((k, kIdx) => (
                               <li key={kIdx}>{k}</li>
                             ))}
                           </ul>
                         </div>
 
-                        <button
-                          onClick={() => handleOpenTutorWithTopic(composer.name)}
-                          className="text-xs text-[#C7A45B] hover:text-[#E0C98F] flex items-center space-x-1 font-medium"
-                        >
-                          <Sparkles className="w-3.5 h-3.5" />
-                          <span>
-                            {lang === 'ml'
-                              ? `${composer.name}-നെക്കുറിച്ച് സംഗീത ഗുരുവിനോട് ചോദിക്കുക`
-                              : `Ask AI Tutor about ${composer.name}`}
-                          </span>
-                        </button>
+                        <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-[#3B392F]/50 relative z-10">
+                          <button
+                            onClick={() => handleOpenTutorWithTopic(composer.name)}
+                            className="text-xs text-[#C7A45B] hover:text-[#E0C98F] flex items-center space-x-1.5 font-medium py-1"
+                          >
+                            <Sparkles className="w-4 h-4 text-[#C7A45B] shrink-0" />
+                            <span>
+                              {lang === 'ml'
+                                ? 'ഗുരുവിനോട് ചോദിക്കുക'
+                                : `Ask Tutor`}
+                            </span>
+                          </button>
+
+                          <button
+                            onClick={() => handleOpenSuggestCorrection(composer.name, 'composer')}
+                            className="text-xs text-[#87947A] hover:text-[#C7A45B] flex items-center space-x-1 font-mono transition-colors py-1"
+                            title="Suggest a biographical or critical musicological edit"
+                          >
+                            <Edit3 className="w-3.5 h-3.5 shrink-0" />
+                            <span>{lang === 'ml' ? 'തിരുത്തൽ നിർദ്ദേശിക്കുക' : 'Suggest Citation / Edit'}</span>
+                          </button>
+                        </div>
                       </div>
                     );
                   })}
@@ -566,7 +674,7 @@ export default function Home() {
             {/* GLOSSARY TAB */}
             {exploreTab === 'glossary' && (
               <div className="space-y-6">
-                <div className="flex items-center justify-between text-xs text-[#BDB4A4] font-mono">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs text-[#BDB4A4] font-mono gap-1">
                   <span>
                     {lang === 'ml'
                       ? `${filteredGlossary.length} സംഗീത ശാസ്ത്ര പദങ്ങൾ ലഭ്യമാണ്`
@@ -579,31 +687,33 @@ export default function Home() {
                   </span>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
                   {filteredGlossary.map((item, idx) => {
                     const ml = GLOSSARY_ML_DATA[item.term];
                     return (
                       <div
                         key={idx}
-                        className="bg-[#191916] border border-[#3B392F] p-5 rounded-2xl hover:border-[#C7A45B]/60 transition-all space-y-2"
+                        className="nv-glass-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 hover:border-[#C7A45B]/60 transition-all duration-300 space-y-3 relative overflow-hidden shadow-xl group"
                       >
-                        <div className="flex items-baseline justify-between">
-                          <h4 className="font-serif font-bold text-lg text-[#F4EBDD]">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-[#C7A45B]/5 rounded-bl-full pointer-events-none group-hover:bg-[#C7A45B]/10 transition-colors" />
+
+                        <div className="flex items-baseline justify-between relative z-10 gap-2">
+                          <h4 className="font-serif font-bold text-lg sm:text-xl text-[#F4EBDD] group-hover:text-[#E0C98F] transition-colors">
                             {lang === 'ml' && ml ? `${ml.termMl} (${item.term})` : item.term}
                           </h4>
-                          <span className="text-[10px] font-mono bg-[#22221D] text-[#C7A45B] px-2 py-0.5 rounded border border-[#3B392F]">
+                          <span className="text-[10px] sm:text-[11px] font-mono bg-[#C7A45B]/15 text-[#E0C98F] px-2.5 py-0.5 rounded-full border border-[#C7A45B]/30 shrink-0">
                             {lang === 'ml' && ml ? ml.categoryMl : item.category}
                           </span>
                         </div>
-                        <p className="text-xs text-[#F4EBDD]/90 font-medium leading-relaxed">
+                        <p className="text-xs text-[#F4EBDD]/90 font-medium leading-relaxed relative z-10">
                           {lang === 'ml' && ml ? ml.simpleExplanationMl : item.simpleExplanation}
                         </p>
-                        <p className="text-xs text-[#BDB4A4] leading-relaxed">
+                        <p className="text-xs text-[#BDB4A4] leading-relaxed relative z-10">
                           {lang === 'ml' && ml ? ml.detailedContextMl : item.detailedContext}
                         </p>
-                        <div className="pt-2 text-[10px] text-[#BDB4A4]/70 font-mono">
+                        <div className="pt-2 text-[11px] text-[#BDB4A4]/70 font-mono relative z-10 border-t border-[#C7A45B]/15">
                           {lang === 'ml' ? 'അവലംബം: ' : 'Source: '}
-                          {item.sources[0]?.title} ({item.sources[0]?.authorOrCreator})
+                          <span className="text-[#C7A45B]">{item.sources[0]?.title}</span> ({item.sources[0]?.authorOrCreator})
                         </div>
                       </div>
                     );
@@ -618,39 +728,100 @@ export default function Home() {
             SECTION: PRACTICE STUDIO (SHRUTI, TUNER, TALA, RECORDER, SESSION NOTES)
         ========================================================================= */}
         {activeSection === 'practice' && (
-          <div className="space-y-12">
+          <div className="space-y-8 sm:space-y-12">
             <div>
               <div className="inline-flex items-center space-x-2 text-xs font-mono uppercase tracking-wider text-[#C7A45B] bg-[#191916] px-3.5 py-1.5 rounded-full border border-[#3B392F] mb-3">
                 <Sliders className="w-3.5 h-3.5" />
                 <span>{lang === 'ml' ? 'സമഗ്ര സാധക കളരി' : 'Integrated Practice Suite'}</span>
               </div>
-              <h2 className="text-3xl sm:text-4xl font-serif font-bold text-[#F4EBDD]">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold text-[#F4EBDD]">
                 {t.practiceStudioTitle}
               </h2>
-              <p className="text-sm text-[#BDB4A4] mt-1 max-w-2xl">
+              <p className="text-xs sm:text-sm text-[#BDB4A4] mt-1 max-w-2xl leading-relaxed">
                 {t.practiceStudioSubtitle}
               </p>
+
+              {/* Hands-Free Instrument Shortcuts Quick Bar */}
+              <div className="mt-4 p-3 bg-[#161410] border border-[#C7A45B]/30 rounded-2xl flex flex-wrap items-center justify-between gap-2.5 text-xs text-[#F4EBDD]">
+                <div className="flex items-center space-x-2 text-[#C7A45B]">
+                  <Keyboard className="w-4 h-4" />
+                  <span className="font-semibold text-xs font-mono uppercase tracking-wider">
+                    {lang === 'ml' ? 'കൈക്രിയാ കുറുക്കുവഴികൾ (Hotkeys):' : 'Hands-Free Shortcuts:'}
+                  </span>
+                </div>
+                <div className="flex flex-wrap items-center gap-2 font-mono text-[11px] text-[#BDB4A4]">
+                  <span className="bg-[#22221D] px-2 py-1 rounded border border-[#3B392F] flex items-center space-x-1">
+                    <kbd className="text-[#C7A45B] font-bold">Space</kbd>
+                    <span>{lang === 'ml' ? 'താളം' : 'Tala Metronome'}</span>
+                  </span>
+                  <span className="bg-[#22221D] px-2 py-1 rounded border border-[#3B392F] flex items-center space-x-1">
+                    <kbd className="text-[#C7A45B] font-bold">T</kbd>
+                    <span>{lang === 'ml' ? 'ടാപ്പ് ടെമ്പോ' : 'Tap Tempo'}</span>
+                  </span>
+                  <span className="bg-[#22221D] px-2 py-1 rounded border border-[#3B392F] flex items-center space-x-1">
+                    <kbd className="text-[#C7A45B] font-bold">S</kbd>
+                    <span>{lang === 'ml' ? 'തംബുരു' : 'Tanpura'}</span>
+                  </span>
+                  <span className="bg-[#22221D] px-2 py-1 rounded border border-[#3B392F] flex items-center space-x-1">
+                    <kbd className="text-[#C7A45B] font-bold">M</kbd>
+                    <span>{lang === 'ml' ? 'ട്യൂണർ' : 'Mic Tuner'}</span>
+                  </span>
+                </div>
+              </div>
+
+              {/* Natural Adhara Sa & Pre-tuned Pitch Banner */}
+              <div className="mt-3 flex flex-wrap items-center justify-between gap-3 p-3.5 bg-[#191916] rounded-2xl border border-[#C7A45B]/30">
+                <div className="flex items-center space-x-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-[#C7A45B]/20 border border-[#C7A45B] flex items-center justify-center text-[#E0C98F]">
+                    <Music2 className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="text-[11px] font-mono text-[#BDB4A4] uppercase">
+                      {lang === 'ml' ? 'നിങ്ങളുടെ ആധാര ശ്രുതി (Natural Tonic):' : 'Pre-Tuned Musician Pitch:'}
+                    </span>
+                    <div className="text-sm font-serif font-bold text-[#F4EBDD]">
+                      {activeTonic.name} ({activeTonic.kattai}) · {activeTonic.frequency.toFixed(2)} Hz
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setIsOnboardingOpen(true)}
+                  className="px-3.5 py-1.5 rounded-xl border border-[#C7A45B]/40 hover:border-[#C7A45B] bg-[#22221D] hover:bg-[#2a2822] text-[#E0C98F] text-xs font-mono transition-all cursor-pointer"
+                >
+                  {lang === 'ml' ? 'കട്ട / വാദ്യം മാറ്റുക' : 'Change Pitch / Setup'}
+                </button>
+              </div>
             </div>
 
             {/* Shruti Companion */}
             <ShrutiCompanion />
 
             {/* Microphone Pitch Tuner */}
-            <TunerCompanion />
+            <TunerCompanion
+              activeTonic={activeTonic}
+              onOpenPrivacy={() => setIsPrivacyOpen(true)}
+            />
 
-            {/* Tala Studio */}
+            {/* Fretboard & Piano Swarasthana Visualizer */}
+            <SwarasthanaVisualizer />
+
+            {/* Tala Studio & Accompaniment Loops */}
             <TalaStudio />
 
             {/* Private Audio Recorder */}
             <PracticeRecorder />
 
+            {/* Sadhana Habit Tracker, Streaks & Export Report */}
+            <SadhanaTracker />
+
             {/* Practice Session Logger */}
-            <section className="bg-[#191916] border border-[#3B392F] rounded-2xl p-6 sm:p-8 shadow-xl">
-              <div className="pb-4 border-b border-[#3B392F] mb-6">
-                <h3 className="text-xl font-serif font-bold text-[#F4EBDD]">
+            <section className="bg-[#191916] border border-[#3B392F] rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 shadow-xl">
+              <div className="pb-4 border-b border-[#3B392F] mb-5 sm:mb-6">
+                <h3 className="text-lg sm:text-xl font-serif font-bold text-[#F4EBDD]">
                   {t.practiceLogTitle}
                 </h3>
-                <p className="text-xs text-[#BDB4A4] mt-0.5">
+                <p className="text-xs text-[#BDB4A4] mt-0.5 leading-relaxed">
                   {lang === 'ml'
                     ? 'സാധക വിഷയങ്ങൾ, അനുഭവങ്ങൾ, വേഗത എന്നിവ രേഖപ്പെടുത്തുക. അക്കൗണ്ടിൽ സുരക്ഷിതമായി സൂക്ഷിക്കുന്നു.'
                     : 'Record focus areas, self-reflections, and tempo settings. Kept private to your account.'}
@@ -666,7 +837,7 @@ export default function Home() {
                     type="text"
                     value={sessionFocus}
                     onChange={(e) => setSessionFocus(e.target.value)}
-                    placeholder="e.g. Mayamalavagowla Jantai Varisai 1-4"
+                    placeholder={lang === 'ml' ? 'ഉദാ: മായാമാളവഗൗള ജണ്ഡ വരിശ 1-4' : 'e.g. Mayamalavagowla Jantai Varisai 1-4'}
                     className="w-full bg-[#22221D] border border-[#3B392F] rounded-xl px-4 py-2.5 text-xs text-[#F4EBDD] focus:outline-none focus:border-[#C7A45B]"
                   />
                 </div>
@@ -679,12 +850,16 @@ export default function Home() {
                     rows={3}
                     value={sessionNotes}
                     onChange={(e) => setSessionNotes(e.target.value)}
-                    placeholder="Notes on pitch accuracy, breath control, or tala alignment..."
+                    placeholder={
+                      lang === 'ml'
+                        ? 'ശ്രുതി ശുദ്ധി, ശ്വാസ നിയന്ത്രണം, താള കൃത്യത എന്നിവയെക്കുറിച്ചുള്ള കുറിപ്പുകൾ...'
+                        : 'Notes on pitch accuracy, breath control, or tala alignment...'
+                    }
                     className="w-full bg-[#22221D] border border-[#3B392F] rounded-xl px-4 py-2.5 text-xs text-[#F4EBDD] focus:outline-none focus:border-[#C7A45B]"
                   />
                 </div>
 
-                <div className="flex items-center justify-between pt-2">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2">
                   <div className="text-xs text-[#87947A]">
                     {sessionSavedSuccess && (
                       <span className="flex items-center space-x-1.5 font-medium">
@@ -696,7 +871,7 @@ export default function Home() {
 
                   <button
                     onClick={handleSavePracticeSession}
-                    className="flex items-center space-x-1.5 px-5 py-2.5 rounded-xl bg-[#C7A45B] hover:bg-[#E0C98F] text-[#11110F] text-xs font-semibold transition-all shadow-md active:scale-95"
+                    className="flex items-center justify-center space-x-1.5 px-6 py-3 rounded-xl bg-[#C7A45B] hover:bg-[#E0C98F] text-[#11110F] text-xs font-semibold transition-all shadow-md active:scale-95 w-full sm:w-auto min-h-[42px]"
                   >
                     <Save className="w-4 h-4" />
                     <span>{t.saveSessionBtn}</span>
@@ -707,6 +882,27 @@ export default function Home() {
           </div>
         )}
       </main>
+
+      {/* First-Time Musician Onboarding Modal */}
+      <OnboardingModal
+        isOpen={isOnboardingOpen}
+        onClose={() => setIsOnboardingOpen(false)}
+        onComplete={(profile) => {
+          const matched = TONIC_OPTIONS.find((t) => t.name.startsWith(profile.tonic));
+          if (matched) {
+            setActiveTonic(matched);
+            audioEngine.setTonic(matched.frequency);
+          }
+        }}
+      />
+
+      {/* Suggest a Musicological Edit Peer-Review Modal */}
+      <SuggestCorrectionModal
+        isOpen={isSuggestCorrectionOpen}
+        onClose={() => setIsSuggestCorrectionOpen(false)}
+        initialEntityName={correctionTarget.name}
+        initialEntityType={correctionTarget.type}
+      />
 
       {/* Grounded AI Tutor Modal */}
       <TutorModal
@@ -727,8 +923,23 @@ export default function Home() {
         }}
       />
 
+      {/* Privacy Policy & Microphone Data Sovereignty Modal */}
+      <PrivacyModal
+        isOpen={isPrivacyOpen}
+        onClose={() => setIsPrivacyOpen(false)}
+      />
+
+      {/* Classical Treatises & Attribution Modal */}
+      <AttributionModal
+        isOpen={isAttributionOpen}
+        onClose={() => setIsAttributionOpen(false)}
+      />
+
       {/* Footer */}
-      <Footer />
+      <Footer
+        onOpenPrivacy={() => setIsPrivacyOpen(true)}
+        onOpenAttribution={() => setIsAttributionOpen(true)}
+      />
     </div>
   );
 }

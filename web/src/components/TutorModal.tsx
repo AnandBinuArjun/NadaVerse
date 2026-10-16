@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { X, Send, Sparkles, BookOpen, AlertCircle, ShieldCheck } from 'lucide-react';
 import { VERIFIED_RAGAS, VERIFIED_TALAS, VERIFIED_INSTRUMENTS } from '../data/carnaticData';
 import { useLanguage } from '../context/LanguageContext';
+import { API_BASE_URL } from '../lib/api';
 
 interface Citation {
   sourceTitle: string;
@@ -47,7 +48,7 @@ export const TutorModal: React.FC<TutorModalProps> = ({ isOpen, onClose, initial
 
   if (!isOpen) return null;
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!query.trim() || isLoading) return;
 
     const userText = query.trim();
@@ -62,10 +63,12 @@ export const TutorModal: React.FC<TutorModalProps> = ({ isOpen, onClose, initial
     setQuery('');
     setIsLoading(true);
 
-    // Grounded Knowledge Retrieval Engine
-    setTimeout(() => {
-      const q = userText.toLowerCase();
+    const tutorMsgId = `tutor-${Date.now()}`;
+    const timestampStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
+    // Client-side grounded fallback function
+    const runClientFallback = () => {
+      const q = userText.toLowerCase();
       let answer = '';
       let citations: Citation[] = [];
       let confidence: 'high' | 'moderate' | 'uncertain' = 'high';
@@ -157,19 +160,90 @@ export const TutorModal: React.FC<TutorModalProps> = ({ isOpen, onClose, initial
           : 'Question outside currently reviewed knowledge corpus. Verified fallback applied.';
       }
 
-      const tutorReply: Message = {
-        id: `tutor-${Date.now()}`,
-        sender: 'tutor',
-        text: answer,
-        citations,
-        confidence,
-        uncertaintyNote,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      };
-
-      setMessages((prev) => [...prev, tutorReply]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: tutorMsgId,
+          sender: 'tutor',
+          text: answer,
+          citations,
+          confidence,
+          uncertaintyNote,
+          timestamp: timestampStr
+        }
+      ]);
       setIsLoading(false);
-    }, 400);
+    };
+
+    // Attempt Server-Sent Events (SSE) streaming from backend AI gateway
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/v1/tutor/stream?query=${encodeURIComponent(userText)}`);
+      if (!response.ok || !response.body) {
+        throw new Error('Streaming connection unavailable');
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder('utf-8');
+      let streamedAnswer = '';
+      let receivedAnyChunk = false;
+
+      // Add placeholder tutor message that will be populated token-by-token
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: tutorMsgId,
+          sender: 'tutor',
+          text: '',
+          confidence: 'high',
+          timestamp: timestampStr
+        }
+      ]);
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+
+        const textChunk = decoder.decode(value, { stream: true });
+        const lines = textChunk.split('\n');
+
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (trimmed.startsWith('data: ')) {
+            const dataStr = trimmed.slice(6);
+            if (dataStr === '[DONE]') {
+              break;
+            }
+            try {
+              const parsed = JSON.parse(dataStr);
+              if (parsed.chunk) {
+                receivedAnyChunk = true;
+                streamedAnswer += parsed.chunk;
+                setMessages((prev) =>
+                  prev.map((m) => (m.id === tutorMsgId ? { ...m, text: streamedAnswer } : m))
+                );
+              }
+            } catch {
+              // Raw text chunk fallback
+              if (dataStr) {
+                receivedAnyChunk = true;
+                streamedAnswer += dataStr;
+                setMessages((prev) =>
+                  prev.map((m) => (m.id === tutorMsgId ? { ...m, text: streamedAnswer } : m))
+                );
+              }
+            }
+          }
+        }
+      }
+
+      if (!receivedAnyChunk) {
+        throw new Error('Empty stream received');
+      }
+      setIsLoading(false);
+    } catch {
+      // Graceful local grounded fallback if backend is offline or during offline PWA mode
+      runClientFallback();
+    }
   };
 
   return (
@@ -179,9 +253,9 @@ export const TutorModal: React.FC<TutorModalProps> = ({ isOpen, onClose, initial
       aria-modal="true"
       aria-labelledby="tutor-dialog-title"
     >
-      <div className="bg-[#191916] border border-[#3B392F] rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+      <div className="bg-[#141310]/95 border border-[#C7A45B]/30 rounded-3xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-[0_25px_80px_rgba(0,0,0,0.9),0_0_50px_rgba(199,164,91,0.15)] overflow-hidden backdrop-blur-2xl">
         {/* Header */}
-        <div className="p-4 sm:p-5 border-b border-[#3B392F] flex items-center justify-between bg-[#11110F]">
+        <div className="p-4 sm:p-5 border-b border-[#C7A45B]/20 flex items-center justify-between bg-[#0e0d0b]">
           <div className="flex items-center space-x-2.5">
             <div className="w-8 h-8 rounded-full bg-[#22221D] border border-[#C7A45B] flex items-center justify-center text-[#C7A45B]">
               <Sparkles className="w-4 h-4" />

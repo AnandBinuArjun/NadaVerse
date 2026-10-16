@@ -70,6 +70,95 @@ body {
   outline-offset: 2px;
 }
 
+/* Glassmorphism & Aura utilities */
+.nv-glass-panel {
+  background: linear-gradient(180deg, rgba(25, 23, 19, 0.85) 0%, rgba(18, 17, 14, 0.95) 100%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(199, 164, 91, 0.18);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.7), 0 0 40px -15px rgba(199, 164, 91, 0.08);
+}
+
+.nv-glass-card {
+  background: linear-gradient(180deg, rgba(34, 34, 29, 0.75) 0%, rgba(25, 25, 22, 0.85) 100%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(199, 164, 91, 0.14);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.nv-glass-card:hover {
+  border-color: rgba(199, 164, 91, 0.45);
+  box-shadow: 0 12px 30px -8px rgba(0, 0, 0, 0.6), 0 0 25px -5px rgba(199, 164, 91, 0.15);
+  transform: translateY(-2px);
+}
+
+.nv-gold-gradient-text {
+  background: linear-gradient(135deg, #fbf7ee 0%, #e8d7a8 45%, #c7a45b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.nv-gold-btn {
+  background: linear-gradient(135deg, #dfc480 0%, #c7a45b 60%, #b89146 100%) !important;
+  color: #11110f !important;
+  box-shadow: 0 4px 20px -2px rgba(199, 164, 91, 0.4);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.nv-gold-btn:hover {
+  background: linear-gradient(135deg, #f0dc9e 0%, #d8b464 60%, #c7a45b 100%) !important;
+  color: #11110f !important;
+  box-shadow: 0 6px 28px 0 rgba(199, 164, 91, 0.65);
+  transform: translateY(-1px) scale(1.01);
+}
+
+.nv-gold-btn:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+/* Soundwave bar visualizer animation */
+@keyframes soundwave-pulse {
+  0%, 100% {
+    height: 4px;
+    opacity: 0.4;
+  }
+  50% {
+    height: 22px;
+    opacity: 1;
+  }
+}
+
+.soundwave-bar {
+  display: inline-block;
+  width: 3px;
+  background: #c7a45b;
+  border-radius: 2px;
+  animation: soundwave-pulse 1.2s ease-in-out infinite;
+}
+
+.soundwave-bar:nth-child(1) { animation-delay: 0.0s; height: 8px; }
+.soundwave-bar:nth-child(2) { animation-delay: 0.2s; height: 16px; }
+.soundwave-bar:nth-child(3) { animation-delay: 0.4s; height: 22px; }
+.soundwave-bar:nth-child(4) { animation-delay: 0.1s; height: 14px; }
+.soundwave-bar:nth-child(5) { animation-delay: 0.3s; height: 10px; }
+
+/* Subtle breath glow */
+@keyframes ambient-glow {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.03);
+  }
+}
+
+.ambient-aura {
+  animation: ambient-glow 6s ease-in-out infinite;
+}
+
 /* Support for prefers-reduced-motion */
 @media (prefers-reduced-motion: reduce) {
   *,

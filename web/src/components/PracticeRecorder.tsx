@@ -100,28 +100,30 @@ export const PracticeRecorder: React.FC<PracticeRecorderProps> = ({ onSaveSessio
   };
 
   return (
-    <div className="bg-[#191916] border border-[#3B392F] rounded-2xl p-6 sm:p-8 shadow-xl">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#3B392F] gap-3">
+    <div className="nv-glass-panel rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 shadow-2xl relative overflow-hidden">
+      <div className="absolute top-0 right-0 w-64 h-64 bg-[#C7A45B]/5 rounded-full blur-3xl pointer-events-none" />
+
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 sm:pb-5 border-b border-[#C7A45B]/20 gap-3 sm:gap-4 relative z-10">
         <div>
           <div className="flex items-center space-x-2 text-[#C7A45B] text-xs font-mono uppercase tracking-wider mb-1">
-            <ShieldCheck className="w-4 h-4" />
+            <ShieldCheck className="w-4 h-4 text-[#87947A]" />
             <span>{lang === 'ml' ? 'സ്വകാര്യ ലോക്കൽ ഓഡിയോ റെക്കോർഡിംഗ്' : 'Private Local Audio Capture'}</span>
           </div>
-          <h3 className="text-xl sm:text-2xl font-serif font-bold text-[#F4EBDD]">
+          <h3 className="text-lg sm:text-xl md:text-2xl font-serif font-bold text-[#F4EBDD]">
             {lang === 'ml' ? 'സാധക റെക്കോർഡർ' : 'Personal Practice Recording'}
           </h3>
-          <p className="text-xs text-[#BDB4A4] mt-0.5">
+          <p className="text-xs text-[#BDB4A4] mt-1 leading-relaxed">
             {lang === 'ml'
               ? 'റെക്കോർഡിംഗുകൾ നിങ്ങളുടെ ബ്രൗസറിൽ മാത്രം സൂക്ഷിക്കപ്പെടുന്നു. യാതൊരു വിവരങ്ങളും അപ്‌ലോഡ് ചെയ്യുന്നില്ല.'
               : 'Recordings remain strictly inside your browser. No audio is uploaded or processed without explicit action.'}
           </p>
         </div>
 
-        <div>
+        <div className="w-full sm:w-auto">
           {!isRecording && !audioUrl && (
             <button
               onClick={startRecording}
-              className="flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-[#A95E45] hover:bg-[#B86850] text-[#F4EBDD] text-xs font-semibold transition-all shadow-md active:scale-95"
+              className="flex items-center justify-center space-x-2.5 px-6 py-3 rounded-xl bg-gradient-to-r from-[#A95E45] to-[#B86850] hover:from-[#B86850] hover:to-[#C7725A] text-[#F4EBDD] text-xs font-semibold tracking-wide transition-all shadow-lg shadow-[#A95E45]/20 active:scale-95 w-full sm:w-auto min-h-[42px]"
             >
               <Circle className="w-4 h-4 fill-current text-white animate-pulse" />
               <span>{lang === 'ml' ? 'സാധകം റെക്കോർഡ് ചെയ്യുക' : 'Record Exercise'}</span>
@@ -131,33 +133,65 @@ export const PracticeRecorder: React.FC<PracticeRecorderProps> = ({ onSaveSessio
           {isRecording && (
             <button
               onClick={stopRecording}
-              className="flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-[#E17D73] text-[#11110F] text-xs font-semibold hover:bg-[#F28B82] transition-all shadow-md animate-pulse"
+              className="flex items-center justify-center space-x-2.5 px-6 py-3 rounded-xl bg-gradient-to-r from-[#E17D73] to-[#F28B82] text-[#11110F] text-xs font-bold tracking-wide transition-all shadow-lg shadow-[#E17D73]/30 animate-pulse active:scale-95 w-full sm:w-auto min-h-[42px]"
             >
               <Square className="w-4 h-4 fill-current" />
-              <span>{lang === 'ml' ? `റെക്കോർഡിംഗ് നിർത്തുക (${formatDuration(recordingSeconds)})` : `Stop Recording (${formatDuration(recordingSeconds)})`}</span>
+              <span>
+                {lang === 'ml'
+                  ? `റെക്കോർഡിംഗ് നിർത്തുക (${formatDuration(recordingSeconds)})`
+                  : `Stop Recording (${formatDuration(recordingSeconds)})`}
+              </span>
             </button>
           )}
         </div>
       </div>
 
+      {/* Recording in Progress Visualizer Banner */}
+      {isRecording && (
+        <div className="mt-4 sm:mt-6 bg-[#0d0c0a]/80 backdrop-blur-md p-4 sm:p-6 rounded-2xl border border-[#E17D73]/30 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center space-x-4">
+            <div className="relative">
+              <span className="w-4 h-4 rounded-full bg-[#E17D73] block animate-ping absolute" />
+              <span className="w-4 h-4 rounded-full bg-[#E17D73] block relative" />
+            </div>
+            <div>
+              <span className="text-sm font-serif font-bold text-[#F4EBDD] block">
+                {lang === 'ml' ? 'ഓഡിയോ റെക്കോർഡിംഗ് പുരോഗമിക്കുന്നു...' : 'Recording Live Audio in Progress...'}
+              </span>
+              <span className="text-xs font-mono text-[#E17D73] font-bold">
+                {formatDuration(recordingSeconds)}
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-1.5 h-6">
+            <span className="w-1 bg-[#E17D73] soundwave-bar soundwave-bar-1 rounded-full" />
+            <span className="w-1 bg-[#E17D73] soundwave-bar soundwave-bar-2 rounded-full" />
+            <span className="w-1 bg-[#E17D73] soundwave-bar soundwave-bar-3 rounded-full" />
+            <span className="w-1 bg-[#E17D73] soundwave-bar soundwave-bar-4 rounded-full" />
+            <span className="w-1 bg-[#E17D73] soundwave-bar soundwave-bar-2 rounded-full" />
+          </div>
+        </div>
+      )}
+
       {/* Playback & Action Banner */}
       {audioUrl && (
-        <div className="mt-5 bg-[#22221D] p-5 rounded-xl border border-[#3B392F] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center space-x-3">
+        <div className="mt-4 sm:mt-6 bg-[#0d0c0a]/80 backdrop-blur-md p-4 sm:p-6 rounded-2xl border border-[#C7A45B]/25 shadow-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center space-x-3 sm:space-x-4">
             <button
               onClick={togglePlayRecorded}
-              className="w-10 h-10 rounded-full bg-[#C7A45B] hover:bg-[#E0C98F] text-[#11110F] flex items-center justify-center transition-colors"
+              className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-[#DFB960] to-[#C7A45B] hover:brightness-110 text-[#11110F] flex items-center justify-center transition-all shadow-lg shadow-[#C7A45B]/30 active:scale-95 shrink-0"
               aria-label={isPlayingRecorded ? 'Pause recorded practice audio' : 'Play recorded practice audio'}
             >
               {isPlayingRecorded ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current ml-0.5" />}
             </button>
 
             <div>
-              <span className="text-xs font-serif font-bold text-[#F4EBDD] block">
+              <span className="text-sm font-serif font-bold text-[#F4EBDD] block">
                 {lang === 'ml' ? 'റെക്കോർഡ് ചെയ്ത സാധക ഓഡിയോ' : 'Recorded Practice Audio'}
               </span>
-              <span className="text-[11px] font-mono text-[#BDB4A4]">
-                {lang === 'ml' ? 'ദൈർഘ്യം: ' : 'Duration: '}{formatDuration(recordingSeconds)} · Local WebM Blob
+              <span className="text-xs font-mono text-[#E0C98F]">
+                {lang === 'ml' ? 'ദൈർഘ്യം: ' : 'Duration: '}{formatDuration(recordingSeconds)} · Local WebM
               </span>
             </div>
 
@@ -169,29 +203,29 @@ export const PracticeRecorder: React.FC<PracticeRecorderProps> = ({ onSaveSessio
             />
           </div>
 
-          <div className="flex items-center space-x-2">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
             <a
               href={audioUrl}
               download={`nadaverse-practice-${new Date().toISOString().slice(0, 10)}.webm`}
-              className="flex items-center space-x-1.5 px-3.5 py-2 rounded-lg bg-[#191916] hover:bg-[#2A2A24] text-[#F4EBDD] border border-[#3B392F] text-xs font-medium transition-colors"
+              className="flex items-center justify-center space-x-2 px-4 py-2.5 rounded-xl bg-[#1e1c17] hover:bg-[#282620] text-[#F4EBDD] border border-[#C7A45B]/30 hover:border-[#C7A45B] text-xs font-medium transition-all shadow-sm min-h-[40px]"
             >
-              <Download className="w-3.5 h-3.5 text-[#C7A45B]" />
-              <span>{lang === 'ml' ? 'ഫയൽ ഡൗൺലോഡ് ചെയ്യുക' : 'Download File'}</span>
+              <Download className="w-4 h-4 text-[#C7A45B]" />
+              <span>{lang === 'ml' ? 'ഫയൽ ഡൗൺലോഡ്' : 'Download Audio'}</span>
             </a>
 
             <button
               onClick={handleDeleteRecording}
-              className="flex items-center space-x-1.5 px-3.5 py-2 rounded-lg bg-[#E17D73]/10 hover:bg-[#E17D73]/20 text-[#E17D73] border border-[#E17D73]/30 text-xs font-medium transition-colors"
+              className="flex items-center justify-center space-x-1.5 px-4 py-2.5 rounded-xl bg-[#E17D73]/10 hover:bg-[#E17D73]/20 text-[#E17D73] border border-[#E17D73]/30 text-xs font-medium transition-all min-h-[40px]"
             >
-              <Trash2 className="w-3.5 h-3.5" />
-              <span>{lang === 'ml' ? 'ഒഴിവാക്കുക' : 'Discard Recording'}</span>
+              <Trash2 className="w-4 h-4" />
+              <span>{lang === 'ml' ? 'ഒഴിവാക്കുക' : 'Discard'}</span>
             </button>
           </div>
         </div>
       )}
 
       {!isRecording && !audioUrl && (
-        <div className="my-4 text-center py-5 border border-dashed border-[#3B392F] rounded-xl text-xs text-[#BDB4A4]">
+        <div className="my-5 text-center py-6 border border-dashed border-[#C7A45B]/25 rounded-2xl bg-[#0d0c0a]/40 text-xs text-[#BDB4A4] leading-relaxed">
           {lang === 'ml'
             ? 'സ്വന്തം സംഗീത സാധകം (സരളീവരിശ, അലങ്കാരം, കീർത്തനം) വിലയിരുത്തുന്നതിന് "സാധകം റെക്കോർഡ് ചെയ്യുക" അമർത്തുക.'
             : 'Press "Record Exercise" when you are ready to record a sarali varisai, alankaram, or kriti passage for personal review.'}

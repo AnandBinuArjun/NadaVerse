@@ -15,7 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.db.session import engine, Base, get_db
-from app.models.entities import User, PracticeSession
+from app.models.entities import User, PracticeSession, AuditEvent
 from app.schemas.content import RagaDetail, TalaDetail, InstrumentDetail
 from app.schemas.practice import PracticeSessionCreate, PracticeSessionOut
 from app.schemas.tutor import TutorMessageRequest, TutorResponse
@@ -51,6 +51,20 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# Sentry Initialization (if configured)
+if settings.SENTRY_DSN:
+    try:
+        import sentry_sdk
+        from sentry_sdk.integrations.fastapi import FastApiIntegration
+        sentry_sdk.init(
+            dsn=settings.SENTRY_DSN,
+            environment=settings.APP_ENV,
+            traces_sample_rate=0.2,
+            integrations=[FastApiIntegration()]
+        )
+    except Exception:
+        pass
+
 # Security Headers Middleware
 @app.middleware("http")
 async def add_security_headers(request: Request, call_next):
@@ -61,15 +75,21 @@ async def add_security_headers(request: Request, call_next):
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
     return response
 
+# Rate Limiting Middleware
+from app.core.rate_limit import RateLimitMiddleware
+app.add_middleware(RateLimitMiddleware)
+
 # CORS Middleware configuration
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
-    allow_origin_regex=r"https://.*\.vercel\.app",
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+cors_kwargs = {
+    "allow_origins": settings.CORS_ORIGINS,
+    "allow_credentials": True,
+    "allow_methods": ["*"],
+    "allow_headers": ["*"],
+}
+if settings.APP_ENV != "production":
+    cors_kwargs["allow_origin_regex"] = r"https://.*\.vercel\.app"
+
+app.add_middleware(CORSMiddleware, **cors_kwargs)
 
 # Register Routers
 app.include_router(auth_router, prefix=settings.API_V1_PREFIX)
@@ -237,8 +257,11 @@ async def list_practice_sessions(
 
 
 # -----------------------------------------------------------------------------
-# AI Tutor: Grounded Retrieval Gateway
+# AI Tutor: Grounded Retrieval Gateway & Real-Time Streaming
 # -----------------------------------------------------------------------------
+from fastapi.responses import StreamingResponse
+import json
+
 @app.post("/api/v1/tutor/messages", response_model=TutorResponse, tags=["AI Tutor"])
 async def tutor_chat(payload: TutorMessageRequest):
     conv_id = payload.conversation_id or f"conv_{uuid.uuid4().hex[:8]}"
@@ -246,3 +269,104 @@ async def tutor_chat(payload: TutorMessageRequest):
         conversation_id=conv_id,
         query=payload.query
     )
+
+
+@app.get("/api/v1/tutor/stream", tags=["AI Tutor"])
+async def tutor_stream(query: str = Query(..., description="Query for tutor"), conversation_id: Optional[str] = None):
+    conv_id = conversation_id or f"conv_{uuid.uuid4().hex[:8]}"
+    
+    async def sse_event_stream():
+        async for chunk in ai_gateway.stream_grounded_response(conv_id, query):
+            data = json.dumps({"chunk": chunk})
+            yield f"data: {data}\n\n"
+        yield "data: [DONE]\n\n"
+
+    return StreamingResponse(
+        sse_event_stream(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        }
+    )
+
+
+# -----------------------------------------------------------------------------
+# Attribution & Treatises Reference
+# -----------------------------------------------------------------------------
+@app.get("/api/v1/meta/treatises", tags=["Attribution"])
+async def list_canonical_treatises():
+    return {
+        "title": "NadaVerse Canonical Musicological Sources",
+        "peer_review_status": "Verified against Classical Treatises",
+        "primary_treatises": [
+            {
+                "name": "Chaturdandi Prakasika",
+                "author": "Venkatamakhin",
+                "century": "17th Century CE",
+                "significance": "Foundational treatise codifying the 72 Melakarta Raga classification scheme using mathematical permutations."
+            },
+            {
+                "name": "Sangita Ratnakara",
+                "author": "Sarangadeva",
+                "century": "13th Century CE",
+                "significance": "Seminal pan-Indian musicological text outlining swaras, gramas, murchanas, and tala lakshanas."
+            },
+            {
+                "name": "Sangita Sampradaya Pradarsini",
+                "author": "Subbarama Dikshitar",
+                "year": "1904 CE",
+                "significance": "Definitive encyclopedia documenting notations, gamakas, and authoritative compositions of the Dikshitar lineage."
+            },
+            {
+                "name": "Natya Shastra",
+                "author": "Bharata Muni",
+                "period": "c. 200 BCE – 200 CE",
+                "significance": "Earliest comprehensive treatise on Indian dramaturgy, foundational modal tuning, and shruti intervals."
+            }
+        ]
+    }
+
+
+# -----------------------------------------------------------------------------
+# Peer-Review & Musicological Corrections
+# -----------------------------------------------------------------------------
+from pydantic import BaseModel
+
+class CorrectionSubmission(BaseModel):
+    entity_type: str
+    entity_name: str
+    target_field: str
+    proposed_edit: str
+    citation_source: str
+    submitter_name: Optional[str] = "Anonymous Scholar"
+    submitter_affiliation: Optional[str] = None
+    submitted_at: Optional[str] = None
+
+@app.post("/api/v1/corrections", status_code=status.HTTP_201_CREATED, tags=["Peer Review"])
+async def submit_musicological_correction(
+    correction: CorrectionSubmission,
+    db: AsyncSession = Depends(get_db),
+    current_user: Optional[User] = Depends(get_optional_current_user)
+):
+    """
+    Submits a peer-reviewed musicological correction or treatise citation
+    from senior vidwans, students, or institutional bodies.
+    """
+    audit = AuditEvent(
+        actor_id=current_user.id if current_user else "anonymous_scholar",
+        action="suggest_correction",
+        target_type=correction.entity_type,
+        target_id=correction.entity_name,
+        details=f"Field: {correction.target_field} | Edit: {correction.proposed_edit} | Citation: {correction.citation_source} | Submitter: {correction.submitter_name} ({correction.submitter_affiliation or 'N/A'})"
+    )
+    db.add(audit)
+    await db.commit()
+    return {
+        "status": "success",
+        "message": "Musicological correction successfully logged for editorial peer review.",
+        "entity": correction.entity_name
+    }
+
+

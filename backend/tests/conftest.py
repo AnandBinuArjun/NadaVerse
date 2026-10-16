@@ -1,3 +1,4 @@
+import os
 import sys
 from pathlib import Path
 import pytest
@@ -7,6 +8,11 @@ import asyncio
 backend_dir = Path(__file__).resolve().parent.parent
 if str(backend_dir) not in sys.path:
     sys.path.insert(0, str(backend_dir))
+
+# Enforce isolated sqlite database for testing
+os.environ["DATABASE_URL"] = "sqlite+aiosqlite:///./test_nadaverse.db"
+os.environ["APP_ENV"] = "development"
+os.environ["DEBUG"] = "true"
 
 from app.db.session import engine, Base
 
@@ -28,3 +34,8 @@ def initialize_database():
             await conn.run_sync(Base.metadata.drop_all)
     loop.run_until_complete(_drop_tables())
     loop.close()
+    try:
+        if os.path.exists("./test_nadaverse.db"):
+            os.remove("./test_nadaverse.db")
+    except Exception:
+        pass

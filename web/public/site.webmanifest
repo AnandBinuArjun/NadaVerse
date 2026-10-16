@@ -1,19 +1,26 @@
 {
   "name": "NadaVerse — Carnatic Music Sanctuary",
   "short_name": "NadaVerse",
+  "description": "The Sovereign Digital Sanctuary of Carnatic Music. Practice studio with Web Audio Tanpura, Tala metronome, and 72 Melakarta reference library.",
+  "start_url": "/?utm_source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "theme_color": "#11110F",
+  "background_color": "#11110F",
+  "categories": ["music", "education", "utilities"],
   "icons": [
     {
       "src": "/android-chrome-192x192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "/android-chrome-512x512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
-  ],
-  "theme_color": "#11110F",
-  "background_color": "#11110F",
-  "display": "standalone"
+  ]
 }

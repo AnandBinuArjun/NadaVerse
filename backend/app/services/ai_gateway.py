@@ -3,9 +3,12 @@ Provider-Neutral AI Gateway for NadaVerse.
 Orchestrates retrieval from reviewed Carnatic content revisions, enforces
 safety boundaries against prompt-injection, validates citation links,
 and applies rate-limiting safeguards.
+Grounded with Google Gemini 1.5 Flash / Pro and verified classical treatises.
 """
 
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, AsyncGenerator
+import json
+import asyncio
 from datetime import datetime, timezone
 from app.core.config import settings
 from app.data.verified_corpus import (
@@ -22,8 +25,8 @@ from app.schemas.tutor import TutorCitation, TutorResponse
 class AIGatewayService:
     def __init__(self, provider: str = settings.AI_GATEWAY_PROVIDER):
         self.provider = provider
-        self.max_tokens = 500
-        self.temperature = 0.2 # deterministic, low hallucination
+        self.max_tokens = 600
+        self.temperature = 0.2  # deterministic, low hallucination per classical treatises
 
     def retrieve_approved_context(self, query: str) -> List[Dict[str, Any]]:
         """
@@ -117,6 +120,49 @@ class AIGatewayService:
                 return False
         return True
 
+    def build_grounded_prompt(self, query: str, matched_docs: List[Dict[str, Any]]) -> str:
+        grounded_context = "\n".join([f"- {d['title']}: {d['text']}" for d in matched_docs[:4]])
+        return (
+            "You are the NadaVerse Carnatic Musicology AI Tutor. "
+            "Answer the student's inquiry with utmost musicological accuracy, grounding your explanation strictly in authentic Carnatic treatises "
+            "(Chaturdandi Prakasika, Sangita Ratnakara, Sangita Sampradaya Pradarsini). "
+            "Explicitly mention swaras, intervals, arohanam/avarohanam, or tala kriyas where applicable. "
+            "Maintain a respectful, encouraging, and authoritative traditional pedagogical tone. Never hallucinate swaras or historical dates.\n\n"
+            f"Grounded Musicological Context:\n{grounded_context}\n\n"
+            f"Student Inquiry: {query}"
+        )
+
+    async def call_gemini_api(self, prompt: str) -> Optional[str]:
+        """
+        Invokes Google Gemini API with temperature 0.2 for deterministic musicological reasoning.
+        """
+        if not settings.AI_GATEWAY_API_KEY:
+            return None
+            
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={settings.AI_GATEWAY_API_KEY}"
+        payload = {
+            "contents": [{"parts": [{"text": prompt}]}],
+            "generationConfig": {
+                "temperature": self.temperature,
+                "maxOutputTokens": self.max_tokens
+            }
+        }
+        
+        try:
+            import httpx
+            async with httpx.AsyncClient(timeout=15.0) as client:
+                res = await client.post(url, json=payload)
+                if res.status_code == 200:
+                    data = res.json()
+                    candidates = data.get("candidates", [])
+                    if candidates:
+                        parts = candidates[0].get("content", {}).get("parts", [])
+                        if parts:
+                            return parts[0].get("text", "")
+        except Exception:
+            pass
+        return None
+
     async def generate_grounded_response(self, conversation_id: str, query: str) -> TutorResponse:
         # Prompt-injection check
         if not self.sanitize_and_check_injection(query):
@@ -146,10 +192,9 @@ class AIGatewayService:
                 ]
             )
 
-        # Build answer using grounded retrieved documents
+        # Build citations
         primary_doc = matched_docs[0]
         citations: List[TutorCitation] = []
-
         for doc in matched_docs[:2]:
             source_info = doc.get("source") or {}
             citations.append(
@@ -162,9 +207,15 @@ class AIGatewayService:
                 )
             )
 
-        answer_text = (
-            f"Based on reviewed reference texts: {primary_doc['text']}"
-        )
+        # Invoke Live Gemini if configured
+        answer_text = None
+        if self.provider == "gemini" and settings.AI_GATEWAY_API_KEY:
+            prompt = self.build_grounded_prompt(query, matched_docs)
+            answer_text = await self.call_gemini_api(prompt)
+
+        # Grounded fallback if Gemini key is not set or network error occurs
+        if not answer_text:
+            answer_text = f"Based on reviewed reference treatises: {primary_doc['text']}"
 
         return TutorResponse(
             conversation_id=conversation_id,
@@ -177,6 +228,65 @@ class AIGatewayService:
                 "Explore in Practice Studio"
             ]
         )
+
+    async def stream_grounded_response(self, conversation_id: str, query: str) -> AsyncGenerator[str, None]:
+        """
+        Streams response chunks for Server-Sent Events (SSE).
+        Streams directly from live Gemini API if API key is provided,
+        or streams from grounded knowledge base with natural cadence.
+        """
+        if not self.sanitize_and_check_injection(query):
+            yield "I can only assist with verified Carnatic music theory, history, and practice queries grounded in authentic treatises."
+            return
+
+        matched_docs = self.retrieve_approved_context(query)
+        if not matched_docs:
+            yield "I do not possess sufficient reviewed musicological documentation in the peer-reviewed NadaVerse knowledge base to answer this inquiry with authoritative confidence."
+            return
+
+        # Attempt live Gemini streaming if API key is available
+        if self.provider == "gemini" and settings.AI_GATEWAY_API_KEY:
+            try:
+                import httpx
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:streamGenerateContent?alt=sse&key={settings.AI_GATEWAY_API_KEY}"
+                prompt = self.build_grounded_prompt(query, matched_docs)
+                payload = {
+                    "contents": [{"parts": [{"text": prompt}]}],
+                    "generationConfig": {
+                        "temperature": self.temperature,
+                        "maxOutputTokens": self.max_tokens
+                    }
+                }
+                async with httpx.AsyncClient(timeout=25.0) as client:
+                    async with client.stream("POST", url, json=payload) as response:
+                        if response.status_code == 200:
+                            async for line in response.aiter_lines():
+                                if line.startswith("data: "):
+                                    data_str = line[6:].strip()
+                                    if data_str:
+                                        try:
+                                            chunk_data = json.loads(data_str)
+                                            candidates = chunk_data.get("candidates", [])
+                                            if candidates:
+                                                parts = candidates[0].get("content", {}).get("parts", [])
+                                                for part in parts:
+                                                    text = part.get("text", "")
+                                                    if text:
+                                                        yield text
+                                        except Exception:
+                                            pass
+                            return
+            except Exception:
+                # Fall through to grounded fallback stream
+                pass
+
+        # Grounded verified response fallback stream
+        response = await self.generate_grounded_response(conversation_id, query)
+        words = response.answer.split(" ")
+        for i, word in enumerate(words):
+            chunk = word + (" " if i < len(words) - 1 else "")
+            yield chunk
+            await asyncio.sleep(0.02)
 
 
 ai_gateway = AIGatewayService()

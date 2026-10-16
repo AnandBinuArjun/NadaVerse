@@ -169,9 +169,9 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     account: 'Account',
 
     heroBadge: 'The Sovereign Digital Sanctuary of Carnatic Music',
-    heroTitle1: 'Discover Carnatic music.',
-    heroTitle2: 'Understand its language.',
-    heroTitle3: 'Practise with purpose.',
+    heroTitle1: 'Discover Carnatic Music.',
+    heroTitle2: 'Understand Its Language.',
+    heroTitle3: 'Practise with Precision.',
     heroDescription:
       'A peer-reviewed, completely free learning and practice platform. Connect foundational beginner orientation, verifiable raga and tala musicology, precision Web Audio practice companions, and grounded AI guidance.',
     heroStartBtn: 'Start Here: New to Carnatic?',
@@ -316,10 +316,10 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     signOut: 'പുറത്തുകടക്കുക',
     account: 'അക്കൗണ്ട്',
 
-    heroBadge: 'കർണ്ണാടക സംഗീതത്തിന്റെ പവിത്ര ഡിജിറ്റൽ സങ്കേതം',
-    heroTitle1: 'കർണ്ണാടക സംഗീതം കണ്ടെത്തുക.',
-    heroTitle2: 'അതിന്റെ ഭാഷ മനസ്സിലാക്കുക.',
-    heroTitle3: 'ലക്ഷ്യബോധത്തോടെ സാധകം ചെയ്യുക.',
+    heroBadge: 'കർണ്ണാടക സംഗീത ഡിജിറ്റൽ സങ്കേതം',
+    heroTitle1: 'കർണ്ണാടക സംഗീതം അറിയാം.',
+    heroTitle2: 'ശാസ്ത്രം ഗ്രഹിക്കാം.',
+    heroTitle3: 'ഏകാഗ്രമായി സാധകം ചെയ്യാം.',
     heroDescription:
       'സംഗീത പ്രേമികൾക്കായി തികച്ചും സൗജന്യമായി ഒരുക്കിയ വിജ്ഞാന-സാധക സങ്കേതം. ആധികാരിക രാഗ-താള വിജ്ഞാനം, വെബ് ഓഡിയോ തംബുരു-മെട്രോനോം, കൃത്യതയാർന്ന സംഗീത മാർഗ്ഗനിർദ്ദേശങ്ങൾ.',
     heroStartBtn: 'തുടങ്ങാം: സംഗീത പാഠങ്ങൾ',

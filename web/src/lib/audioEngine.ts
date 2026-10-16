@@ -2,10 +2,34 @@
  * NadaVerse High-Precision Web Audio API Engine
  * 
  * Provides:
- * 1. Tanpura / Shruti Companion overtone drone synthesis with Jivari harmonic simulation.
- * 2. Swara note auditioning using natural Just Intonation ratios.
- * 3. Drift-free Tala metronome scheduler utilizing Web Audio currentTime clock.
+ * 1. Tanpura overtone drone synthesis supporting Pa, Ma, and Ni Shruti tunings with Jivari resonance.
+ * 2. Swara note and Raga scale auditioning using pure Just Intonation ratios.
+ * 3. Drift-free Tala metronome scheduler with acoustic bell and Mridangam Solkattu stroke synthesis.
  */
+
+import { audioKeepAlive } from './audioKeepAlive';
+
+export type ShrutiTuning = 'pa' | 'ma' | 'ni';
+
+export type NoteName =
+  | 'C'
+  | 'C#'
+  | 'C# / Db'
+  | 'D'
+  | 'D#'
+  | 'D# / Eb'
+  | 'E'
+  | 'F'
+  | 'F#'
+  | 'F# / Gb'
+  | 'G'
+  | 'G#'
+  | 'G# / Ab'
+  | 'A'
+  | 'A#'
+  | 'A# / Bb'
+  | 'B'
+  | string;
 
 export interface TonicNote {
   name: string;
@@ -37,6 +61,13 @@ class AudioEngine {
   private isTanpuraPlaying = false;
   private tanpuraOscillators: { osc: OscillatorNode; gain: GainNode }[] = [];
   private currentTonicFreq = 261.63; // C4
+  private currentTonicName = 'C';
+  private currentVolume = 0.7;
+  private currentShrutiTuning: ShrutiTuning = 'pa';
+
+  // Raga scale playback state
+  private scaleTimeouts: number[] = [];
+  private isScalePlaying = false;
 
   // Tala Metronome state
   private isTalaPlaying = false;
@@ -48,7 +79,8 @@ class AudioEngine {
   private readonly lookaheadMs = 25.0; // scheduling check frequency
   private readonly scheduleAheadSec = 0.1; // how far ahead to schedule
   private onBeatCallback: ((beatIndex: number, isAccent: boolean) => void) | null = null;
-  private beatActionsList: { isAccent: boolean }[] = [];
+  private beatActionsList: { isAccent: boolean; syllable?: string }[] = [];
+  private solkattuMode = false;
 
   private ensureContext(): AudioContext {
     if (!this.ctx) {
@@ -65,30 +97,38 @@ class AudioEngine {
   }
 
   // ---------------------------------------------------------------------------
-  // 1. Shruti / Tanpura Synthesis
+  // 1. Shruti / Tanpura Synthesis (Pa, Ma, Ni Shruti Modes)
   // ---------------------------------------------------------------------------
 
-  public startTanpura(tonicFreq = 261.63, volume = 0.7): void {
+  public startTanpura(tonicFreq = 261.63, volume = 0.7, tuning: ShrutiTuning = 'pa'): void {
     const ctx = this.ensureContext();
     this.stopTanpura();
 
     this.currentTonicFreq = tonicFreq;
+    this.currentVolume = volume;
+    this.currentShrutiTuning = tuning;
+
     this.tanpuraGain = ctx.createGain();
     this.tanpuraGain.gain.setValueAtTime(0.001, ctx.currentTime);
     this.tanpuraGain.gain.exponentialRampToValueAtTime(Math.max(0.01, volume), ctx.currentTime + 1.2);
     this.tanpuraGain.connect(this.masterGain!);
 
-    // A standard 4-string Carnatic tambura sounds:
-    // String 1: Panchamam (Pa) = 3/2 * Sa / 2 (approx 1.5 * tonic * 0.5 = 0.75 tonic)
-    // String 2: Madhya Sa (Middle Sa) = 1.0 * tonic
-    // String 3: Madhya Sa = 1.0 * tonic (with subtle chorus detuning +0.8 Hz)
-    // String 4: Mandra Sa (Low Sa) = 0.5 * tonic (one octave lower)
+    // String 1 depends on Shruti tuning:
+    // Pa Shruti: Panchama (3/2 * Sa / 2 = 0.75 * tonic) - used for most ragas
+    // Ma Shruti: Shuddha Madhyama (4/3 * Sa / 2 = 0.6667 * tonic) - used for Hindolam, Madhyamavati, Kamas
+    // Ni Shruti: Kakali Nishada (15/8 * Sa / 2 = 0.9375 * tonic) - used for Marwa, Bhoopalam, Varali
+    let firstStringRatio = 0.75;
+    if (tuning === 'ma') {
+      firstStringRatio = 2.0 / 3.0; // 4/3 / 2
+    } else if (tuning === 'ni') {
+      firstStringRatio = 15.0 / 16.0; // 15/8 / 2
+    }
 
     const stringConfigs = [
-      { freq: tonicFreq * 0.75, gain: 0.28, harmonics: [1, 2, 3, 4, 6] },
+      { freq: tonicFreq * firstStringRatio, gain: 0.30, harmonics: [1, 2, 3, 4, 6] },
       { freq: tonicFreq, gain: 0.32, harmonics: [1, 2, 3, 4, 5] },
       { freq: tonicFreq * 1.002, gain: 0.32, harmonics: [1, 2, 3, 4, 5] }, // Jivari chorus beat
-      { freq: tonicFreq * 0.5, gain: 0.40, harmonics: [1, 2, 3, 4, 5, 8] }
+      { freq: tonicFreq * 0.5, gain: 0.40, harmonics: [1, 2, 3, 4, 5, 8] }  // Kharaja Sa
     ];
 
     this.tanpuraOscillators = [];
@@ -98,7 +138,7 @@ class AudioEngine {
         const osc = ctx.createOscillator();
         const g = ctx.createGain();
 
-        // Overtone falloff emulating brass/bronze strings on wood with jivari buzz
+        // Overtone falloff emulating bronze strings on jackwood soundbox with jivari silk threads
         const falloff = 1 / Math.pow(h, 1.35);
         const oscGain = sc.gain * falloff * 0.35;
 
@@ -115,11 +155,62 @@ class AudioEngine {
     });
 
     this.isTanpuraPlaying = true;
+    audioKeepAlive.enableKeepAlive();
+  }
+
+  public setShrutiTuning(tuning: ShrutiTuning): void {
+    if (this.currentShrutiTuning === tuning) return;
+    this.currentShrutiTuning = tuning;
+    if (this.isTanpuraPlaying) {
+      this.startTanpura(this.currentTonicFreq, this.currentVolume, tuning);
+    }
+  }
+
+  public getShrutiTuning(): ShrutiTuning {
+    return this.currentShrutiTuning;
+  }
+
+  public setTonic(tonic: string | number): void {
+    if (typeof tonic === 'number') {
+      this.currentTonicFreq = tonic;
+      const match = TONIC_OPTIONS.find((t) => Math.abs(t.frequency - tonic) < 1.0);
+      this.currentTonicName = match ? match.name : `${tonic.toFixed(1)} Hz`;
+    } else {
+      const clean = tonic.trim().toLowerCase();
+      const match = TONIC_OPTIONS.find(
+        (t) =>
+          t.name.toLowerCase() === clean ||
+          t.name.toLowerCase().startsWith(clean) ||
+          t.kattai.toLowerCase() === clean ||
+          t.kattai.toLowerCase().startsWith(clean)
+      );
+      if (match) {
+        this.currentTonicFreq = match.frequency;
+        this.currentTonicName = match.name;
+      }
+    }
+
+    if (this.isTanpuraPlaying) {
+      this.startTanpura(this.currentTonicFreq, this.currentVolume, this.currentShrutiTuning);
+    }
+
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(
+        new CustomEvent('nadaverse:tonic_changed', {
+          detail: { frequency: this.currentTonicFreq, name: this.currentTonicName }
+        })
+      );
+    }
+  }
+
+  public getTonic(): { name: string; frequency: number } {
+    return { name: this.currentTonicName, frequency: this.currentTonicFreq };
   }
 
   public stopTanpura(): void {
     if (!this.isTanpuraPlaying || !this.tanpuraGain || !this.ctx) return;
 
+    audioKeepAlive.disableKeepAlive();
     const fadeTime = 0.5;
     this.tanpuraGain.gain.setValueAtTime(this.tanpuraGain.gain.value, this.ctx.currentTime);
     this.tanpuraGain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + fadeTime);
@@ -134,13 +225,14 @@ class AudioEngine {
           osc.stop();
           osc.disconnect();
         } catch {
-          // ignore if already stopped
+          // ignore
         }
       });
     }, fadeTime * 1000 + 100);
   }
 
   public setTanpuraVolume(volume: number): void {
+    this.currentVolume = volume;
     if (this.tanpuraGain && this.ctx) {
       const v = Math.min(1.0, Math.max(0.001, volume));
       this.tanpuraGain.gain.setValueAtTime(this.tanpuraGain.gain.value, this.ctx.currentTime);
@@ -153,10 +245,10 @@ class AudioEngine {
   }
 
   // ---------------------------------------------------------------------------
-  // 2. Play Individual Swara Note (Just Intonation Auditioning)
+  // 2. Play Individual Swara Note & Raga Scale Sequencer
   // ---------------------------------------------------------------------------
 
-  public playSwaraNote(ratio: number, durationSeconds = 1.2): void {
+  public playSwaraNote(ratio: number, durationSeconds = 1.0): void {
     const ctx = this.ensureContext();
     const freq = this.currentTonicFreq * ratio;
 
@@ -178,14 +270,51 @@ class AudioEngine {
     osc.stop(ctx.currentTime + durationSeconds);
   }
 
+  public playRagaScale(
+    ratios: number[],
+    stepIntervalMs = 500,
+    onStep?: (index: number) => void,
+    onComplete?: () => void
+  ): void {
+    this.stopRagaScale();
+    this.isScalePlaying = true;
+
+    ratios.forEach((ratio, idx) => {
+      const tid = window.setTimeout(() => {
+        if (!this.isScalePlaying) return;
+        this.playSwaraNote(ratio, (stepIntervalMs / 1000) * 1.2);
+        if (onStep) onStep(idx);
+
+        if (idx === ratios.length - 1) {
+          window.setTimeout(() => {
+            this.isScalePlaying = false;
+            if (onComplete) onComplete();
+          }, stepIntervalMs);
+        }
+      }, idx * stepIntervalMs);
+
+      this.scaleTimeouts.push(tid);
+    });
+  }
+
+  public stopRagaScale(): void {
+    this.isScalePlaying = false;
+    this.scaleTimeouts.forEach((tid) => clearTimeout(tid));
+    this.scaleTimeouts = [];
+  }
+
+  public getIsScalePlaying(): boolean {
+    return this.isScalePlaying;
+  }
+
   // ---------------------------------------------------------------------------
-  // 3. High-Precision Tala Metronome Scheduler
+  // 3. High-Precision Tala Metronome & Mridangam Solkattu Scheduler
   // ---------------------------------------------------------------------------
 
   public startTala(
     bpm: number,
     totalAksharas: number,
-    beatActions: { isAccent: boolean }[],
+    beatActions: { isAccent: boolean; syllable?: string }[],
     onBeat: (beatIndex: number, isAccent: boolean) => void
   ): void {
     const ctx = this.ensureContext();
@@ -197,12 +326,16 @@ class AudioEngine {
     this.onBeatCallback = onBeat;
     this.currentBeat = 0;
     this.isTalaPlaying = true;
+    audioKeepAlive.enableKeepAlive();
 
     this.nextBeatTime = ctx.currentTime + 0.05;
     this.scheduler();
   }
 
   public stopTala(): void {
+    if (this.isTalaPlaying) {
+      audioKeepAlive.disableKeepAlive();
+    }
     this.isTalaPlaying = false;
     if (this.talaTimerId !== null) {
       window.clearTimeout(this.talaTimerId);
@@ -217,6 +350,33 @@ class AudioEngine {
 
   public getIsTalaPlaying(): boolean {
     return this.isTalaPlaying;
+  }
+
+  public setSolkattuMode(enabled: boolean): void {
+    this.solkattuMode = enabled;
+  }
+
+  public getSolkattuMode(): boolean {
+    return this.solkattuMode;
+  }
+
+  private nadai: 'chatusra' | 'tisra' = 'chatusra';
+  private nadaiLoopsEnabled = false;
+
+  public setNadai(nadai: 'chatusra' | 'tisra'): void {
+    this.nadai = nadai;
+  }
+
+  public getNadai(): 'chatusra' | 'tisra' {
+    return this.nadai;
+  }
+
+  public setNadaiLoopsEnabled(enabled: boolean): void {
+    this.nadaiLoopsEnabled = enabled;
+  }
+
+  public getNadaiLoopsEnabled(): boolean {
+    return this.nadaiLoopsEnabled;
   }
 
   private scheduler = (): void => {
@@ -239,16 +399,55 @@ class AudioEngine {
   private scheduleBeat(beatIndex: number, time: number): void {
     if (!this.ctx) return;
 
-    const isAccent = this.beatActionsList[beatIndex]?.isAccent ?? (beatIndex === 0);
+    const action = this.beatActionsList[beatIndex];
+    const isAccent = action?.isAccent ?? (beatIndex === 0);
+    const syllable = action?.syllable?.toLowerCase() || '';
 
-    // Audio Click Synthesis:
-    // Accent (Thattu/First beat): Richer, lower fundamental bell strike (800 Hz -> 200 Hz pitch drop)
-    // Regular (Finger count/Wave): Crisper, higher frequency tick (1400 Hz -> 500 Hz drop)
+    if (this.solkattuMode) {
+      // Primary Mridangam Solkattu Stroke Synthesis on the beat
+      this.synthesizeMridangamStroke(time, syllable, isAccent, 1.0);
+
+      // Accompaniment Nadai Loops (Chatusra / Tisra sub-divisions)
+      if (this.nadaiLoopsEnabled) {
+        const secondsPerBeat = 60.0 / this.talaBpm;
+        if (this.nadai === 'chatusra') {
+          // Tha (beat) -> Ka (1/4) -> Dhi (2/4) -> Mi (3/4)
+          const sub = secondsPerBeat / 4;
+          this.synthesizeMridangamStroke(time + sub * 1, 'ka', false, 0.45);
+          this.synthesizeMridangamStroke(time + sub * 2, 'dhi', false, 0.55);
+          this.synthesizeMridangamStroke(time + sub * 3, 'mi', false, 0.50);
+        } else if (this.nadai === 'tisra') {
+          // Tha (beat) -> Ki (1/3) -> Ta (2/3)
+          const sub = secondsPerBeat / 3;
+          this.synthesizeMridangamStroke(time + sub * 1, 'ki', false, 0.45);
+          this.synthesizeMridangamStroke(time + sub * 2, 'ta', false, 0.55);
+        }
+      }
+    } else {
+      // Precision Bell / Woodblock Metronome
+      this.synthesizeBellStroke(time, isAccent);
+    }
+
+    // Schedule UI callback & haptic pulse on Samam (beat 1) aligned with audio clock
+    const delayMs = Math.max(0, (time - this.ctx.currentTime) * 1000);
+    window.setTimeout(() => {
+      if (this.isTalaPlaying) {
+        if (beatIndex === 0) {
+          audioKeepAlive.triggerSamamHaptic(25);
+        }
+        if (this.onBeatCallback) {
+          this.onBeatCallback(beatIndex, isAccent);
+        }
+      }
+    }, delayMs);
+  }
+
+  private synthesizeBellStroke(time: number, isAccent: boolean): void {
+    if (!this.ctx) return;
     const osc = this.ctx.createOscillator();
     const gain = this.ctx.createGain();
 
     osc.type = isAccent ? 'triangle' : 'sine';
-
     if (isAccent) {
       osc.frequency.setValueAtTime(880, time);
       osc.frequency.exponentialRampToValueAtTime(220, time + 0.07);
@@ -263,17 +462,77 @@ class AudioEngine {
 
     osc.connect(gain);
     gain.connect(this.masterGain!);
-
     osc.start(time);
     osc.stop(time + 0.15);
+  }
 
-    // Schedule UI callback aligned with the audio clock
-    const delayMs = Math.max(0, (time - this.ctx.currentTime) * 1000);
-    window.setTimeout(() => {
-      if (this.isTalaPlaying && this.onBeatCallback) {
-        this.onBeatCallback(beatIndex, isAccent);
-      }
-    }, delayMs);
+  private synthesizeMridangamStroke(
+    time: number,
+    syllable: string,
+    isAccent: boolean,
+    gainFactor = 1.0
+  ): void {
+    if (!this.ctx) return;
+
+    // Thom (Thoppi bass stroke): deep resonant boom ~115 Hz -> 70 Hz
+    if (syllable.includes('thom') || (isAccent && !syllable)) {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(115, time);
+      osc.frequency.exponentialRampToValueAtTime(70, time + 0.20);
+      gain.gain.setValueAtTime(0.85 * gainFactor, time);
+      gain.gain.exponentialRampToValueAtTime(0.001, time + 0.24);
+      osc.connect(gain);
+      gain.connect(this.masterGain!);
+      osc.start(time);
+      osc.stop(time + 0.26);
+      return;
+    }
+
+    // Tha / Nam / Chaapu (Valanthalai metallic overtone tuned to tonic pitch)
+    if (syllable.includes('tha') || syllable.includes('nam') || syllable.includes('chaapu')) {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(this.currentTonicFreq, time);
+      gain.gain.setValueAtTime(0.60 * gainFactor, time);
+      gain.gain.exponentialRampToValueAtTime(0.001, time + 0.15);
+      osc.connect(gain);
+      gain.connect(this.masterGain!);
+      osc.start(time);
+      osc.stop(time + 0.17);
+      return;
+    }
+
+    // Ka / Ki (Muted base slap)
+    if (syllable.includes('ka') || syllable.includes('ki')) {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(160, time);
+      osc.frequency.exponentialRampToValueAtTime(90, time + 0.04);
+      gain.gain.setValueAtTime(0.40 * gainFactor, time);
+      gain.gain.exponentialRampToValueAtTime(0.001, time + 0.05);
+      osc.connect(gain);
+      gain.connect(this.masterGain!);
+      osc.start(time);
+      osc.stop(time + 0.06);
+      return;
+    }
+
+    // Dhi / Ta / Mi (Crisp middle rim / slap stroke)
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(360, time);
+    osc.frequency.exponentialRampToValueAtTime(170, time + 0.04);
+    gain.gain.setValueAtTime(0.48 * gainFactor, time);
+    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.055);
+    osc.connect(gain);
+    gain.connect(this.masterGain!);
+    osc.start(time);
+    osc.stop(time + 0.07);
   }
 }
 
