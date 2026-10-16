@@ -12,7 +12,7 @@ import { InstrumentCard } from '../components/InstrumentCard';
 import { BeginnerPath } from '../components/BeginnerPath';
 import { TutorModal } from '../components/TutorModal';
 import { AuthModal } from '../components/AuthModal';
-import { VERIFIED_RAGAS, VERIFIED_INSTRUMENTS, VERIFIED_TALAS, GLOSSARY_TERMS } from '../data/carnaticData';
+import { VERIFIED_RAGAS, VERIFIED_INSTRUMENTS, VERIFIED_TALAS, GLOSSARY_TERMS, VERIFIED_COMPOSERS } from '../data/carnaticData';
 import {
   Compass,
   Sliders,
@@ -24,50 +24,6 @@ import {
   CheckCircle2,
   Sparkles
 } from 'lucide-react';
-
-interface Composer {
-  name: string;
-  lifespan: string;
-  tradition: string;
-  biography: string;
-  mudra: string;
-  majorKritis: string[];
-}
-
-const VERIFIED_COMPOSERS: Composer[] = [
-  {
-    name: 'Saint Tyagaraja',
-    lifespan: '1767–1847 CE',
-    tradition: 'Carnatic Trinity',
-    biography: 'Immortal devotional composer who consecrated his life to Rama bhakti, composed the sacred Pancharatna kritis, and elevated sangatis.',
-    mudra: 'Tyagaraja',
-    majorKritis: ['Endaro Mahanubhavulu (Shree)', 'Swara Raga Sudharasa (Shankarabharanam)', 'Tulasidala (Mayamalavagowla)']
-  },
-  {
-    name: 'Muthuswami Dikshitar',
-    lifespan: '1775–1835 CE',
-    tradition: 'Carnatic Trinity',
-    biography: 'Scholar-mystic renowned for magnificent vilamba kala Sanskrit masterpieces, the Kamalamba Navavarana kritis, and profound temple iconography.',
-    mudra: 'Guruguha',
-    majorKritis: ['Vatapi Ganapatim (Hamsadhwani)', 'Akshaya Linga Vibho (Shankarabharanam)', 'Kamalambam Bhajare (Kalyani)']
-  },
-  {
-    name: 'Shyama Shastri',
-    lifespan: '1762–1827 CE',
-    tradition: 'Carnatic Trinity',
-    biography: 'Eldest of the Trinity, hereditary priest of Kamakshi in Thanjavur, revered for intricate rhythmic mastery and soulful Swarajathis.',
-    mudra: 'Shyama Krishna',
-    majorKritis: ['Marivere Gati (Anandabhairavi)', 'Sarojadala Netri (Shankarabharanam)', 'Kamakshi Swarajathi (Bhairavi)']
-  },
-  {
-    name: 'Purandara Dasa',
-    lifespan: '1484–1564 CE',
-    tradition: 'Pitamaha of Carnatic Music',
-    biography: 'Codified the foundational pedagogical curriculum of Carnatic music in Mayamalavagowla, composed thousands of Devaranamas, and established the abhyasa gana framework.',
-    mudra: 'Purandara Vittala',
-    majorKritis: ['Deena Dayalo Rama (Mayamalavagowla)', 'Bhagyada Lakshmi Baramma', 'Jagadoddharana']
-  }
-];
 
 export default function Home() {
   const [activeSection, setActiveSection] = useState<'home' | 'learn' | 'explore' | 'practice'>('home');
@@ -139,7 +95,8 @@ export default function Home() {
     (c) =>
       c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       c.tradition.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.mudra.toLowerCase().includes(searchQuery.toLowerCase())
+      c.signatureMudra.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.primaryLanguages.some((l) => l.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   const filteredGlossary = GLOSSARY_TERMS.filter(
@@ -504,8 +461,14 @@ export default function Home() {
                           </span>
                         </div>
                         <span className="text-[10px] font-mono bg-[#22221D] text-[#87947A] border border-[#3B392F] px-2 py-0.5 rounded">
-                          Mudra: {composer.mudra}
+                          Mudra: {composer.signatureMudra}
                         </span>
+                      </div>
+
+                      <div className="flex flex-wrap gap-2 text-[10px] font-mono text-[#BDB4A4]/80">
+                        <span>Birthplace: {composer.birthplace}</span>
+                        <span>•</span>
+                        <span>Languages: {composer.primaryLanguages.join(', ')}</span>
                       </div>
 
                       <p className="text-xs text-[#BDB4A4] leading-relaxed">

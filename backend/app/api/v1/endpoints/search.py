@@ -8,6 +8,7 @@ from app.data.verified_corpus import (
     VERIFIED_INSTRUMENTS_DATA,
     VERIFIED_COMPOSERS_DATA,
     VERIFIED_COMPOSITIONS_DATA,
+    VERIFIED_GLOSSARY_DATA,
 )
 
 router = APIRouter(prefix="/search", tags=["Global Search & Discovery"])
@@ -112,6 +113,27 @@ async def global_search(
                         content_type="composition",
                         subtitle=f"Raga: {kriti['raga']} · Tala: {kriti['tala']} · Composer: {kriti['composer']}",
                         description=kriti["summary"],
+                        review_status="expert_reviewed"
+                    )
+                )
+
+    # 6. Search Glossary
+    if not types or "glossary" in types:
+        for item in VERIFIED_GLOSSARY_DATA:
+            if (
+                query in item["term"].lower()
+                or query in item.get("transliteration", "").lower()
+                or query in item.get("simple_explanation", "").lower()
+                or query in item.get("detailed_context", "").lower()
+            ):
+                results.append(
+                    SearchResultItem(
+                        id=f"glossary-{item['term'].lower().replace(' ', '-')}",
+                        slug=item["term"].lower().replace(' ', '-'),
+                        title=item["term"],
+                        content_type="glossary",
+                        subtitle=f"Category: {item['category']}",
+                        description=item["simple_explanation"],
                         review_status="expert_reviewed"
                     )
                 )

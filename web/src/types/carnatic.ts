@@ -132,7 +132,7 @@ export interface LessonItem {
 export interface GlossaryTerm {
   term: string;
   transliteration?: string;
-  category: 'Fundamentals' | 'Rhythm' | 'Melody' | 'Structure' | 'Aesthetics';
+  category: 'Fundamentals' | 'Rhythm' | 'Melody' | 'Structure' | 'Aesthetics' | 'Manodharma' | 'Literature';
   simpleExplanation: string;
   detailedContext: string;
   relatedTerms: string[];

@@ -198,3 +198,56 @@ async def test_ai_tutor_prompt_injection_guard():
     data = res.json()
     assert data["confidence_level"] == "uncertain"
     assert "guard" in data["uncertainty_note"].lower()
+
+
+@pytest.mark.asyncio
+async def test_expanded_corpus_and_glossary():
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        # Check ragas
+        ragas = (await ac.get("/api/v1/ragas")).json()
+        raga_slugs = [r["slug"] for r in ragas]
+        assert "bhairavi" in raga_slugs
+        assert "kambhoji" in raga_slugs
+        assert "hindolam" in raga_slugs
+        assert "abhogi" in raga_slugs
+        assert "charukesi" in raga_slugs
+        assert "madhyamavati" in raga_slugs
+
+        # Check talas
+        talas = (await ac.get("/api/v1/talas")).json()
+        tala_slugs = [t["slug"] for t in talas]
+        assert "khanda-chapu" in tala_slugs
+        assert "tisra-eka" in tala_slugs
+        assert "khanda-triputa" in tala_slugs
+        assert "misra-jhampa" in tala_slugs
+
+        # Check instruments
+        instruments = (await ac.get("/api/v1/instruments")).json()
+        inst_slugs = [i["slug"] for i in instruments]
+        assert "carnatic-flute" in inst_slugs
+        assert "kanjira" in inst_slugs
+        assert "morsing" in inst_slugs
+        assert "nadaswaram" in inst_slugs
+        assert "thavil" in inst_slugs
+
+        # Check composers
+        composers = (await ac.get("/api/v1/composers")).json()
+        comp_slugs = [c["slug"] for c in composers]
+        assert "swathi-thirunal" in comp_slugs
+        assert "papanasam-sivan" in comp_slugs
+        assert "gopalakrishna-bharati" in comp_slugs
+        assert "annamacharya" in comp_slugs
+        assert "patnam-subramanya-iyer" in comp_slugs
+
+        # Check glossary endpoint
+        glossary = (await ac.get("/api/v1/glossary")).json()
+        assert len(glossary) >= 15
+        terms = [g["term"] for g in glossary]
+        assert "Niraval" in terms
+        assert "Kalpanaswara" in terms
+        assert "Sthayi" in terms
+        assert "Mudra" in terms
+
+        # Check glossary in global search
+        search_res = (await ac.get("/api/v1/search?q=Niraval")).json()
+        assert any(s["content_type"] == "glossary" for s in search_res)

@@ -14,6 +14,7 @@ from app.data.verified_corpus import (
     VERIFIED_INSTRUMENTS_DATA,
     VERIFIED_COMPOSERS_DATA,
     VERIFIED_COMPOSITIONS_DATA,
+    VERIFIED_GLOSSARY_DATA,
 )
 from app.schemas.tutor import TutorCitation, TutorResponse
 
@@ -80,6 +81,18 @@ class AIGatewayService:
                     "type": "composer",
                     "text": f"{comp['name']} ({comp['lifespan']}). {comp['biography']} Signature mudra: {comp['signature_mudra']}.",
                     "source": {"title": "Biographical Records of Carnatic Composers", "author_or_creator": "Prof. P. Sambamoorthy", "citation": "Indian Music Publishing House, 1970"}
+                })
+
+        # 5. Match Glossary Terms
+        for g in VERIFIED_GLOSSARY_DATA:
+            term_lower = g["term"].lower()
+            if term_lower in q or g.get("transliteration", "").lower() in q:
+                matched_docs.append({
+                    "slug": f"glossary-{term_lower.replace(' ', '-')}",
+                    "title": g["term"],
+                    "type": "glossary",
+                    "text": f"{g['term']} ({g['category']}): {g['simple_explanation']} {g['detailed_context']}",
+                    "source": {"title": "Glossary of Carnatic Musicology", "author_or_creator": "NadaVerse Editorial Board", "citation": "NadaVerse Treatise Database, 2026"}
                 })
 
         return matched_docs

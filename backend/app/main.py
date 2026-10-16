@@ -29,6 +29,7 @@ from app.data.verified_corpus import (
     VERIFIED_INSTRUMENTS_DATA,
     VERIFIED_COMPOSERS_DATA,
     VERIFIED_COMPOSITIONS_DATA,
+    VERIFIED_GLOSSARY_DATA,
 )
 
 
@@ -160,6 +161,11 @@ async def list_composers():
 @app.get("/api/v1/compositions", tags=["Compositions"])
 async def list_compositions():
     return VERIFIED_COMPOSITIONS_DATA
+
+
+@app.get("/api/v1/glossary", tags=["Glossary"])
+async def list_glossary():
+    return VERIFIED_GLOSSARY_DATA
 
 
 # -----------------------------------------------------------------------------
