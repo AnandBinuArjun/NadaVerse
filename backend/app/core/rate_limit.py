@@ -77,6 +77,11 @@ class InMemoryRateLimiter:
             for k in sorted_keys[: len(self._history) - self._max_tracked_keys]:
                 del self._history[k]
 
+    def clear(self):
+        """Clears all tracked client timestamp histories (useful for tests and maintenance)."""
+        self._history.clear()
+
+
 
 class RedisRateLimiter:
     """

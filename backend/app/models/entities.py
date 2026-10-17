@@ -219,3 +219,26 @@ class HeritageEntry(Base):
     updated_at = Column(DateTime(timezone=True), default=utc_now)
 
     submitter = relationship("User", foreign_keys=[submitter_id])
+
+
+# -----------------------------------------------------------------------------
+# Feature: Peer-Review & Musicological Corrections Queue
+# -----------------------------------------------------------------------------
+class ContentCorrection(Base):
+    __tablename__ = "content_corrections"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    entity_type = Column(String(50), nullable=False)
+    entity_name = Column(String(150), nullable=False)
+    target_field = Column(String(100), nullable=False)
+    proposed_edit = Column(Text, nullable=False)
+    citation_source = Column(Text, nullable=False)
+    submitter_name = Column(String(120), default="Anonymous Scholar")
+    submitter_affiliation = Column(String(200), nullable=True)
+    submitter_id = Column(String(36), ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    status = Column(String(30), default="pending_review", index=True)  # pending_review, approved, rejected
+    reviewer_notes = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), default=utc_now)
+    reviewed_at = Column(DateTime(timezone=True), nullable=True)
+
+    submitter = relationship("User", foreign_keys=[submitter_id])

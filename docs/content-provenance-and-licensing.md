@@ -63,10 +63,39 @@ All audible elements in NadaVerse are generated client-side with zero external s
 ## 5. Editorial & Peer-Review Governance
 
 1. **Suggest a Correction System:**
-   - Any vidwan, musicology scholar, or student can submit corrections via the `/api/v1/corrections` endpoint.
-   - All submissions require mandatory citation references and are reviewed by editorial moderators before inclusion.
+   - Any vidwan, musicology scholar, or student can submit corrections via the `/api/v1/corrections` endpoint or in-app "Suggest Edit" buttons in the Tutor Evidence Inspector.
+   - All submissions require mandatory citation references and are reviewed by editorial moderators before inclusion (`pending_review` -> `approved` / `rejected`).
 2. **Heritage Archive Submissions:**
    - Contributor submissions via `/api/v1/heritage/submit` default to `pending_review`.
    - Content is evaluated for source authenticity, historical accuracy, copyright compliance, and cultural sensitivity before publication.
-3. **Takedown & Correction Policy:**
-   - Any contested historical claim or copyright notice can be submitted to the NadaVerse maintainers. Contested records will be placed on hold immediately pending peer review.
+
+---
+
+## 6. Rights-Gap Checklist & Unverified Claims Audit
+
+To maintain intellectual and legal integrity, NadaVerse explicitly differentiates between verified primary sources and areas requiring ongoing scholarly verification:
+
+| Content Domain | Verified Status | Remaining Rights / Scholarly Verification Gap | Mitigation / Release Policy |
+|---|---|---|---|
+| **Sanskrit / Telugu / Tamil Root Treatises (pre-1925 CE)** | VERIFIED PUBLIC DOMAIN | Modern scholarly English translations or critical apparatus published post-1928 may possess active translator copyrights. | Only verbatim translation of public domain shlokas or original translations created by NadaVerse contributors are hosted. |
+| **Audio Synthesizer Algorithms** | VERIFIED ORIGINAL WORK | None. All waveforms, resonant filters, Tanpura detuning, and Tala clicks are rendered programmatically via Web Audio API. | Fully autonomous in-browser execution with zero third-party audio streaming. |
+| **Melakarta & Janya Raga Scales** | VERIFIED MATHEMATICAL SYSTEM | Nomenclature conflicts between Venkatamakhin (Kanakambari-Phenadyuti tradition) and Govindacharya (Kanakangi-Ratnangi tradition). | UI explicitly displays Govindacharya 72 Mela scheme with notes disclosing 17th-century Dikshitar sampradaya variants. |
+| **Gamaka Acoustic Profiles** | HEURISTIC ESTIMATE | Gamakas (Kampita, Nokku, Ravai, Khandippu) are microtonally fluid and tradition-dependent; cannot be validated to a single rigid pitch curve. | UI explicitly labels gamaka detection as an experimental heuristic estimate rather than definitive examination grading. |
+| **Heritage Photographic Archive** | UNDER VERIFICATION | Epigraphic photographs and instrument workshop images must be individually audited for photographer attribution and CC licensing. | Images default to curated public domain museum scans or user-contributed CC-BY-SA media with explicit provenance. |
+
+---
+
+## 7. Notice, Takedown & Content Dispute Procedure
+
+NadaVerse respects the intellectual property and traditional cultural knowledge of artists, hereditary practitioners, and academic scholars.
+
+1. **Designated Contact:**
+   - Email: `heritage@nadaverse.org` (or open a GitHub Issue tagged `legal-takedown` on [AnandBinuArjun/NadaVerse](https://github.com/AnandBinuArjun/NadaVerse)).
+2. **Notice Requirements:**
+   - URL or Record ID of contested material.
+   - Specific basis for claim (e.g., copyright ownership of critical edition, traditional lineage objection, or factual error).
+   - Proof of authority or scholarly citation counter-evidence.
+3. **Response Protocol:**
+   - **Triage (within 48 hours):** The contested item is flagged and moved to `pending_review` or temporarily quarantined from public retrieval.
+   - **Investigation:** NadaVerse editorial moderators review the primary source evidence and contact the claimant.
+   - **Resolution:** The record is either corrected with updated scholarly attribution, updated with balanced sampradaya viewpoints, or permanently removed.

@@ -47,3 +47,11 @@ class PracticeSessionOut(BaseModel):
     tonic: Optional[str]
     tala_id: Optional[str]
     notes: str
+
+
+class PracticeSummaryOut(BaseModel):
+    total_completed_sessions: int
+    total_completed_minutes: int
+    weekly_completed_minutes: int
+    consecutive_streak_days: int
+

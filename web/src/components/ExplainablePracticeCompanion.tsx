@@ -18,6 +18,7 @@ import {
 import { TONIC_OPTIONS, TonicNote } from '../lib/audioEngine';
 import { CARNATIC_EXERCISES, ExerciseItem } from '../data/carnaticExercises';
 import { useLanguage } from '../context/LanguageContext';
+import { detectPitch, evaluateSyntheticPitch } from '../lib/pitchDetector';
 
 interface SwaraCentDef {
   symbol: string;
@@ -129,68 +130,36 @@ export const ExplainablePracticeCompanion: React.FC<Props> = ({
     };
   }, []);
 
-  // Autocorrelation pitch detector
-  const detectPitch = (buffer: Float32Array, sampleRate: number): number | null => {
-    const SIZE = buffer.length;
-    let sumOfSquares = 0;
-    for (let i = 0; i < SIZE; i++) {
-      sumOfSquares += buffer[i] * buffer[i];
-    }
-    const rms = Math.sqrt(sumOfSquares / SIZE);
-    if (rms < 0.015) return null;
+  // Diagnostic self-test state for synthetic audio evaluation
+  const [diagnosticResults, setDiagnosticResults] = useState<{
+    tested: boolean;
+    allPassed: boolean;
+    results: Array<{ note: string; targetHz: number; detectedHz: number | null; centError: number | null; passed: boolean }>;
+  } | null>(null);
 
-    let r1 = 0;
-    let r2 = SIZE - 1;
-    const threshold = 0.2;
-    for (let i = 0; i < SIZE / 2; i++) {
-      if (Math.abs(buffer[i]) < threshold) {
-        r1 = i;
-        break;
-      }
-    }
-    for (let i = 1; i < SIZE / 2; i++) {
-      if (Math.abs(buffer[SIZE - i]) < threshold) {
-        r2 = SIZE - i;
-        break;
-      }
-    }
-
-    const trimmedBuffer = buffer.slice(r1, r2);
-    const trimmedSize = trimmedBuffer.length;
-    if (trimmedSize < 16) return null;
-
-    const c = new Float32Array(trimmedSize);
-    for (let i = 0; i < trimmedSize; i++) {
-      for (let j = 0; j < trimmedSize - i; j++) {
-        c[i] = c[i] + trimmedBuffer[j] * trimmedBuffer[j + i];
-      }
-    }
-
-    let d = 0;
-    while (d < trimmedSize - 1 && c[d] > c[d + 1]) {
-      d++;
-    }
-    let maxval = -1;
-    let maxpos = -1;
-    for (let i = d; i < trimmedSize; i++) {
-      if (c[i] > maxval) {
-        maxval = c[i];
-        maxpos = i;
-      }
-    }
-    let T0 = maxpos;
-    if (T0 === 0 || maxval / c[0] < 0.85) return null;
-
-    // Parabolic interpolation
-    const x1 = c[T0 - 1] || 0;
-    const x2 = c[T0];
-    const x3 = c[T0 + 1] || 0;
-    const a = (x1 + x3 - 2 * x2) / 2;
-    const b = (x3 - x1) / 2;
-    if (a) {
-      T0 = T0 - b / (2 * a);
-    }
-    return sampleRate / T0;
+  const runSyntheticDiagnostic = () => {
+    const testCases = [
+      { note: 'Adhara Sa (C4)', hz: 261.63 },
+      { note: 'Shuddha Rishabham (R₁)', hz: 279.07 },
+      { note: 'Antara Gandharam (G₃)', hz: 327.03 },
+      { note: 'Shuddha Madhyamam (M₁)', hz: 348.84 },
+      { note: 'Panchamam (P)', hz: 392.00 },
+      { note: 'Shuddha Dhaivatam (D₁)', hz: 418.60 },
+      { note: 'Kakali Nishadam (N₃)', hz: 490.55 },
+      { note: 'Tara Sa (Ṡ)', hz: 523.25 },
+    ];
+    const evaluated = testCases.map((tc) => {
+      const res = evaluateSyntheticPitch(tc.hz);
+      return {
+        note: tc.note,
+        targetHz: tc.hz,
+        detectedHz: res.detectedHz,
+        centError: res.centError,
+        passed: res.passed,
+      };
+    });
+    const allPassed = evaluated.every((r) => r.passed);
+    setDiagnosticResults({ tested: true, allPassed, results: evaluated });
   };
 
   const startRecordingSession = async () => {
@@ -588,7 +557,7 @@ export const ExplainablePracticeCompanion: React.FC<Props> = ({
         </div>
 
         {/* Consent Checkbox */}
-        <div className="bg-slate-950/60 border border-slate-800 rounded-xl p-3 flex flex-col justify-center">
+        <div className="bg-slate-950/60 border border-slate-800 rounded-xl p-3.5 flex flex-col justify-center">
           <label className="flex items-start gap-2.5 cursor-pointer text-xs text-slate-300">
             <input
               type="checkbox"
@@ -603,13 +572,50 @@ export const ExplainablePracticeCompanion: React.FC<Props> = ({
               <span className="font-medium text-slate-200 flex items-center gap-1">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> Explicit Audio Opt-In Consent
               </span>
-              <span className="text-slate-400 block mt-0.5 text-[11px] leading-tight">
-                Microphone audio is processed entirely locally in your browser to extract pitch metrics. Only anonymous cent numbers & stability aggregates are submitted for guidance. No raw audio recordings are stored.
+              <span className="text-slate-400 block mt-0.5 text-[11px] leading-relaxed">
+                Microphone audio is processed entirely locally within your browser's Web Audio memory. Raw audio waveforms are never streamed, stored, or uploaded. Only computed mathematical pitch summaries (cents deviation from Adhara Sa, stability percentage, and duration) are transmitted to request guidance. You may stop or withdraw access at any time.
               </span>
             </div>
           </label>
         </div>
       </div>
+
+      {/* Synthetic Diagnostic Test Runner */}
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 p-3 bg-slate-950/50 border border-slate-800 rounded-xl">
+        <div className="text-xs text-slate-400">
+          <span className="font-semibold text-slate-300">Audio Lab Diagnostic:</span> Test pitch estimator accuracy against synthetic known frequencies without microphone access.
+        </div>
+        <button
+          type="button"
+          onClick={runSyntheticDiagnostic}
+          className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-300 text-xs font-medium border border-slate-700 transition-colors"
+        >
+          Run Synthetic Audio Diagnostic
+        </button>
+      </div>
+
+      {diagnosticResults && (
+        <div className="mt-3 p-4 bg-slate-950/90 border border-slate-800 rounded-xl text-xs space-y-2">
+          <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+            <span className="font-bold text-slate-200 flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Synthetic Reference Signal Diagnostic Results
+            </span>
+            <span className={`px-2 py-0.5 rounded font-mono text-[11px] ${diagnosticResults.allPassed ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}`}>
+              {diagnosticResults.allPassed ? '100% Passed (Error < 0.2 cents)' : 'Variations Detected'}
+            </span>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 font-mono text-[11px]">
+            {diagnosticResults.results.map((r, idx) => (
+              <div key={idx} className="bg-slate-900/80 p-2 rounded border border-slate-800/80">
+                <div className="text-amber-400 font-bold truncate">{r.note}</div>
+                <div className="text-slate-400 text-[10px]">Target: {r.targetHz} Hz</div>
+                <div className="text-slate-300 text-[10px]">Detected: {r.detectedHz} Hz</div>
+                <div className="text-emerald-400 text-[10px]">Cent err: {r.centError}c</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Reference Swaras Display */}
       <div className="mt-4 p-3 bg-slate-950/40 border border-slate-800/80 rounded-xl">

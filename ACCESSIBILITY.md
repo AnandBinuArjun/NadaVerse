@@ -20,5 +20,5 @@ NadaVerse takes the following measures to ensure accessibility:
 While we strive for comprehensive accessibility, some real-time audio canvas visualizations (such as raw FFT spectrums) rely on HTML5 Canvas. We provide numerical and text-based tabular equivalents for swara deviation cents and stability scores.
 
 If you encounter accessibility barriers on NadaVerse, please contact us:
-- **Email:** [anandbinuarjun@gmail.com](mailto:anandbinuarjun@gmail.com)
+- **Email:** [anandbinuarjun@zohomail.eu](mailto:anandbinuarjun@zohomail.eu)
 - **GitHub Issues:** Submit an issue with the `accessibility` label.

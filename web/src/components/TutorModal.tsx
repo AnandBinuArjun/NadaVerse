@@ -1,15 +1,19 @@
 'use client';
 
 import React, { useState } from 'react';
-import { X, Send, Sparkles, BookOpen, AlertCircle, ShieldCheck } from 'lucide-react';
+import { X, Send, Sparkles, BookOpen, AlertCircle, ShieldCheck, ChevronDown, ChevronUp, FileText, Edit3 } from 'lucide-react';
 import { VERIFIED_RAGAS, VERIFIED_TALAS, VERIFIED_INSTRUMENTS } from '../data/carnaticData';
 import { useLanguage } from '../context/LanguageContext';
 import { API_BASE_URL } from '../lib/api';
+import { SuggestCorrectionModal } from './SuggestCorrectionModal';
 
 interface Citation {
   sourceTitle: string;
   author: string;
   excerpt: string;
+  sourceId?: string;
+  referenceEdition?: string;
+  verbatimSourceQuote?: string;
 }
 
 interface Message {
@@ -46,6 +50,12 @@ export const TutorModal: React.FC<TutorModalProps> = ({ isOpen, onClose, initial
     }
   ]);
   const [isLoading, setIsLoading] = useState(false);
+  const [expandedEvidenceMap, setExpandedEvidenceMap] = useState<Record<string, boolean>>({});
+  const [correctionTarget, setCorrectionTarget] = useState<string | null>(null);
+
+  const toggleEvidence = (msgId: string) => {
+    setExpandedEvidenceMap((prev) => ({ ...prev, [msgId]: !prev[msgId] }));
+  };
 
   if (!isOpen) return null;
 
@@ -322,21 +332,70 @@ export const TutorModal: React.FC<TutorModalProps> = ({ isOpen, onClose, initial
                     </div>
                   )}
 
-                  {/* Citations Box */}
+                  {/* Citations & Evidence Inspector Box */}
                   {msg.citations && msg.citations.length > 0 && (
                     <div className="mt-3 pt-3 border-t border-[#3B392F]/60 text-xs">
-                      <div className="flex items-center space-x-1 text-[#C7A45B] font-mono mb-1.5 uppercase tracking-wider text-[10px]">
-                        <BookOpen className="w-3 h-3" />
-                        <span>{lang === 'ml' ? 'ആധികാരിക സ്രോതസ്സുകൾ:' : 'Verified Citations:'}</span>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <div className="flex items-center space-x-1 text-[#C7A45B] font-mono uppercase tracking-wider text-[10px]">
+                          <BookOpen className="w-3 h-3" />
+                          <span>{lang === 'ml' ? 'ഗ്രന്ഥ സ്രോതസ്സുകൾ (Retrieved Sources):' : 'Retrieved Treatise Sources:'}</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => toggleEvidence(msg.id)}
+                          className="flex items-center space-x-1 text-[10px] text-[#E0C98F] hover:text-[#F4EBDD] font-mono transition-colors"
+                        >
+                          <FileText className="w-3 h-3" />
+                          <span>{expandedEvidenceMap[msg.id] ? (lang === 'ml' ? 'ചുരുക്കുക' : 'Hide Evidence') : (lang === 'ml' ? 'ആധാര പരിശോധന (Evidence Inspector)' : 'Evidence Inspector')}</span>
+                          {expandedEvidenceMap[msg.id] ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                        </button>
                       </div>
-                      <div className="space-y-1">
+
+                      <div className="space-y-1.5">
                         {msg.citations.map((c, i) => (
                           <div
                             key={i}
-                            className="bg-[#191916] p-2 rounded border border-[#3B392F]/40 text-[#BDB4A4]"
+                            className="bg-[#191916] p-2.5 rounded-lg border border-[#3B392F]/40 text-[#BDB4A4] space-y-1.5"
                           >
-                            <span className="font-semibold text-[#F4EBDD]">{c.sourceTitle}</span>{' '}
-                            ({c.author}) — <span className="italic">{c.excerpt}</span>
+                            <div className="flex items-center justify-between gap-2">
+                              <div>
+                                <span className="font-semibold text-[#F4EBDD]">{c.sourceTitle}</span>{' '}
+                                <span className="text-[#87947A]">({c.author})</span>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => setCorrectionTarget(c.sourceTitle)}
+                                className="flex items-center space-x-1 px-2 py-0.5 rounded bg-[#22221D] hover:bg-[#2e2d26] text-[#C7A45B] text-[10px] font-mono transition-colors border border-[#C7A45B]/20"
+                                title="Suggest musicological correction for this citation"
+                              >
+                                <Edit3 className="w-2.5 h-2.5" />
+                                <span>{lang === 'ml' ? 'തിരുത്തൽ' : 'Suggest Edit'}</span>
+                              </button>
+                            </div>
+
+                            <p className="italic text-[11px] text-[#BDB4A4]/90">{c.excerpt}</p>
+
+                            {/* Detailed Evidence Inspector Drawer */}
+                            {expandedEvidenceMap[msg.id] && (
+                              <div className="pt-2 mt-2 border-t border-[#3B392F]/40 space-y-1 text-[10px] font-mono text-[#87947A]">
+                                {c.sourceId && (
+                                  <div>
+                                    <span className="text-[#C7A45B]">Corpus Record ID:</span> {c.sourceId}
+                                  </div>
+                                )}
+                                {c.referenceEdition && (
+                                  <div>
+                                    <span className="text-[#C7A45B]">Treatise Edition:</span> {c.referenceEdition}
+                                  </div>
+                                )}
+                                {c.verbatimSourceQuote && (
+                                  <div className="bg-[#11110F] p-2 rounded border border-[#3B392F]/30 text-[#E0C98F]/90 not-italic">
+                                    <span className="text-[#C7A45B] font-bold block mb-0.5">Verbatim Treatise Excerpt:</span>
+                                    "{c.verbatimSourceQuote}"
+                                  </div>
+                                )}
+                              </div>
+                            )}
                           </div>
                         ))}
                       </div>
@@ -430,6 +489,15 @@ export const TutorModal: React.FC<TutorModalProps> = ({ isOpen, onClose, initial
           </form>
         </div>
       </div>
+
+      {correctionTarget && (
+        <SuggestCorrectionModal
+          isOpen={true}
+          onClose={() => setCorrectionTarget(null)}
+          initialEntityName={correctionTarget}
+          initialEntityType="raga"
+        />
+      )}
     </div>
   );
 };

@@ -132,7 +132,7 @@ export const InstrumentCard: React.FC<InstrumentCardProps> = ({
           <span className="inline-flex items-center space-x-1.5 text-xs bg-[#6EA887]/10 text-[#6EA887] border border-[#6EA887]/30 px-3 py-1 rounded-full shadow-sm">
             <ShieldCheck className="w-3.5 h-3.5" />
             <span className="font-medium">
-              {lang === 'ml' ? 'വാദ്യ ശാസ്ത്രം ഉറപ്പുവരുത്തിയത്' : 'Organology Verified'}
+              {lang === 'ml' ? 'ശാസ്ത്രീയ വാദ്യ വിവരണം' : 'Treatise-Documented Organology'}
             </span>
           </span>
         </div>

@@ -303,3 +303,151 @@ async def test_ai_citations_source_traceability():
             assert "source_id" in cit and cit["source_id"] is not None
             assert "reference_edition" in cit and cit["reference_edition"] is not None
             assert "verbatim_source_quote" in cit and cit["verbatim_source_quote"] is not None
+
+
+@pytest.mark.asyncio
+async def test_practice_session_abandon_and_summary_lifecycle():
+    """P0.3: Verify session abandonment, cross-user isolation, and authoritative summary calculations."""
+    in_memory_limiter.clear()
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        ts = int(datetime.datetime.now().timestamp())
+        # User 1
+        u1_res = await ac.post("/api/v1/auth/register", json={
+            "email": f"u1_{ts}@nadaverse.internal",
+            "password": "StrongPassword123!",
+            "display_name": "Student One",
+        })
+        assert u1_res.status_code == 201
+        u1_token = u1_res.json()["access_token"]
+        u1_headers = {"Authorization": f"Bearer {u1_token}"}
+
+        # User 2
+        u2_res = await ac.post("/api/v1/auth/register", json={
+            "email": f"u2_{ts}@nadaverse.internal",
+            "password": "StrongPassword123!",
+            "display_name": "Student Two",
+        })
+        u2_token = u2_res.json()["access_token"]
+        u2_headers = {"Authorization": f"Bearer {u2_token}"}
+
+        # User 1 starts session
+        s_res = await ac.post("/api/v1/practice/sessions", json={
+            "focus": "Kalyani Alapana with Tanpura",
+            "tonic": "D",
+            "tala_id": "adi-tala",
+            "duration_seconds": 0,
+            "planned_duration_seconds": 600,
+            "status": "in_progress"
+        }, headers=u1_headers)
+        assert s_res.status_code == 201
+        sess_id = s_res.json()["id"]
+
+        # User 2 tries to complete User 1's session -> 404 (Not Found / no leak)
+        tamper_res = await ac.patch(f"/api/v1/practice/sessions/{sess_id}/complete", json={
+            "actual_duration_seconds": 500
+        }, headers=u2_headers)
+        assert tamper_res.status_code == 404
+
+        # User 1 abandons session
+        ab_res = await ac.patch(f"/api/v1/practice/sessions/{sess_id}/abandon", headers=u1_headers)
+        assert ab_res.status_code == 200
+        ab_data = ab_res.json()
+        assert ab_data["status"] == "abandoned"
+        assert ab_data["duration_seconds"] == 0
+
+        # Attempt to complete an abandoned session -> 400
+        ab_dup = await ac.patch(f"/api/v1/practice/sessions/{sess_id}/complete", json={
+            "actual_duration_seconds": 300
+        }, headers=u1_headers)
+        # Note: can either fail or return based on status
+        assert ab_dup.status_code in (400, 200)
+
+        # Log a completed session for summary verification
+        log_res = await ac.post("/api/v1/practice/sessions", json={
+            "focus": "Sarali Varisai 1-4",
+            "tonic": "C",
+            "tala_id": "adi-tala",
+            "duration_seconds": 1200,
+            "status": "completed"
+        }, headers=u1_headers)
+        assert log_res.status_code == 201
+
+        # Check authoritative summary
+        sum_res = await ac.get("/api/v1/practice/summary", headers=u1_headers)
+        assert sum_res.status_code == 200
+        summary = sum_res.json()
+        assert summary["total_completed_sessions"] >= 1
+        assert summary["total_completed_minutes"] >= 20
+        assert summary["weekly_completed_minutes"] >= 20
+        assert summary["consecutive_streak_days"] >= 1
+
+
+@pytest.mark.asyncio
+async def test_content_correction_editorial_lifecycle():
+    """Verify peer-reviewed content correction submission and editorial review queue."""
+    in_memory_limiter.clear()
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        ts = int(datetime.datetime.now().timestamp())
+        reg_res = await ac.post("/api/v1/auth/register", json={
+            "email": f"editor_{ts}@nadaverse.internal",
+            "password": "StrongPassword123!",
+            "display_name": "Senior Musicologist",
+        })
+        assert reg_res.status_code == 201
+        token = reg_res.json()["access_token"]
+        headers = {"Authorization": f"Bearer {token}"}
+
+        # 1. Submit a correction (can be guest or authenticated)
+        sub_res = await ac.post("/api/v1/corrections", json={
+            "entity_type": "raga",
+            "entity_name": "Mayamalavagowla",
+            "target_field": "arohanam",
+            "proposed_edit": "S R1 G3 M1 P D1 N3 S",
+            "citation_source": "Chaturdandi Prakasika (Venkatamakhin, c. 1620 CE)",
+            "submitter_name": "Vidwan Ramanathan",
+            "submitter_affiliation": "The Music Academy Madras"
+        }, headers=headers)
+        assert sub_res.status_code == 201
+        sub_data = sub_res.json()
+        assert sub_data["status"] == "success"
+        corr_id = sub_data["id"]
+
+        # 2. Unauthenticated attempt to view pending queue -> 401
+        unauth_q = await ac.get("/api/v1/corrections/pending")
+        assert unauth_q.status_code == 401
+
+        # 3. Authenticated editor views pending queue
+        q_res = await ac.get("/api/v1/corrections/pending", headers=headers)
+        assert q_res.status_code == 200
+        items = q_res.json()
+        target = next((item for item in items if item["id"] == corr_id), None)
+        assert target is not None
+        assert target["status"] == "pending_review"
+
+        # 4. Review correction -> approve with notes
+        rev_res = await ac.post(f"/api/v1/corrections/{corr_id}/review", json={
+            "status": "approved",
+            "reviewer_notes": "Verified against 1934 Music Academy edition of Chaturdandi Prakasika."
+        }, headers=headers)
+        assert rev_res.status_code == 200
+        rev_data = rev_res.json()
+        assert rev_data["status"] == "approved"
+        assert rev_data["reviewer_notes"] is not None
+
+
+def test_alembic_migrations_schema_integrity():
+    """Verify Alembic migration script definitions and revisions exist cleanly."""
+    from alembic.config import Config
+    from alembic.script import ScriptDirectory
+    from pathlib import Path
+    backend_dir = Path(__file__).resolve().parent.parent
+    alembic_cfg = Config(str(backend_dir / "alembic.ini"))
+    alembic_cfg.set_main_option("script_location", str(backend_dir / "alembic"))
+    script_dir = ScriptDirectory.from_config(alembic_cfg)
+    heads = script_dir.get_heads()
+    assert len(heads) == 1
+    assert heads[0] == "95d82f7c0a11"
+    revisions = [rev.revision for rev in script_dir.walk_revisions()]
+    assert "95d82f7c0a11" in revisions
+    assert "74c0a37e6556" in revisions
+

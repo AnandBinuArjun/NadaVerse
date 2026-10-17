@@ -164,13 +164,16 @@ export const SadhanaTracker: React.FC = () => {
     setIsGoalEditorOpen(false);
   };
 
-  // Export real user sessions as CSV
+  // Export real user sessions as CSV (strictly excludes demo/sample data)
   const handleExportCSV = () => {
-    const activeList = showDemo && sessions.length === 0 ? DEMO_CURRICULUM_SESSIONS : sessions;
-    if (activeList.length === 0) return;
+    const realSessions = sessions.filter((s) => !s.isDemo);
+    if (realSessions.length === 0) {
+      alert(lang === 'ml' ? 'കയറ്റുമതി ചെയ്യാൻ വ്യക്തിഗത അഭ്യാസ രേഖകൾ ലഭ്യമല്ല.' : 'No recorded practice sessions to export yet. Complete a sadhana practice session to export your personal log.');
+      return;
+    }
 
     const headers = ['Date', 'Focus Area / Raga', 'Adhara Sa / Kattai', 'Tala', 'Duration (Min)', 'Instrument', 'Category', 'Student Notes', 'Type'];
-    const rows = activeList.map((s) => [
+    const rows = realSessions.map((s) => [
       `"${new Date(s.date).toLocaleDateString()}"`,
       `"${(s.focus || '').replace(/"/g, '""')}"`,
       `"${(s.kattai || '').replace(/"/g, '""')}"`,
@@ -179,7 +182,7 @@ export const SadhanaTracker: React.FC = () => {
       `"${(s.instrument || 'Vocal').replace(/"/g, '""')}"`,
       `"${(s.category || 'General').replace(/"/g, '""')}"`,
       `"${(s.notes || '').replace(/"/g, '""')}"`,
-      s.isDemo ? '"Sample Demo"' : '"User Practice Log"'
+      '"User Practice Log"'
     ]);
 
     const csvContent = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
@@ -193,18 +196,36 @@ export const SadhanaTracker: React.FC = () => {
     document.body.removeChild(link);
   };
 
-  // Export full JSON backup
+  // Export full JSON backup (strictly excludes demo/sample data, includes bookmarks & learning state)
   const handleExportJSON = () => {
-    const activeList = showDemo && sessions.length === 0 ? DEMO_CURRICULUM_SESSIONS : sessions;
-    if (activeList.length === 0) return;
+    const realSessions = sessions.filter((s) => !s.isDemo);
+    if (realSessions.length === 0) {
+      alert(lang === 'ml' ? 'കയറ്റുമതി ചെയ്യാൻ വ്യക്തിഗത അഭ്യാസ രേഖകൾ ലഭ്യമല്ല.' : 'No recorded practice sessions to export yet. Complete a sadhana practice session to export your backup.');
+      return;
+    }
+
+    // Capture user bookmarks and lesson progress if present in localStorage
+    let userBookmarks: string[] = [];
+    let completedLessons: string[] = [];
+    if (typeof window !== 'undefined') {
+      try {
+        userBookmarks = JSON.parse(localStorage.getItem('nadaverse_bookmarked_ragas') || '[]');
+        completedLessons = JSON.parse(localStorage.getItem('nadaverse_completed_lessons') || '[]');
+      } catch {}
+    }
 
     const exportPayload = {
-      application: 'NadaVerse',
+      application: 'NadaVerse Carnatic Platform',
+      version: '1.0.0-beta',
       exportDate: new Date().toISOString(),
-      totalSessions: activeList.length,
-      weeklyHours,
-      consecutiveStreak: streakDays,
-      sessions: activeList
+      userLearningState: {
+        totalRealSessions: realSessions.length,
+        weeklyHours,
+        consecutiveStreak: streakDays,
+        completedLessonIds: completedLessons,
+        bookmarkedRagas: userBookmarks,
+      },
+      sessions: realSessions
     };
 
     const jsonContent = JSON.stringify(exportPayload, null, 2);

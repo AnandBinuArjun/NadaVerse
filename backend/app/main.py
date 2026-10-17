@@ -17,7 +17,12 @@ from app.core.config import settings
 from app.db.session import engine, Base, get_db
 from app.models.entities import User, PracticeSession, AuditEvent
 from app.schemas.content import RagaDetail, TalaDetail, InstrumentDetail
-from app.schemas.practice import PracticeSessionCreate, PracticeSessionComplete, PracticeSessionOut
+from app.schemas.practice import (
+    PracticeSessionCreate,
+    PracticeSessionComplete,
+    PracticeSessionOut,
+    PracticeSummaryOut,
+)
 from app.schemas.tutor import TutorMessageRequest, TutorResponse
 from app.api.deps import get_optional_current_user, get_current_user
 from app.api.v1.endpoints.auth import router as auth_router, user_router
@@ -323,6 +328,106 @@ async def complete_practice_session(
     )
 
 
+@app.patch("/api/v1/practice/sessions/{session_id}/abandon", response_model=PracticeSessionOut, tags=["Practice"])
+async def abandon_practice_session(
+    session_id: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    stmt = select(PracticeSession).where(PracticeSession.id == session_id, PracticeSession.user_id == current_user.id)
+    res = await db.execute(stmt)
+    session = res.scalars().first()
+    if not session:
+        raise HTTPException(status_code=404, detail="Practice session not found or does not belong to you.")
+
+    if session.status == "completed":
+        raise HTTPException(status_code=400, detail="Completed session cannot be abandoned.")
+
+    session.status = "abandoned"
+    session.duration_seconds = 0
+    await db.commit()
+    await db.refresh(session)
+    return PracticeSessionOut(
+        id=session.id,
+        user_id=session.user_id,
+        started_at=session.started_at,
+        ended_at=session.completed_at,
+        completed_at=session.completed_at,
+        duration_seconds=session.duration_seconds,
+        planned_duration_seconds=session.planned_duration_seconds,
+        status=session.status,
+        focus=session.focus,
+        tonic=session.tonic,
+        tala_id=session.tala_id,
+        notes=session.notes or "",
+    )
+
+
+@app.get("/api/v1/practice/summary", response_model=PracticeSummaryOut, tags=["Practice"])
+async def get_practice_summary(
+    current_user: Optional[User] = Depends(get_optional_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Authoritative practice summary excluding abandoned, in-progress, or sample records.
+    Calculates completed practice sessions, minutes, weekly volume, and active streak.
+    """
+    if not current_user:
+        return PracticeSummaryOut(
+            total_completed_sessions=0,
+            total_completed_minutes=0,
+            weekly_completed_minutes=0,
+            consecutive_streak_days=0
+        )
+
+    stmt = (
+        select(PracticeSession)
+        .where(PracticeSession.user_id == current_user.id, PracticeSession.status == "completed")
+        .order_by(PracticeSession.completed_at.desc())
+    )
+    res = await db.execute(stmt)
+    sessions = res.scalars().all()
+
+    total_sessions = len(sessions)
+    total_seconds = sum(s.duration_seconds for s in sessions if s.duration_seconds)
+
+    now = datetime.now(timezone.utc)
+    seven_days_ago = now - timedelta(days=7)
+
+    def _ensure_utc(dt: datetime) -> datetime:
+        if dt.tzinfo is None:
+            return dt.replace(tzinfo=timezone.utc)
+        return dt.astimezone(timezone.utc)
+
+    weekly_seconds = sum(
+        s.duration_seconds
+        for s in sessions
+        if s.completed_at and _ensure_utc(s.completed_at) >= seven_days_ago and s.duration_seconds
+    )
+
+    completed_dates = set()
+    for s in sessions:
+        if s.completed_at:
+            completed_dates.add(_ensure_utc(s.completed_at).date())
+
+    today = now.date()
+    yesterday = today - timedelta(days=1)
+    check_date = today if today in completed_dates else (yesterday if yesterday in completed_dates else None)
+    streak = 0
+    if check_date:
+        cur = check_date
+        while cur in completed_dates:
+            streak += 1
+            cur -= timedelta(days=1)
+
+    return PracticeSummaryOut(
+        total_completed_sessions=total_sessions,
+        total_completed_minutes=round(total_seconds / 60),
+        weekly_completed_minutes=round(weekly_seconds / 60),
+        consecutive_streak_days=streak
+    )
+
+
 @app.get("/api/v1/practice/sessions", response_model=List[PracticeSessionOut], tags=["Practice"])
 async def list_practice_sessions(
     current_user: Optional[User] = Depends(get_optional_current_user),
@@ -451,6 +556,7 @@ async def list_canonical_treatises():
 # Peer-Review & Musicological Corrections
 # -----------------------------------------------------------------------------
 from pydantic import BaseModel
+from app.models.entities import ContentCorrection
 
 class CorrectionSubmission(BaseModel):
     entity_type: str
@@ -462,6 +568,24 @@ class CorrectionSubmission(BaseModel):
     submitter_affiliation: Optional[str] = None
     submitted_at: Optional[str] = None
 
+class CorrectionReviewAction(BaseModel):
+    status: str # "approved" or "rejected"
+    reviewer_notes: Optional[str] = None
+
+class CorrectionOut(BaseModel):
+    id: str
+    entity_type: str
+    entity_name: str
+    target_field: str
+    proposed_edit: str
+    citation_source: str
+    submitter_name: str
+    submitter_affiliation: Optional[str]
+    status: str
+    reviewer_notes: Optional[str]
+    created_at: datetime
+    reviewed_at: Optional[datetime]
+
 @app.post("/api/v1/corrections", status_code=status.HTTP_201_CREATED, tags=["Peer Review"])
 async def submit_musicological_correction(
     correction: CorrectionSubmission,
@@ -470,21 +594,123 @@ async def submit_musicological_correction(
 ):
     """
     Submits a peer-reviewed musicological correction or treatise citation
-    from senior vidwans, students, or institutional bodies.
+    from senior vidwans, students, or institutional bodies into the editorial review queue.
     """
+    new_corr = ContentCorrection(
+        entity_type=correction.entity_type,
+        entity_name=correction.entity_name,
+        target_field=correction.target_field,
+        proposed_edit=correction.proposed_edit,
+        citation_source=correction.citation_source,
+        submitter_name=correction.submitter_name or (current_user.email if current_user else "Anonymous Scholar"),
+        submitter_affiliation=correction.submitter_affiliation,
+        submitter_id=current_user.id if current_user else None,
+        status="pending_review",
+    )
+    db.add(new_corr)
+    await db.flush()
+
     audit = AuditEvent(
         actor_id=current_user.id if current_user else "anonymous_scholar",
         action="suggest_correction",
         target_type=correction.entity_type,
-        target_id=correction.entity_name,
-        details=f"Field: {correction.target_field} | Edit: {correction.proposed_edit} | Citation: {correction.citation_source} | Submitter: {correction.submitter_name} ({correction.submitter_affiliation or 'N/A'})"
+        target_id=new_corr.id,
+        details=f"Field: {correction.target_field} | Edit: {correction.proposed_edit[:100]} | Citation: {correction.citation_source[:100]} | Submitter: {new_corr.submitter_name}"
     )
     db.add(audit)
     await db.commit()
+    await db.refresh(new_corr)
+
     return {
         "status": "success",
         "message": "Musicological correction successfully logged for editorial peer review.",
+        "id": new_corr.id,
         "entity": correction.entity_name
     }
+
+
+@app.get("/api/v1/corrections/pending", response_model=List[CorrectionOut], tags=["Peer Review"])
+async def list_pending_corrections(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Retrieves pending musicological corrections for editorial review.
+    """
+    stmt = (
+        select(ContentCorrection)
+        .where(ContentCorrection.status == "pending_review")
+        .order_by(ContentCorrection.created_at.desc())
+    )
+    res = await db.execute(stmt)
+    items = res.scalars().all()
+    return [
+        CorrectionOut(
+            id=c.id,
+            entity_type=c.entity_type,
+            entity_name=c.entity_name,
+            target_field=c.target_field,
+            proposed_edit=c.proposed_edit,
+            citation_source=c.citation_source,
+            submitter_name=c.submitter_name,
+            submitter_affiliation=c.submitter_affiliation,
+            status=c.status,
+            reviewer_notes=c.reviewer_notes,
+            created_at=c.created_at,
+            reviewed_at=c.reviewed_at
+        )
+        for c in items
+    ]
+
+
+@app.post("/api/v1/corrections/{correction_id}/review", response_model=CorrectionOut, tags=["Peer Review"])
+async def review_correction(
+    correction_id: str,
+    action: CorrectionReviewAction,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Reviews and updates the lifecycle state of a pending musicological correction.
+    """
+    stmt = select(ContentCorrection).where(ContentCorrection.id == correction_id)
+    res = await db.execute(stmt)
+    corr = res.scalars().first()
+    if not corr:
+        raise HTTPException(status_code=404, detail="Correction entry not found.")
+
+    if action.status not in ["approved", "rejected"]:
+        raise HTTPException(status_code=400, detail="Review status must be 'approved' or 'rejected'.")
+
+    corr.status = action.status
+    corr.reviewer_notes = action.reviewer_notes
+    corr.reviewed_at = datetime.now(timezone.utc)
+
+    audit = AuditEvent(
+        actor_id=current_user.id,
+        action="review_correction",
+        target_type=corr.entity_type,
+        target_id=corr.id,
+        details=f"Correction {corr.id} reviewed: status={corr.status}, notes={corr.reviewer_notes}"
+    )
+    db.add(audit)
+    await db.commit()
+    await db.refresh(corr)
+
+    return CorrectionOut(
+        id=corr.id,
+        entity_type=corr.entity_type,
+        entity_name=corr.entity_name,
+        target_field=corr.target_field,
+        proposed_edit=corr.proposed_edit,
+        citation_source=corr.citation_source,
+        submitter_name=corr.submitter_name,
+        submitter_affiliation=corr.submitter_affiliation,
+        status=corr.status,
+        reviewer_notes=corr.reviewer_notes,
+        created_at=corr.created_at,
+        reviewed_at=corr.reviewed_at
+    )
+
 
 

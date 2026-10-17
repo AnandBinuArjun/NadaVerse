@@ -154,6 +154,13 @@ async def delete_my_account(
         entry.submitter_id = None
         entry.primary_contributor = "Anonymous Contributor (Account Deleted)"
 
+    # Anonymize any submitted corrections
+    from app.models.entities import ContentCorrection
+    corr_res = await db.execute(select(ContentCorrection).where(ContentCorrection.submitter_id == user_id))
+    for corr in corr_res.scalars().all():
+        corr.submitter_id = None
+        corr.submitter_name = "Anonymous Scholar (Account Deleted)"
+
     current_user.is_active = False
     current_user.deleted_at = datetime.now(timezone.utc)
     current_user.hashed_password = "account_deleted_unusable_hash"

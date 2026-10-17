@@ -1,11 +1,16 @@
 /**
- * NadaVerse Service Worker
+ * NadaVerse Service Worker (v2)
  * Enables 100% offline practice studio (Tanpura drone, Tala metronome, Tuner,
  * and verified Carnatic raga / instrument knowledge base) in temples, green rooms,
  * and low-connectivity venues.
+ * 
+ * Strict Privacy & Security Invariants:
+ * - All /api/ network calls bypass cache entirely.
+ * - Authenticated requests and private workspaces are never cached in shared cache storage.
+ * - Outdated cache revisions are deleted immediately upon activation.
  */
 
-const CACHE_NAME = 'nadaverse-cache-v1';
+const CACHE_NAME = 'nadaverse-cache-v2';
 const PRECACHE_ASSETS = [
   '/',
   '/site.webmanifest',
@@ -35,7 +40,10 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         cacheNames
           .filter((name) => name !== CACHE_NAME)
-          .map((name) => caches.delete(name))
+          .map((name) => {
+            console.log(`[ServiceWorker] Purging outdated cache: ${name}`);
+            return caches.delete(name);
+          })
       );
     }).then(() => self.clients.claim())
   );
@@ -44,22 +52,32 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const { request } = event;
 
-  // Ignore non-GET requests or chrome-extension URLs
+  // 1. Ignore non-GET requests or chrome-extension URLs
   if (request.method !== 'GET' || !request.url.startsWith('http')) {
     return;
   }
 
-  // Bypass API endpoints so tutor/auth messages hit server when online
+  // 2. Never cache or intercept authenticated requests with Authorization headers
+  if (request.headers.has('authorization')) {
+    return;
+  }
+
+  // 3. API Bypass: Private data, AI tutor, and auth endpoints must never enter static cache
   if (request.url.includes('/api/')) {
     event.respondWith(
       fetch(request).catch(() => {
         return new Response(
           JSON.stringify({
-            detail: 'Offline Mode: NadaVerse AI Tutor requires an active internet connection. The Web Audio Practice Studio and verified local ragas remain fully functional offline.'
+            offline: true,
+            status: 'offline_unavailable',
+            detail: 'Offline Mode: NadaVerse AI Tutor and authenticated endpoints require a live network connection. The Web Audio Practice Studio and local verified knowledge base remain fully operational offline.'
           }),
           {
             status: 503,
-            headers: { 'Content-Type': 'application/json' }
+            headers: {
+              'Content-Type': 'application/json',
+              'Cache-Control': 'no-store, no-cache, must-revalidate, private'
+            }
           }
         );
       })
@@ -67,7 +85,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Cache-first for images, fonts, static Next chunks
+  // 4. Cache-first for immutable static assets (images, fonts, css, scripts)
   if (
     request.destination === 'image' ||
     request.destination === 'font' ||
@@ -78,7 +96,7 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       caches.match(request).then((cachedResponse) => {
         if (cachedResponse) {
-          // Stale-while-revalidate
+          // Stale-while-revalidate for static updates
           fetch(request).then((networkResponse) => {
             if (networkResponse && networkResponse.status === 200) {
               caches.open(CACHE_NAME).then((cache) => cache.put(request, networkResponse));
@@ -98,7 +116,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Network-first with cache fallback for HTML pages
+  // 5. Network-first with app-shell fallback for HTML pages
   event.respondWith(
     fetch(request)
       .then((networkResponse) => {

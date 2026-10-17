@@ -2,13 +2,14 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { Volume2, VolumeX, Compass, Sparkles, Sliders, BookOpen, User, Menu, X, GraduationCap, Landmark } from 'lucide-react';
+import { Volume2, VolumeX, Compass, Sparkles, Sliders, BookOpen, User, Menu, X, GraduationCap, Landmark, Search } from 'lucide-react';
 import { audioEngine, TONIC_OPTIONS } from '../lib/audioEngine';
 import { useLanguage } from '../context/LanguageContext';
 
 interface NavbarProps {
   onOpenTutor?: () => void;
   onOpenAuth?: () => void;
+  onOpenCommandPalette?: () => void;
   currentUser?: { email: string; displayName: string } | null;
   activeSection?: string;
   onNavigate?: (section: string) => void;
@@ -17,6 +18,7 @@ interface NavbarProps {
 export const Navbar: React.FC<NavbarProps> = ({
   onOpenTutor,
   onOpenAuth,
+  onOpenCommandPalette,
   currentUser,
   activeSection = 'home',
   onNavigate
@@ -175,6 +177,22 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Right Utility Cluster */}
         <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+          {/* Spotlight Search Trigger */}
+          <button
+            onClick={onOpenCommandPalette}
+            className="flex items-center gap-1.5 px-2.5 py-1 sm:py-1.5 rounded-full bg-[#14120e]/80 hover:bg-[#222019] border border-[#C7A45B]/30 hover:border-[#C7A45B]/60 text-xs text-[#E0C98F] font-medium transition-all shadow-sm shrink-0 whitespace-nowrap cursor-pointer"
+            title="Search Ragas, Talas, Lessons, Compositions (Ctrl+K)"
+            aria-label="Search NadaVerse (Ctrl+K)"
+          >
+            <Search className="w-3.5 h-3.5 text-[#C7A45B]" />
+            <span className="hidden md:inline text-[11px] text-[#BDB4A4]">
+              {lang === 'ml' ? 'തിരയുക' : 'Search'}
+            </span>
+            <kbd className="hidden sm:inline-flex items-center text-[9px] font-mono px-1 rounded bg-[#222019] text-[#C7A45B] border border-[#C7A45B]/25">
+              ⌘K
+            </kbd>
+          </button>
+
           {/* Quick Tanpura Drone Capsule */}
           <div className="hidden sm:flex items-center bg-[#14120e]/80 border border-[#C7A45B]/25 rounded-full p-0.5 text-xs backdrop-blur-md shadow-sm shrink-0">
             <select
@@ -272,6 +290,22 @@ export const Navbar: React.FC<NavbarProps> = ({
       {mobileMenuOpen && (
         <div className="xl:hidden border-t border-[#C7A45B]/20 bg-[#0d0c0a]/95 backdrop-blur-2xl px-6 py-6 space-y-4 shadow-2xl animate-fade-in">
           <nav className="flex flex-col space-y-2">
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                if (onOpenCommandPalette) onOpenCommandPalette();
+              }}
+              className="flex items-center justify-between p-3 rounded-xl text-sm font-medium bg-[#1a1813] border border-[#C7A45B]/30 text-[#E0C98F] hover:bg-[#25221b] transition-colors"
+            >
+              <div className="flex items-center gap-2">
+                <Search className="w-4 h-4 text-[#C7A45B]" />
+                <span>{lang === 'ml' ? 'തിരയുക (Search)' : 'Spotlight Search'}</span>
+              </div>
+              <kbd className="px-1.5 py-0.5 text-[10px] font-mono rounded bg-[#24211a] text-[#C7A45B] border border-[#C7A45B]/30">
+                ⌘K
+              </kbd>
+            </button>
+
             <button
               onClick={() => handleNavigateSection('home')}
               className={`flex items-center justify-between p-3 rounded-xl text-sm font-medium transition-colors ${

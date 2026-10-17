@@ -134,7 +134,7 @@ Command executed:
 ```bash
 python -m pytest backend/tests -v
 ```
-**Results:** **22 passed**, 0 failed, 0 errors in 7.53s.
+**Results:** **28 passed**, 0 failed, 0 errors in 9.48s.
 - `test_health_check` PASSED
 - `test_list_ragas_and_provenance` PASSED
 - `test_get_raga_by_slug` PASSED
@@ -157,17 +157,36 @@ python -m pytest backend/tests -v
 - `test_rate_limiter_trusted_proxy_logic` PASSED
 - `test_in_memory_rate_limiter_concurrency_and_timestamps` PASSED
 - `test_auth_deleted_account_and_cascade_lifecycle` PASSED
+- `test_audio_practice_consent_enforcement_and_metrics_separation` PASSED (P0.1 & P0.2)
+- `test_practice_session_lifecycle_and_duration_accuracy` PASSED (P0.3)
+- `test_ai_citations_source_traceability` PASSED (P1.1)
+- `test_practice_session_abandon_and_summary_lifecycle` PASSED (P0.3)
+- `test_content_correction_editorial_lifecycle` PASSED (P1.6 & Editorial Queue)
+- `test_alembic_migrations_schema_integrity` PASSED (Alembic Head 95d82f7c0a11)
 
-### 4.2. Frontend Type-Check & Production Build
+### 4.2. Synthetic Audio Pitch Detection Test Suite
+Command executed:
+```bash
+cd web
+npx tsx scripts/test-pitch.mjs
+```
+**Results:** **10 passed**, 0 failed.
+- Evaluated time-domain autocorrelation against 8 Carnatic swaras (Sa C4, R1, G3, M1, Pa, D1, N3, Tara Sa C5) with error $\le$ 0.1 cents.
+- Verified silence threshold rejection (no false positives on empty input).
+- Verified noise rejection (no false pitch detected on random noise).
+
+### 4.3. Frontend Type-Check, Lint & Production Build
 Commands executed:
 ```bash
 cd web
 npx tsc --noEmit
+npm run lint
 npm run build
 ```
 **Results:**
-- TypeScript: **0 errors**.
-- Next.js 16.4.2 build: **Compiled successfully** in 2.5s with static page generation across all routes (`/`, `/_not-found`, `/api/og`, `/robots.txt`, `/sitemap.xml`).
+- TypeScript (`npx tsc --noEmit`): **0 errors**.
+- ESLint (`npm run lint`): **0 errors, 0 warnings**.
+- Next.js 16.4.2 build: **Compiled successfully** with static page generation across all routes (`/`, `/_not-found`, `/api/og`, `/robots.txt`, `/sitemap.xml`).
 
 ---
 

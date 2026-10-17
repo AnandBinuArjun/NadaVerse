@@ -12,6 +12,7 @@ interface RagaCardProps {
   raga: RagaItem;
   onAskTutor?: (ragaName: string) => void;
   onSuggestCorrection?: (ragaName: string) => void;
+  onInspectProvenance?: (raga: RagaItem) => void;
   onSelectRelatedRaga?: (ragaSlug: string) => void;
 }
 
@@ -50,6 +51,7 @@ export const RagaCard: React.FC<RagaCardProps> = ({
   raga,
   onAskTutor,
   onSuggestCorrection,
+  onInspectProvenance,
   onSelectRelatedRaga
 }) => {
   const { lang, t } = useLanguage();
@@ -379,6 +381,17 @@ export const RagaCard: React.FC<RagaCardProps> = ({
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
+          {onInspectProvenance && (
+            <button
+              onClick={() => onInspectProvenance(raga)}
+              className="flex items-center space-x-1 text-[#C7A45B] hover:text-[#E0C98F] transition-colors py-1 font-medium"
+              title="Inspect canonical treatise edition and historical manuscript provenance"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 shrink-0 text-[#C7A45B]" />
+              <span>{lang === 'ml' ? 'അവലംബ വിവരങ്ങൾ' : 'Source & Provenance'}</span>
+            </button>
+          )}
+
           {onSuggestCorrection && (
             <button
               onClick={() => onSuggestCorrection(raga.canonicalName)}
