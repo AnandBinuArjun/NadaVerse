@@ -9,7 +9,10 @@ import {
   Disc3,
   ArrowRight,
   CheckCircle2,
-  Volume2
+  Volume2,
+  Mic,
+  Layers,
+  Music
 } from 'lucide-react';
 import { VERIFIED_COMPOSITIONS } from '../data/compositionLibraryData';
 import { PlayableComposition } from '../types/composition';
@@ -23,6 +26,7 @@ export function CarnaticCompositionLibrary() {
   // Search & Filter state
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedMedium, setSelectedMedium] = useState<'all' | 'vocal' | 'violin' | 'both'>('all');
   const [selectedRaga, setSelectedRaga] = useState<string>('all');
   const [selectedTala, setSelectedTala] = useState<string>('all');
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
@@ -30,6 +34,7 @@ export function CarnaticCompositionLibrary() {
 
   // Active playing composition (null = browse mode, composition = player mode)
   const [activeComposition, setActiveComposition] = useState<PlayableComposition | null>(null);
+  const [playerInitialMode, setPlayerInitialMode] = useState<'all' | 'violin' | 'vocal'>('all');
 
   // Category Tabs
   const categories: { key: string; labelEn: string; labelMl: string; count: number }[] = useMemo(() => {
@@ -81,6 +86,18 @@ export function CarnaticCompositionLibrary() {
       if (selectedCategory !== 'all' && comp.category !== selectedCategory) {
         return false;
       }
+      // Rendition medium filter
+      if (selectedMedium === 'vocal') {
+        const isVocal = comp.renditionTypes?.includes('vocal') || !!comp.vocalPracticeNotes || comp.category !== 'violin_piece';
+        if (!isVocal) return false;
+      } else if (selectedMedium === 'violin') {
+        const isViolin = comp.renditionTypes?.includes('violin') || !!comp.violinPracticeNotes || comp.category === 'violin_piece';
+        if (!isViolin) return false;
+      } else if (selectedMedium === 'both') {
+        const hasBoth = (comp.renditionTypes?.includes('vocal') && comp.renditionTypes?.includes('violin')) ||
+          (!!comp.vocalPracticeNotes && !!comp.violinPracticeNotes);
+        if (!hasBoth) return false;
+      }
       // Raga filter
       if (selectedRaga !== 'all' && comp.ragaSlug !== selectedRaga) {
         return false;
@@ -108,12 +125,14 @@ export function CarnaticCompositionLibrary() {
           comp.composerName.toLowerCase().includes(q) ||
           comp.composerMl.toLowerCase().includes(q) ||
           comp.talaName.toLowerCase().includes(q) ||
-          comp.educationalSummary.toLowerCase().includes(q);
+          comp.educationalSummary.toLowerCase().includes(q) ||
+          (comp.heritagePerformers?.vocalLegends && comp.heritagePerformers.vocalLegends.some(l => l.toLowerCase().includes(q))) ||
+          (comp.heritagePerformers?.violinLegends && comp.heritagePerformers.violinLegends.some(l => l.toLowerCase().includes(q)));
         if (!matches) return false;
       }
       return true;
     });
-  }, [searchQuery, selectedCategory, selectedDifficulty, selectedRaga, selectedTala, violinOnly]);
+  }, [searchQuery, selectedCategory, selectedMedium, selectedDifficulty, selectedRaga, selectedTala, violinOnly]);
 
   // Unique ragas and talas for filter dropdowns
   const availableRagas = useMemo(() => {
@@ -134,6 +153,7 @@ export function CarnaticCompositionLibrary() {
       <div className="w-full">
         <InteractiveCompositionPlayer
           composition={activeComposition}
+          initialMode={playerInitialMode}
           onBackToLibrary={() => setActiveComposition(null)}
         />
       </div>
@@ -203,6 +223,32 @@ export function CarnaticCompositionLibrary() {
         ))}
       </div>
 
+      {/* Rendition Medium Filter (Vocal & Violin) */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-thin">
+        <span className="text-[11px] font-mono text-[#8A7F6D] uppercase tracking-wider whitespace-nowrap mr-1 flex items-center gap-1.5">
+          <Layers className="w-3.5 h-3.5 text-[#C7A45B]" />
+          <span>{isMl ? 'മാധ്യമം:' : 'Discipline:'}</span>
+        </span>
+        {[
+          { key: 'all', labelEn: 'All Pieces', labelMl: 'എല്ലാം' },
+          { key: 'vocal', labelEn: '🎤 Sung / Vocal Pieces', labelMl: '🎤 വായ്പ്പാട്ട് കൃതികൾ' },
+          { key: 'violin', labelEn: '🎻 Played / Violin Pieces', labelMl: '🎻 വയലിൻ കൃതികൾ' },
+          { key: 'both', labelEn: '🎵 Both Vocal & Violin (Dual)', labelMl: '🎵 രണ്ടും ഒന്നിച്ച്' },
+        ].map((med) => (
+          <button
+            key={med.key}
+            onClick={() => setSelectedMedium(med.key as any)}
+            className={`px-3 py-1.5 rounded-xl text-xs font-mono font-medium transition-all whitespace-nowrap border cursor-pointer ${
+              selectedMedium === med.key
+                ? 'bg-[#C7A45B]/25 text-[#E0C98F] border-[#C7A45B]/60 shadow-md font-bold'
+                : 'bg-[#161410] text-[#BDB4A4] border-[#3B392F] hover:border-[#C7A45B]/30 hover:text-[#F4EBDD]'
+            }`}
+          >
+            {isMl ? med.labelMl : med.labelEn}
+          </button>
+        ))}
+      </div>
+
       {/* Search and Secondary Filters Bar */}
       <div className="bg-[#14120e]/90 border border-[#C7A45B]/25 rounded-2xl p-3.5 sm:p-5 shadow-xl space-y-3 sm:space-y-4 backdrop-blur-md">
         <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 sm:gap-4">
@@ -215,8 +261,8 @@ export function CarnaticCompositionLibrary() {
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={
                 isMl
-                  ? 'രചന, രാഗം, താളം, വാഗ്ഗേയകാരൻ എന്നിവ തിരയുക...'
-                  : 'Search by title, raga, tala, composer, or keywords...'
+                  ? 'രചന, രാഗം, താളം, വാഗ്ഗേയകാരൻ, ഗായകർ എന്നിവ തിരയുക...'
+                  : 'Search by title, raga, tala, composer, or performer...'
               }
               className="w-full bg-[#1c1a14] border border-[#3B392F] rounded-xl pl-10 pr-4 py-2.5 text-xs text-[#F4EBDD] placeholder-[#8A7F6D] focus:outline-none focus:border-[#C7A45B] focus:ring-1 focus:ring-[#C7A45B]/40 transition-all"
             />
@@ -285,11 +331,12 @@ export function CarnaticCompositionLibrary() {
             {isMl ? 'കണ്ടെത്തിയ രചനകൾ' : 'Compositions found'}:{' '}
             <strong className="text-[#E0C98F] font-mono">{filteredCompositions.length}</strong>
           </span>
-          {(searchQuery || selectedCategory !== 'all' || selectedRaga !== 'all' || selectedTala !== 'all' || selectedDifficulty !== 'all' || violinOnly) && (
+          {(searchQuery || selectedCategory !== 'all' || selectedMedium !== 'all' || selectedRaga !== 'all' || selectedTala !== 'all' || selectedDifficulty !== 'all' || violinOnly) && (
             <button
               onClick={() => {
                 setSearchQuery('');
                 setSelectedCategory('all');
+                setSelectedMedium('all');
                 setSelectedRaga('all');
                 setSelectedTala('all');
                 setSelectedDifficulty('all');
@@ -319,7 +366,8 @@ export function CarnaticCompositionLibrary() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
           {filteredCompositions.map((comp) => {
-            const hasViolinGuide = !!comp.violinPracticeNotes || comp.category === 'violin_piece';
+            const hasViolinGuide = !!comp.violinPracticeNotes || comp.category === 'violin_piece' || comp.renditionTypes?.includes('violin');
+            const hasVocalGuide = !!comp.vocalPracticeNotes || comp.renditionTypes?.includes('vocal') || comp.category !== 'violin_piece';
             return (
               <div
                 key={comp.id}
@@ -392,26 +440,94 @@ export function CarnaticCompositionLibrary() {
                       ))}
                     </div>
 
-                    {/* Violin Guide Indicator */}
-                    {hasViolinGuide && (
-                      <div className="flex items-center gap-1.5 text-[11px] font-mono text-[#E0C98F] bg-[#C7A45B]/10 px-2.5 py-1 rounded-lg border border-[#C7A45B]/25">
-                        <Disc3 className="w-3.5 h-3.5 flex-shrink-0 text-[#C7A45B]" />
-                        <span className="truncate">{isMl ? 'വയലിൻ വിരൽ-വില്ല് കുറിപ്പുകൾ സഹിതം' : 'Includes Violin Fingering & Bowing'}</span>
+                    {/* Rendition Indicators (Vocal & Violin) */}
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      {hasVocalGuide && (
+                        <div className="flex items-center gap-1.5 text-[10px] font-mono text-emerald-300 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20">
+                          <Mic className="w-3 h-3 text-emerald-400 shrink-0" />
+                          <span>{isMl ? 'വായ്പ്പാട്ട് സാധകം' : 'Vocal / Sung'}</span>
+                        </div>
+                      )}
+                      {hasViolinGuide && (
+                        <div className="flex items-center gap-1.5 text-[10px] font-mono text-[#E0C98F] bg-[#C7A45B]/10 px-2 py-0.5 rounded-md border border-[#C7A45B]/25">
+                          <Disc3 className="w-3 h-3 text-[#C7A45B] shrink-0" />
+                          <span>{isMl ? 'വയലിൻ വാദനം' : 'Violin / Played'}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Heritage Legends Snippet if available */}
+                    {comp.heritagePerformers && (
+                      <div className="bg-[#11100D] p-2 rounded-xl border border-[#3B392F]/60 text-[11px] space-y-1">
+                        {comp.heritagePerformers.vocalLegends && comp.heritagePerformers.vocalLegends.length > 0 && (
+                          <div className="truncate">
+                            <span className="text-[#8A7F6D] font-mono font-medium">{isMl ? '🎤 പാടിയത്:' : '🎤 Sung by:'} </span>
+                            <span className="text-[#E0C98F]">{comp.heritagePerformers.vocalLegends.slice(0, 2).join(', ')}</span>
+                          </div>
+                        )}
+                        {comp.heritagePerformers.violinLegends && comp.heritagePerformers.violinLegends.length > 0 && (
+                          <div className="truncate">
+                            <span className="text-[#8A7F6D] font-mono font-medium">{isMl ? '🎻 വയലിൻ:' : '🎻 Violin by:'} </span>
+                            <span className="text-[#E0C98F]">{comp.heritagePerformers.violinLegends.slice(0, 2).join(', ')}</span>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
                 </div>
 
-                {/* Card Action Button (Pinned to bottom) */}
+                {/* Card Action Buttons (Direct Vocal / Violin / Ensemble Modes) */}
                 <div className="pt-4 mt-auto">
-                  <button
-                    onClick={() => setActiveComposition(comp)}
-                    className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl nv-gold-btn font-bold text-xs shadow-md transition-all active:scale-98 cursor-pointer"
-                  >
-                    <Volume2 className="w-4 h-4 shrink-0" />
-                    <span>{isMl ? 'പ്ലേ ചെയ്തു സാധകം ചെയ്യുക' : 'Practise & Play'}</span>
-                    <ArrowRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1 shrink-0" />
-                  </button>
+                  {hasVocalGuide && hasViolinGuide ? (
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => {
+                          setPlayerInitialMode('vocal');
+                          setActiveComposition(comp);
+                        }}
+                        className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl bg-[#1c1a14] hover:bg-[#22221D] text-[#E0C98F] border border-[#C7A45B]/40 hover:border-[#C7A45B] font-mono text-xs font-semibold transition-all cursor-pointer shadow-sm"
+                        title={isMl ? 'വായ്പ്പാട്ട് സാധകം ആരംഭിക്കുക' : 'Practise Singing Vocal'}
+                      >
+                        <Mic className="w-3.5 h-3.5 text-[#C7A45B] shrink-0" />
+                        <span>{isMl ? 'പാടുക' : 'Sing'}</span>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setPlayerInitialMode('violin');
+                          setActiveComposition(comp);
+                        }}
+                        className="flex-1 flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl bg-[#1c1a14] hover:bg-[#22221D] text-[#E0C98F] border border-[#C7A45B]/40 hover:border-[#C7A45B] font-mono text-xs font-semibold transition-all cursor-pointer shadow-sm"
+                        title={isMl ? 'വയലിൻ സാധകം ആരംഭിക്കുക' : 'Practise Playing Violin'}
+                      >
+                        <Disc3 className="w-3.5 h-3.5 text-[#C7A45B] shrink-0" />
+                        <span>{isMl ? 'വായിക്കുക' : 'Play'}</span>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setPlayerInitialMode('all');
+                          setActiveComposition(comp);
+                        }}
+                        className="py-2.5 px-3 rounded-xl nv-gold-btn font-bold text-xs shadow-md transition-all active:scale-98 cursor-pointer flex items-center justify-center"
+                        title={isMl ? 'രണ്ടും ഒന്നിച്ച്' : 'Both Vocal & Violin'}
+                      >
+                        <ArrowRight className="w-4 h-4 shrink-0" />
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        setPlayerInitialMode(hasViolinGuide ? 'violin' : 'vocal');
+                        setActiveComposition(comp);
+                      }}
+                      className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl nv-gold-btn font-bold text-xs shadow-md transition-all active:scale-98 cursor-pointer"
+                    >
+                      <Volume2 className="w-4 h-4 shrink-0" />
+                      <span>{isMl ? 'പ്ലേ ചെയ്തു സാധകം ചെയ്യുക' : 'Practise & Play'}</span>
+                      <ArrowRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1 shrink-0" />
+                    </button>
+                  )}
                 </div>
               </div>
             );

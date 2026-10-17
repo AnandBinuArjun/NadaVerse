@@ -175,7 +175,7 @@ export default function Home() {
   };
 
   const handleNavigate = (section: string) => {
-    if (['home', 'learn', 'explore', 'practice', 'violin', 'teaching', 'heritage'].includes(section)) {
+    if (['home', 'learn', 'explore', 'practice', 'compositions', 'violin', 'teaching', 'heritage'].includes(section)) {
       setActiveSection(section as any);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -495,12 +495,12 @@ export default function Home() {
                     <span>{lang === 'ml' ? 'പുതിയ ഫീച്ചർ • രചനാ ലൈബ്രറി' : 'New Feature • Playable Composition Library'}</span>
                   </div>
                   <h3 className="text-xl sm:text-2xl font-serif font-bold text-[#F4EBDD]">
-                    {lang === 'ml' ? 'വർണ്ണങ്ങളും കീർത്തനങ്ങളും കേൾക്കാനും പഠിക്കാനും' : 'Playable Varnams, Keerthanams & Violin Studies'}
+                    {lang === 'ml' ? 'വർണ്ണങ്ങളും കീർത്തനങ്ങളും — വായ്പ്പാട്ടും വയലിനും' : 'Playable Varnams & Keerthanams (Vocal & Violin)'}
                   </h3>
                   <p className="text-xs sm:text-sm text-[#BDB4A4] leading-relaxed">
                     {lang === 'ml'
-                      ? 'താംബുര ശ്രുതി, തത്സമയ സ്വര ഹൈലൈറ്റിംഗ്, താള ക്രിയകൾ, വേഗത മാറ്റം (0.5x, 1x, 2x), വയലിൻ വിരൽ-വില്ല് കുറിപ്പുകൾ എന്നിവയോടെ.'
-                      : 'Practise Ninnukori Varnam, Vatapi Ganapatim, Pillari Geethams, and Violin studies with synchronized swara notation, pure Just Intonation ratios, and Kalam speeds.'}
+                      ? 'വായ്പ്പാട്ടിലും വയലിനിലും അനശ്വരമാക്കപ്പെട്ട വർണ്ണങ്ങളും കീർത്തനങ്ങളും (ജലജാക്ഷ, സാമി നിന്നേ, രഘുവംശ സുധാ, സാമജ വര ഗമനാ മുതലായവ) താംബുര ശ്രുതിയോടെയും സ്വര ഹൈലൈറ്റിംഗോടെയും ആധികാരികമായി പഠിക്കാൻ.'
+                      : 'Master classical vocal and violin compositions—including Jalajaksha, Sami Ninne, Raghuvamsa Sudha, and Samaja Vara Gamana—with high-precision synthesis, Sahitya Akara vowels, and violin bowing annotations.'}
                   </p>
                 </div>
                 <button

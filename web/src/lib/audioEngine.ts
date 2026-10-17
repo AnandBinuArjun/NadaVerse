@@ -469,7 +469,8 @@ class AudioEngine {
       endRatio?: number;
       oscillationDepthCents?: number;
       oscillationSpeedHz?: number;
-    }
+    },
+    timbre: 'neutral' | 'vocal' | 'violin' = 'neutral'
   ): { stop: () => void } {
     const ctx = this.ensureContext();
     const baseFreq = this.currentTonicFreq * ratio;
@@ -477,10 +478,26 @@ class AudioEngine {
     try {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
+      let filterNode: BiquadFilterNode | null = null;
       let lfo: OscillatorNode | null = null;
       let lfoGain: GainNode | null = null;
 
-      osc.type = 'triangle';
+      // Select waveform & acoustic filter based on timbre
+      if (timbre === 'violin') {
+        osc.type = 'sawtooth';
+        filterNode = ctx.createBiquadFilter();
+        filterNode.type = 'lowpass';
+        filterNode.frequency.setValueAtTime(2200, startTime);
+        filterNode.Q.setValueAtTime(2.2, startTime);
+      } else if (timbre === 'vocal') {
+        osc.type = 'sine';
+        filterNode = ctx.createBiquadFilter();
+        filterNode.type = 'bandpass';
+        filterNode.frequency.setValueAtTime(950, startTime);
+        filterNode.Q.setValueAtTime(1.4, startTime);
+      } else {
+        osc.type = 'triangle';
+      }
 
       // Gamaka pitch contour processing
       if (gamaka && gamaka.type === 'jaru' && gamaka.endRatio) {
@@ -501,19 +518,50 @@ class AudioEngine {
         lfoGain.connect(osc.frequency);
         lfo.start(startTime);
         lfo.stop(startTime + durationSeconds);
+      } else if (timbre === 'vocal' && durationSeconds > 0.45) {
+        // Natural subtle vocal vibrato onset
+        osc.frequency.setValueAtTime(baseFreq, startTime);
+        lfo = ctx.createOscillator();
+        lfoGain = ctx.createGain();
+        lfo.frequency.setValueAtTime(5.2, startTime);
+        const vibratoHz = baseFreq * (Math.pow(2, 14 / 1200) - 1);
+        lfoGain.gain.setValueAtTime(0, startTime);
+        lfoGain.gain.linearRampToValueAtTime(vibratoHz, startTime + 0.18);
+        lfo.connect(lfoGain);
+        lfoGain.connect(osc.frequency);
+        lfo.start(startTime);
+        lfo.stop(startTime + durationSeconds);
       } else {
         osc.frequency.setValueAtTime(baseFreq, startTime);
       }
 
-      // Smooth amplitude envelope
-      const attack = Math.min(0.04, durationSeconds * 0.15);
-      const release = Math.min(0.06, durationSeconds * 0.25);
+      // Dynamic amplitude envelope tailored to timbre
+      let attack = Math.min(0.04, durationSeconds * 0.15);
+      let release = Math.min(0.06, durationSeconds * 0.25);
+      let peakGain = 0.4;
+      let sustainGain = 0.35;
+
+      if (timbre === 'violin') {
+        attack = Math.min(0.03, durationSeconds * 0.1);
+        peakGain = 0.45;
+        sustainGain = 0.38;
+      } else if (timbre === 'vocal') {
+        attack = Math.min(0.07, durationSeconds * 0.2);
+        peakGain = 0.55;
+        sustainGain = 0.45;
+      }
+
       gain.gain.setValueAtTime(0.0001, startTime);
-      gain.gain.exponentialRampToValueAtTime(0.4, startTime + attack);
-      gain.gain.setValueAtTime(0.35, startTime + Math.max(attack, durationSeconds - release));
+      gain.gain.exponentialRampToValueAtTime(peakGain, startTime + attack);
+      gain.gain.setValueAtTime(sustainGain, startTime + Math.max(attack, durationSeconds - release));
       gain.gain.exponentialRampToValueAtTime(0.0001, startTime + durationSeconds);
 
-      osc.connect(gain);
+      if (filterNode) {
+        osc.connect(filterNode);
+        filterNode.connect(gain);
+      } else {
+        osc.connect(gain);
+      }
       gain.connect(this.masterGain!);
 
       osc.start(startTime);
@@ -524,6 +572,7 @@ class AudioEngine {
           try {
             osc.stop();
             osc.disconnect();
+            if (filterNode) filterNode.disconnect();
             if (lfo && lfoGain) {
               lfo.stop();
               lfo.disconnect();

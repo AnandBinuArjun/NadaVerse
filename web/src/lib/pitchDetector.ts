@@ -10,6 +10,84 @@ export interface PitchDetectionResult {
 }
 
 /**
+ * Autocorrelation pitch detector with parabolic peak interpolation and confidence score.
+ */
+export function detectPitchDetailed(
+  buffer: Float32Array,
+  sampleRate: number,
+  minFreq = 65,
+  maxFreq = 1200,
+  confidenceThreshold = 0.6
+): { freq: number; confidence: number } | null {
+  const SIZE = buffer.length;
+  let sumOfSquares = 0;
+  for (let i = 0; i < SIZE; i++) {
+    sumOfSquares += buffer[i] * buffer[i];
+  }
+  const rms = Math.sqrt(sumOfSquares / SIZE);
+  if (rms < 0.015) return null;
+
+  let r1 = 0;
+  let r2 = SIZE - 1;
+  const threshold = 0.2;
+  for (let i = 0; i < SIZE / 2; i++) {
+    if (Math.abs(buffer[i]) < threshold) {
+      r1 = i;
+      break;
+    }
+  }
+  for (let i = 1; i < SIZE / 2; i++) {
+    if (Math.abs(buffer[SIZE - i]) < threshold) {
+      r2 = SIZE - i;
+      break;
+    }
+  }
+
+  const trimmedBuffer = buffer.slice(r1, r2);
+  const trimmedSize = trimmedBuffer.length;
+  if (trimmedSize < 16) return null;
+
+  const c = new Float32Array(trimmedSize);
+  for (let i = 0; i < trimmedSize; i++) {
+    for (let j = 0; j < trimmedSize - i; j++) {
+      c[i] = c[i] + trimmedBuffer[j] * trimmedBuffer[j + i];
+    }
+  }
+
+  let d = 0;
+  while (d < trimmedSize - 1 && c[d] > c[d + 1]) {
+    d++;
+  }
+  let maxval = -1;
+  let maxpos = -1;
+  for (let i = d; i < trimmedSize; i++) {
+    if (c[i] > maxval) {
+      maxval = c[i];
+      maxpos = i;
+    }
+  }
+
+  let T0 = maxpos;
+  if (T0 > 0 && T0 < trimmedSize - 1) {
+    const x1 = c[T0 - 1];
+    const x2 = c[T0];
+    const x3 = c[T0 + 1];
+    const a = (x1 + x3 - 2 * x2) / 2;
+    const b = (x3 - x1) / 2;
+    if (a !== 0) {
+      T0 = T0 - b / (2 * a);
+    }
+  }
+
+  const confidence = c[0] > 0 ? maxval / c[0] : 0;
+  const freq = sampleRate / T0;
+  if (freq >= minFreq && freq <= maxFreq && confidence >= confidenceThreshold) {
+    return { freq, confidence };
+  }
+  return null;
+}
+
+/**
  * Autocorrelation pitch detector with parabolic peak interpolation
  */
 export function detectPitch(buffer: Float32Array, sampleRate: number): number | null {

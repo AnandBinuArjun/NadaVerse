@@ -6,6 +6,7 @@ import { TONIC_OPTIONS, TonicNote } from '../lib/audioEngine';
 import { useLanguage } from '../context/LanguageContext';
 import { practiceShortcuts } from '../lib/practiceShortcuts';
 import { SWARASTHANA_DEFINITIONS } from '../lib/carnaticRatios';
+import { detectPitchDetailed } from '../lib/pitchDetector';
 
 interface TunerCompanionProps {
   activeTonic?: TonicNote;
@@ -73,81 +74,12 @@ export const TunerCompanion: React.FC<TunerCompanionProps> = ({
     };
   }, [stopListening]);
 
-  // Autocorrelation pitch detection algorithm
-  const autoCorrelate = (buffer: Float32Array, sampleRate: number): { freq: number; confidence: number } | null => {
-    const SIZE = buffer.length;
-    let sumOfSquares = 0;
-    for (let i = 0; i < SIZE; i++) {
-      sumOfSquares += buffer[i] * buffer[i];
-    }
-    const rootMeanSquare = Math.sqrt(sumOfSquares / SIZE);
-    if (rootMeanSquare < 0.015) {
-      return null;
-    }
-
-    let r1 = 0;
-    let r2 = SIZE - 1;
-    const threshold = 0.2;
-    for (let i = 0; i < SIZE / 2; i++) {
-      if (Math.abs(buffer[i]) < threshold) {
-        r1 = i;
-        break;
-      }
-    }
-    for (let i = 1; i < SIZE / 2; i++) {
-      if (Math.abs(buffer[SIZE - i]) < threshold) {
-        r2 = SIZE - i;
-        break;
-      }
-    }
-
-    const trimmedBuffer = buffer.slice(r1, r2);
-    const trimmedSize = trimmedBuffer.length;
-    const c = new Array(trimmedSize).fill(0);
-
-    for (let i = 0; i < trimmedSize; i++) {
-      for (let j = 0; j < trimmedSize - i; j++) {
-        c[i] = c[i] + trimmedBuffer[j] * trimmedBuffer[j + i];
-      }
-    }
-
-    let d = 0;
-    while (c[d] > c[d + 1]) d++;
-    let maxVal = -1;
-    let maxPos = -1;
-    for (let i = d; i < trimmedSize; i++) {
-      if (c[i] > maxVal) {
-        maxVal = c[i];
-        maxPos = i;
-      }
-    }
-
-    let T0 = maxPos;
-    if (T0 > 0 && T0 < trimmedSize - 1) {
-      const x1 = c[T0 - 1];
-      const x2 = c[T0];
-      const x3 = c[T0 + 1];
-      const a = (x1 + x3 - 2 * x2) / 2;
-      const b = (x3 - x1) / 2;
-      if (a) {
-        T0 = T0 - b / (2 * a);
-      }
-    }
-
-    const confidence = maxVal / c[0];
-    const freq = sampleRate / T0;
-    if (freq >= 65 && freq <= 1200 && confidence > 0.6) {
-      return { freq, confidence };
-    }
-    return null;
-  };
-
   const updatePitch = () => {
     if (!analyserRef.current || !audioCtxRef.current) return;
 
     const buffer = new Float32Array(analyserRef.current.fftSize);
     analyserRef.current.getFloatTimeDomainData(buffer);
-    const result = autoCorrelate(buffer, audioCtxRef.current.sampleRate);
+    const result = detectPitchDetailed(buffer, audioCtxRef.current.sampleRate);
 
     if (result) {
       const freq = result.freq;

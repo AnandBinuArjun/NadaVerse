@@ -163,6 +163,13 @@ export interface PlayableComposition {
   educationalSummaryMl: string;
   violinPracticeNotes?: string;
   violinPracticeNotesMl?: string;
+  vocalPracticeNotes?: string;
+  vocalPracticeNotesMl?: string;
+  renditionTypes?: ('vocal' | 'violin')[];
+  heritagePerformers?: {
+    vocalLegends?: string[];
+    violinLegends?: string[];
+  };
 }
 
 /**

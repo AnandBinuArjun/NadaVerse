@@ -13,7 +13,10 @@ import {
   Disc3,
   Activity,
   Mic,
-  AlertTriangle
+  AlertTriangle,
+  Wind,
+  Layers,
+  Volume2
 } from 'lucide-react';
 import { audioEngine, TONIC_OPTIONS, TonicNote } from '../lib/audioEngine';
 import { audioKeepAlive } from '../lib/audioKeepAlive';
@@ -23,17 +26,76 @@ import {
 } from '../types/composition';
 import { useLanguage } from '../context/LanguageContext';
 
-interface InteractiveCompositionPlayerProps {
+export interface InteractiveCompositionPlayerProps {
   composition: PlayableComposition;
   onBackToLibrary?: () => void;
+  initialMode?: 'all' | 'violin' | 'vocal';
+}
+
+// Classical Carnatic Akara Sadhana Vowel extractor
+export function getAkaraVowel(sahitya?: string): string {
+  if (!sahitya || sahitya === '—') return 'ആ (Aa)';
+  const s = sahitya.toLowerCase().trim();
+  if (s.includes('ee') || s.includes('i')) return 'ഈ (Ee)';
+  if (s.includes('oo') || s.includes('u')) return 'ഊ (Oo)';
+  if (s.includes('e')) return 'ഏ (Ae)';
+  if (s.includes('o')) return 'ഓ (Oh)';
+  if (s.includes('a')) return 'ആ (Aa)';
+  return 'ആ (Aa)';
+}
+
+// Carnatic Vocal Sthayi & Resonance helper
+export function getVocalResonanceInfo(octave: 'mandra' | 'madhya' | 'tara', isMl: boolean) {
+  if (octave === 'mandra') {
+    return {
+      name: isMl ? 'മന്ദ്ര സ്ഥായി (ഉരസ്സ്)' : 'Mandra Sthayi (Chest)',
+      resonance: isMl
+        ? 'നെഞ്ചിലെ നാദം (Chest resonance) — അയഞ്ഞ താടിയെല്ലും ആഴത്തിലുള്ള ശ്വാസവും നിലനിർത്തുക.'
+        : 'Chest Resonance — Deep diaphragmatic support with a relaxed larynx.',
+      badgeClass: 'text-amber-300 bg-amber-500/15 border-amber-500/30'
+    };
+  }
+  if (octave === 'tara') {
+    return {
+      name: isMl ? 'താര സ്ഥായി (ശിരസ്സ്)' : 'Tara Sthayi (Head)',
+      resonance: isMl
+        ? 'ശിരസ്സിലെ നാദം (Head resonance) — വായ നന്നായി തുറന്ന് തൊണ്ട ഞെരുക്കാതെ പാടുക.'
+        : 'Head Voice / Mask Resonance — Lift the soft palate, relax jaw, avoid vocal cord strain.',
+      badgeClass: 'text-rose-300 bg-rose-500/15 border-rose-500/30'
+    };
+  }
+  return {
+    name: isMl ? 'മധ്യ സ്ഥായി (കണ്ഠം)' : 'Madhya Sthayi (Core Voice)',
+    resonance: isMl
+      ? 'കണ്ഠ ശുദ്ധി (Pharyngeal projection) — പ്രകൃതിദത്തമായ സ്വരസ്ഥാനം.'
+      : 'Core Pharyngeal Resonance — Balanced oral projection and steady breath stream.',
+    badgeClass: 'text-emerald-300 bg-emerald-500/15 border-emerald-500/30'
+  };
 }
 
 export function InteractiveCompositionPlayer({
   composition,
-  onBackToLibrary
+  onBackToLibrary,
+  initialMode
 }: InteractiveCompositionPlayerProps) {
   const { lang } = useLanguage();
   const isMl = lang === 'ml';
+
+  // --- Discipline & Timbre Mode State ---
+  const [disciplineMode, setDisciplineMode] = useState<'all' | 'violin' | 'vocal'>(() => {
+    if (initialMode) return initialMode;
+    return composition.category === 'violin_piece' ? 'violin' : 'all';
+  });
+
+  const [acousticTimbre, setAcousticTimbre] = useState<'neutral' | 'vocal' | 'violin'>(() => {
+    if (initialMode === 'vocal') return 'vocal';
+    if (initialMode === 'violin' || composition.category === 'violin_piece') return 'violin';
+    return 'neutral';
+  });
+  const acousticTimbreRef = useRef(acousticTimbre);
+
+  // Vocal View Format: 'swara' | 'sahitya' | 'akaram'
+  const [vocalFormat, setVocalFormat] = useState<'swara' | 'sahitya' | 'akaram'>('swara');
 
   // --- Playback State ---
   const [isPlaying, setIsPlaying] = useState(false);
@@ -45,10 +107,23 @@ export function InteractiveCompositionPlayer({
   const [speedMultiplier, setSpeedMultiplier] = useState<number>(1); // 0.5 (slow practice), 1 (1st kalam), 2 (2nd kalam)
   const [isLoopSection, setIsLoopSection] = useState(false);
 
-  // --- Violin Practice Mode State ---
-  const [violinMode, setViolinMode] = useState(false);
+  // --- Practice Mode State ---
+  const [violinMode, setViolinMode] = useState(() => disciplineMode === 'violin' || disciplineMode === 'all');
   const [micPitchActive, setMicPitchActive] = useState(false);
   const [detectedPitchNote, setDetectedPitchNote] = useState<string | null>(null);
+
+  // Update refs on state changes
+  useEffect(() => {
+    acousticTimbreRef.current = acousticTimbre;
+  }, [acousticTimbre]);
+
+  useEffect(() => {
+    if (disciplineMode === 'violin') {
+      setViolinMode(true);
+    } else if (disciplineMode === 'vocal') {
+      setViolinMode(false);
+    }
+  }, [disciplineMode]);
 
   // --- Tanpura / Shruti State ---
   const [isTanpuraActive, setIsTanpuraActive] = useState(false);
@@ -165,7 +240,8 @@ export function InteractiveCompositionPlayer({
                 endRatio: sw.gamaka.endRatio,
                 oscillationDepthCents: sw.gamaka.oscillationDepthCents,
                 oscillationSpeedHz: sw.gamaka.oscillationSpeedHz
-              } : undefined
+              } : undefined,
+              acousticTimbreRef.current
             );
           }
           accAkshara += sw.durationAksharas;
@@ -427,6 +503,125 @@ export function InteractiveCompositionPlayer({
         </div>
       </div>
 
+      {/* Performance Discipline & Acoustic Timbre Selector Bar */}
+      <div className="bg-[#14120E] border border-[#C7A45B]/30 rounded-2xl p-4 shadow-xl flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center flex-wrap gap-2">
+          <span className="text-xs font-mono font-bold text-[#E0C98F] uppercase tracking-wider flex items-center gap-1.5 mr-1">
+            <Volume2 className="w-3.5 h-3.5 text-[#C7A45B]" />
+            <span>{isMl ? 'അഭ്യസന രീതി' : 'Practice Discipline'}:</span>
+          </span>
+          <div className="inline-flex rounded-xl bg-[#1c1a14] p-1 border border-[#3B392F]">
+            <button
+              onClick={() => {
+                setDisciplineMode('vocal');
+                setAcousticTimbre('vocal');
+              }}
+              className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                disciplineMode === 'vocal'
+                  ? 'nv-gold-btn shadow-md shadow-[#C7A45B]/20'
+                  : 'text-[#BDB4A4] hover:text-[#F4EBDD]'
+              }`}
+            >
+              <Mic className="w-3.5 h-3.5" />
+              <span>{isMl ? 'വായ്പ്പാട്ട് (Vocal)' : 'Vocal Singing'}</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setDisciplineMode('violin');
+                setAcousticTimbre('violin');
+              }}
+              className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                disciplineMode === 'violin'
+                  ? 'nv-gold-btn shadow-md shadow-[#C7A45B]/20'
+                  : 'text-[#BDB4A4] hover:text-[#F4EBDD]'
+              }`}
+            >
+              <Disc3 className="w-3.5 h-3.5" />
+              <span>{isMl ? 'വയലിൻ (Violin)' : 'Violin Playing'}</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setDisciplineMode('all');
+              }}
+              className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                disciplineMode === 'all'
+                  ? 'nv-gold-btn shadow-md shadow-[#C7A45B]/20'
+                  : 'text-[#BDB4A4] hover:text-[#F4EBDD]'
+              }`}
+            >
+              <Layers className="w-3.5 h-3.5" />
+              <span>{isMl ? 'രണ്ടും ഒന്നിച്ച് (Dual)' : 'Dual Ensemble'}</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Timbre & Format Controls */}
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Acoustic Timbre Sound Selector */}
+          <div className="flex items-center gap-1 bg-[#1c1a14] p-1 rounded-xl border border-[#3B392F]">
+            <span className="text-[10px] font-mono text-[#8A7F6D] px-2">{isMl ? 'ഓഡിയോ നാദം:' : 'Sound:'}</span>
+            <button
+              onClick={() => setAcousticTimbre('vocal')}
+              className={`px-2 py-1 rounded-lg text-[11px] font-mono font-semibold transition-all cursor-pointer ${
+                acousticTimbre === 'vocal' ? 'bg-[#C7A45B]/25 text-[#E0C98F] border border-[#C7A45B]/40' : 'text-[#8A7F6D] hover:text-[#F4EBDD]'
+              }`}
+            >
+              🎤 Vocal
+            </button>
+            <button
+              onClick={() => setAcousticTimbre('violin')}
+              className={`px-2 py-1 rounded-lg text-[11px] font-mono font-semibold transition-all cursor-pointer ${
+                acousticTimbre === 'violin' ? 'bg-[#C7A45B]/25 text-[#E0C98F] border border-[#C7A45B]/40' : 'text-[#8A7F6D] hover:text-[#F4EBDD]'
+              }`}
+            >
+              🎻 Violin
+            </button>
+            <button
+              onClick={() => setAcousticTimbre('neutral')}
+              className={`px-2 py-1 rounded-lg text-[11px] font-mono font-semibold transition-all cursor-pointer ${
+                acousticTimbre === 'neutral' ? 'bg-[#C7A45B]/25 text-[#E0C98F] border border-[#C7A45B]/40' : 'text-[#8A7F6D] hover:text-[#F4EBDD]'
+              }`}
+            >
+              🎼 Tanpura
+            </button>
+          </div>
+
+          {/* Vocal View Format Toggle when in vocal or dual mode */}
+          {(disciplineMode === 'vocal' || disciplineMode === 'all') && (
+            <div className="flex items-center gap-1 bg-[#1c1a14] p-1 rounded-xl border border-[#3B392F]">
+              <span className="text-[10px] font-mono text-[#8A7F6D] px-2">{isMl ? 'കാഴ്ച:' : 'View:'}</span>
+              <button
+                onClick={() => setVocalFormat('swara')}
+                className={`px-2 py-1 rounded-lg text-[11px] font-mono transition-all cursor-pointer ${
+                  vocalFormat === 'swara' ? 'bg-[#C7A45B]/20 text-[#E0C98F]' : 'text-[#8A7F6D]'
+                }`}
+              >
+                Swara
+              </button>
+              <button
+                onClick={() => setVocalFormat('sahitya')}
+                className={`px-2 py-1 rounded-lg text-[11px] font-mono transition-all cursor-pointer ${
+                  vocalFormat === 'sahitya' ? 'bg-[#C7A45B]/20 text-[#E0C98F]' : 'text-[#8A7F6D]'
+                }`}
+              >
+                Sahitya
+              </button>
+              <button
+                onClick={() => setVocalFormat('akaram')}
+                className={`px-2 py-1 rounded-lg text-[11px] font-mono transition-all cursor-pointer ${
+                  vocalFormat === 'akaram' ? 'bg-[#C7A45B]/20 text-[#E0C98F]' : 'text-[#8A7F6D]'
+                }`}
+                title="Akara Sadhana (Vocal Vowel Training)"
+              >
+                ആകാരം (Aa)
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* Main Interactive Stage */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column (2 cols): Swara Notation Sheet & Current Highlighting */}
@@ -518,15 +713,23 @@ export function InteractiveCompositionPlayer({
                               {sw.durationAksharas > 1 ? `${sw.durationAksharas} ak` : '1 ak'}
                             </span>
 
-                            {/* Sahitya / Syllable */}
+                            {/* Sahitya / Syllable / Akara vowel */}
                             {sw.sahitya && (
                               <span
                                 className={`text-[11px] font-medium mt-0.5 truncate w-full px-1 ${
                                   isNoteActive ? 'text-[#11110F] font-semibold' : 'text-[#E0C98F]'
                                 }`}
-                                title={isMl && sw.sahityaMl ? sw.sahityaMl : sw.sahitya}
+                                title={
+                                  vocalFormat === 'akaram'
+                                    ? `Akara Sadhana: ${getAkaraVowel(sw.sahitya)}`
+                                    : isMl && sw.sahityaMl ? sw.sahityaMl : sw.sahitya
+                                }
                               >
-                                {isMl && sw.sahityaMl ? sw.sahityaMl : sw.sahitya}
+                                {vocalFormat === 'akaram'
+                                  ? getAkaraVowel(sw.sahitya)
+                                  : isMl && sw.sahityaMl
+                                  ? sw.sahityaMl
+                                  : sw.sahitya}
                               </span>
                             )}
 
@@ -543,8 +746,8 @@ export function InteractiveCompositionPlayer({
                               </span>
                             )}
 
-                            {/* Violin Practice Annotation Overlay */}
-                            {violinMode && sw.violin && (
+                            {/* Violin Practice Annotation Overlay (shown in Violin or Dual mode) */}
+                            {(violinMode || disciplineMode === 'violin' || disciplineMode === 'all') && sw.violin && (
                               <div
                                 className={`mt-1 text-[10px] flex items-center gap-1 font-mono px-1 rounded ${
                                   isNoteActive ? 'bg-[#11110F] text-[#E0C98F]' : 'bg-[#C7A45B]/15 text-[#E0C98F] border border-[#C7A45B]/25'
@@ -749,8 +952,75 @@ export function InteractiveCompositionPlayer({
             )}
           </div>
 
+          {/* Vocal Sadhana & Resonance Guide Card (when vocal mode active) */}
+          {(disciplineMode === 'vocal' || disciplineMode === 'all') && (
+            <div className="bg-[#1c1a14] border border-[#C7A45B]/30 rounded-2xl p-5 shadow-xl space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xs font-mono font-bold text-[#E0C98F] uppercase tracking-wider flex items-center gap-2">
+                  <Mic className="w-4 h-4 text-[#C7A45B]" />
+                  <span>{isMl ? 'വായ്പ്പാട്ട് സാധക സഹായി' : 'Vocal Sadhana Guide'}</span>
+                </h3>
+                <span className="text-[10px] font-mono bg-[#C7A45B]/15 text-[#E0C98F] px-2 py-0.5 rounded-full border border-[#C7A45B]/30">
+                  {isMl ? 'നാദശുദ്ധി' : 'Voice Placement'}
+                </span>
+              </div>
+
+              {/* Active Sthayi & Vocal Resonance Info */}
+              {activeSwara && (
+                <div className="bg-[#11100D] p-3 rounded-xl border border-[#3B392F] space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-mono text-[#8A7F6D] uppercase">{isMl ? 'സ്ഥായി നാദം:' : 'Register:'}</span>
+                    <span className={`text-[11px] font-mono px-2 py-0.5 rounded border ${getVocalResonanceInfo(activeSwara.octave, isMl).badgeClass}`}>
+                      {getVocalResonanceInfo(activeSwara.octave, isMl).name}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-[#BDB4A4] leading-relaxed">
+                    {getVocalResonanceInfo(activeSwara.octave, isMl).resonance}
+                  </p>
+                  <div className="flex items-center justify-between pt-1 border-t border-[#3B392F]/60 text-[11px] font-mono">
+                    <span className="text-[#8A7F6D]">{isMl ? 'ആകാര സാധക സ്വരം:' : 'Akara Vowel:'}</span>
+                    <span className="text-[#E0C98F] font-bold">{getAkaraVowel(activeSwara.sahitya)}</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Composition Vocal Practice Notes */}
+              {composition.vocalPracticeNotes && (
+                <div className="space-y-1">
+                  <span className="text-[10px] text-[#8A7F6D] font-mono uppercase tracking-wider block">
+                    {isMl ? 'ആലാപന മാർഗ്ഗനിർദ്ദേശം' : 'Singing Pointers'}:
+                  </span>
+                  <p className="text-xs text-[#BDB4A4] leading-relaxed bg-[#11100D] p-3 rounded-xl border border-[#3B392F]">
+                    {isMl && composition.vocalPracticeNotesMl
+                      ? composition.vocalPracticeNotesMl
+                      : composition.vocalPracticeNotes}
+                  </p>
+                </div>
+              )}
+
+              {/* Immortalized by Vocal Legends */}
+              {composition.heritagePerformers?.vocalLegends && composition.heritagePerformers.vocalLegends.length > 0 && (
+                <div className="bg-[#11100D] p-3 rounded-xl border border-[#3B392F] space-y-1.5">
+                  <span className="text-[10px] text-[#8A7F6D] font-mono uppercase tracking-wider block">
+                    {isMl ? 'പ്രശസ്ത വായ്പ്പാട്ട് ആലാപനങ്ങൾ' : 'Immortalized in Vocal by'}:
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {composition.heritagePerformers.vocalLegends.map((vocalist, idx) => (
+                      <span
+                        key={idx}
+                        className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-[#1c1a14] text-[#E0C98F] border border-[#C7A45B]/20"
+                      >
+                        {vocalist}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Violin Practice Guide Card (when violin mode active) */}
-          {violinMode && (
+          {(violinMode || disciplineMode === 'violin' || disciplineMode === 'all') && (
             <div className="bg-[#1c1a14] border border-[#C7A45B]/30 rounded-2xl p-5 shadow-xl space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-xs font-mono font-bold text-[#E0C98F] uppercase tracking-wider flex items-center gap-2">
@@ -785,6 +1055,25 @@ export function InteractiveCompositionPlayer({
                   </div>
                 </div>
               </div>
+
+              {/* Immortalized by Violin Maestros */}
+              {composition.heritagePerformers?.violinLegends && composition.heritagePerformers.violinLegends.length > 0 && (
+                <div className="bg-[#11100D] p-3 rounded-xl border border-[#3B392F] space-y-1.5">
+                  <span className="text-[10px] text-[#8A7F6D] font-mono uppercase tracking-wider block">
+                    {isMl ? 'പ്രശസ്ത വയലിൻ വാദനങ്ങൾ' : 'Immortalized on Violin by'}:
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {composition.heritagePerformers.violinLegends.map((violinist, idx) => (
+                      <span
+                        key={idx}
+                        className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-[#1c1a14] text-[#E0C98F] border border-[#C7A45B]/20"
+                      >
+                        {violinist}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Microphone Pitch Feedback Toggle with Non-judgmental Disclaimer */}
               <div className="bg-[#11100D] p-3.5 rounded-xl border border-[#3B392F] space-y-2.5">

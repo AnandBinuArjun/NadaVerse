@@ -92,12 +92,12 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Primary Desktop Navigation Links */}
         <nav
-          className="hidden xl:flex items-center gap-0.5 2xl:gap-1 bg-[#14120e]/80 p-0.5 2xl:p-1 rounded-full border border-[#C7A45B]/25 backdrop-blur-xl shadow-inner shrink min-w-0"
+          className="hidden xl:flex items-center gap-0.5 2xl:gap-1 bg-[#14120e]/80 p-0.5 rounded-full border border-[#C7A45B]/25 backdrop-blur-xl shadow-inner shrink-0"
           aria-label="Main Navigation"
         >
           <button
             onClick={() => handleNavigateSection('home')}
-            className={`whitespace-nowrap px-2.5 2xl:px-3.5 py-1 2xl:py-1.5 rounded-full text-[11px] 2xl:text-xs font-medium transition-all duration-200 ${
+            className={`whitespace-nowrap px-2 2xl:px-3 py-1 rounded-full text-[11px] 2xl:text-xs font-medium transition-all duration-200 ${
               activeSection === 'home'
                 ? 'bg-gradient-to-r from-[#DFB960]/20 to-[#C7A45B]/20 text-[#E0C98F] border border-[#C7A45B]/40 shadow-sm font-semibold'
                 : 'text-[#BDB4A4] hover:text-[#F4EBDD] hover:bg-white/5'
@@ -108,109 +108,109 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           <button
             onClick={() => handleNavigateSection('learn')}
-            className={`whitespace-nowrap flex items-center gap-1 2xl:gap-1.5 px-2 2xl:px-3 py-1 2xl:py-1.5 rounded-full text-[11px] 2xl:text-xs font-medium transition-all duration-200 ${
+            className={`whitespace-nowrap flex items-center gap-1 px-1.5 2xl:px-2.5 py-1 rounded-full text-[11px] 2xl:text-xs font-medium transition-all duration-200 ${
               activeSection === 'learn'
                 ? 'bg-gradient-to-r from-[#DFB960]/20 to-[#C7A45B]/20 text-[#E0C98F] border border-[#C7A45B]/40 shadow-sm font-semibold'
                 : 'text-[#BDB4A4] hover:text-[#F4EBDD] hover:bg-white/5'
             }`}
           >
-            <BookOpen className="w-3.5 h-3.5 text-[#C7A45B]" />
+            <BookOpen className="hidden 2xl:block w-3 h-3 text-[#C7A45B]" />
             <span>{t.navStartHere}</span>
           </button>
 
           <button
             onClick={() => handleNavigateSection('explore')}
-            className={`whitespace-nowrap flex items-center gap-1 2xl:gap-1.5 px-2 2xl:px-3 py-1 2xl:py-1.5 rounded-full text-[11px] 2xl:text-xs font-medium transition-all duration-200 ${
+            className={`whitespace-nowrap flex items-center gap-1 px-1.5 2xl:px-2.5 py-1 rounded-full text-[11px] 2xl:text-xs font-medium transition-all duration-200 ${
               activeSection === 'explore'
                 ? 'bg-gradient-to-r from-[#DFB960]/20 to-[#C7A45B]/20 text-[#E0C98F] border border-[#C7A45B]/40 shadow-sm font-semibold'
                 : 'text-[#BDB4A4] hover:text-[#F4EBDD] hover:bg-white/5'
             }`}
           >
-            <Compass className="w-3.5 h-3.5 text-[#C7A45B]" />
+            <Compass className="hidden 2xl:block w-3 h-3 text-[#C7A45B]" />
             <span>{t.navExplore}</span>
           </button>
 
           <button
             onClick={() => handleNavigateSection('practice')}
-            className={`whitespace-nowrap flex items-center gap-1 2xl:gap-1.5 px-2 2xl:px-3 py-1 2xl:py-1.5 rounded-full text-[11px] 2xl:text-xs font-medium transition-all duration-200 ${
+            className={`whitespace-nowrap flex items-center gap-1 px-1.5 2xl:px-2.5 py-1 rounded-full text-[11px] 2xl:text-xs font-medium transition-all duration-200 ${
               activeSection === 'practice'
                 ? 'bg-gradient-to-r from-[#DFB960]/20 to-[#C7A45B]/20 text-[#E0C98F] border border-[#C7A45B]/40 shadow-sm font-semibold'
                 : 'text-[#BDB4A4] hover:text-[#F4EBDD] hover:bg-white/5'
             }`}
           >
-            <Sliders className="w-3.5 h-3.5 text-[#C7A45B]" />
+            <Sliders className="hidden 2xl:block w-3 h-3 text-[#C7A45B]" />
             <span>{t.navPracticeStudio}</span>
           </button>
 
           <button
             onClick={() => handleNavigateSection('compositions')}
-            className={`whitespace-nowrap flex items-center gap-1 2xl:gap-1.5 px-2 2xl:px-3 py-1 2xl:py-1.5 rounded-full text-[11px] 2xl:text-xs font-medium transition-all duration-200 ${
+            className={`whitespace-nowrap flex items-center gap-1 px-1.5 2xl:px-2.5 py-1 rounded-full text-[11px] 2xl:text-xs font-medium transition-all duration-200 ${
               activeSection === 'compositions'
                 ? 'bg-gradient-to-r from-[#DFB960]/20 to-[#C7A45B]/20 text-[#E0C98F] border border-[#C7A45B]/40 shadow-sm font-semibold'
                 : 'text-[#BDB4A4] hover:text-[#F4EBDD] hover:bg-white/5'
             }`}
           >
-            <Music className="w-3.5 h-3.5 text-[#C7A45B]" />
+            <Music className="hidden 2xl:block w-3 h-3 text-[#C7A45B]" />
             <span>{lang === 'ml' ? 'രചനകൾ' : 'Compositions'}</span>
           </button>
 
           <button
             onClick={() => handleNavigateSection('violin')}
-            className={`whitespace-nowrap flex items-center gap-1 2xl:gap-1.5 px-2 2xl:px-3 py-1 2xl:py-1.5 rounded-full text-[11px] 2xl:text-xs font-medium transition-all duration-200 ${
+            className={`whitespace-nowrap flex items-center gap-1 px-1.5 2xl:px-2.5 py-1 rounded-full text-[11px] 2xl:text-xs font-medium transition-all duration-200 ${
               activeSection === 'violin'
                 ? 'bg-gradient-to-r from-[#DFB960]/20 to-[#C7A45B]/20 text-[#E0C98F] border border-[#C7A45B]/40 shadow-sm font-semibold'
                 : 'text-[#BDB4A4] hover:text-[#F4EBDD] hover:bg-white/5'
             }`}
           >
-            <Music2 className="w-3.5 h-3.5 text-[#C7A45B]" />
+            <Music2 className="hidden 2xl:block w-3 h-3 text-[#C7A45B]" />
             <span>{lang === 'ml' ? 'വയലിൻ' : 'Violin'}</span>
           </button>
 
           <button
             onClick={() => handleNavigateSection('teaching')}
-            className={`whitespace-nowrap flex items-center gap-1 2xl:gap-1.5 px-2 2xl:px-3 py-1 2xl:py-1.5 rounded-full text-[11px] 2xl:text-xs font-medium transition-all duration-200 ${
+            className={`whitespace-nowrap flex items-center gap-1 px-1.5 2xl:px-2.5 py-1 rounded-full text-[11px] 2xl:text-xs font-medium transition-all duration-200 ${
               activeSection === 'teaching'
                 ? 'bg-gradient-to-r from-[#DFB960]/20 to-[#C7A45B]/20 text-[#E0C98F] border border-[#C7A45B]/40 shadow-sm font-semibold'
                 : 'text-[#BDB4A4] hover:text-[#F4EBDD] hover:bg-white/5'
             }`}
           >
-            <GraduationCap className="w-3.5 h-3.5 text-[#C7A45B]" />
+            <GraduationCap className="hidden 2xl:block w-3 h-3 text-[#C7A45B]" />
             <span>{lang === 'ml' ? 'ഗുരുകുലം' : 'Gurukulam'}</span>
           </button>
 
           <button
             onClick={() => handleNavigateSection('heritage')}
-            className={`whitespace-nowrap flex items-center gap-1 2xl:gap-1.5 px-2 2xl:px-3 py-1 2xl:py-1.5 rounded-full text-[11px] 2xl:text-xs font-medium transition-all duration-200 ${
+            className={`whitespace-nowrap flex items-center gap-1 px-1.5 2xl:px-2.5 py-1 rounded-full text-[11px] 2xl:text-xs font-medium transition-all duration-200 ${
               activeSection === 'heritage'
                 ? 'bg-gradient-to-r from-[#DFB960]/20 to-[#C7A45B]/20 text-[#E0C98F] border border-[#C7A45B]/40 shadow-sm font-semibold'
                 : 'text-[#BDB4A4] hover:text-[#F4EBDD] hover:bg-white/5'
             }`}
           >
-            <Landmark className="w-3.5 h-3.5 text-[#C7A45B]" />
+            <Landmark className="hidden 2xl:block w-3 h-3 text-[#C7A45B]" />
             <span>{lang === 'ml' ? 'പൈതൃകം' : 'Heritage'}</span>
           </button>
 
           <button
             onClick={onOpenTutor}
-            className="whitespace-nowrap flex items-center gap-1 2xl:gap-1.5 px-2 2xl:px-3 py-1 2xl:py-1.5 rounded-full text-[11px] 2xl:text-xs font-medium text-[#E0C98F] hover:bg-[#C7A45B]/15 hover:border-[#C7A45B]/40 transition-all border border-transparent"
+            className="whitespace-nowrap flex items-center gap-1 px-1.5 2xl:px-2.5 py-1 rounded-full text-[11px] 2xl:text-xs font-medium text-[#E0C98F] hover:bg-[#C7A45B]/15 hover:border-[#C7A45B]/40 transition-all border border-transparent"
             aria-label="Open Grounded AI Music Tutor"
           >
-            <Sparkles className="w-3.5 h-3.5 text-[#C7A45B]" />
+            <Sparkles className="hidden 2xl:block w-3 h-3 text-[#C7A45B]" />
             <span>{t.navAiTutor}</span>
           </button>
         </nav>
 
         {/* Right Utility Cluster */}
-        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           {/* Spotlight Search Trigger */}
           <button
             onClick={onOpenCommandPalette}
-            className="flex items-center gap-1.5 px-2.5 py-1 sm:py-1.5 rounded-full bg-[#14120e]/80 hover:bg-[#222019] border border-[#C7A45B]/30 hover:border-[#C7A45B]/60 text-xs text-[#E0C98F] font-medium transition-all shadow-sm shrink-0 whitespace-nowrap cursor-pointer"
+            className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-full bg-[#14120e]/80 hover:bg-[#222019] border border-[#C7A45B]/30 hover:border-[#C7A45B]/60 text-xs text-[#E0C98F] font-medium transition-all shadow-sm shrink-0 whitespace-nowrap cursor-pointer"
             title="Search Ragas, Talas, Lessons, Compositions (Ctrl+K)"
             aria-label="Search NadaVerse (Ctrl+K)"
           >
             <Search className="w-3.5 h-3.5 text-[#C7A45B]" />
-            <span className="hidden md:inline text-[11px] text-[#BDB4A4]">
+            <span className="hidden 2xl:inline text-[11px] text-[#BDB4A4]">
               {lang === 'ml' ? 'തിരയുക' : 'Search'}
             </span>
             <kbd className="hidden sm:inline-flex items-center text-[9px] font-mono px-1 rounded bg-[#222019] text-[#C7A45B] border border-[#C7A45B]/25">
@@ -223,7 +223,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <select
               value={selectedTonic.name}
               onChange={handleTonicChange}
-              className="bg-transparent text-[#E0C98F] rounded-full pl-2 pr-1 py-1 text-xs font-mono font-bold focus:outline-none cursor-pointer"
+              className="bg-transparent text-[#E0C98F] rounded-full pl-2 pr-1 py-0.5 sm:py-1 text-xs font-mono font-bold focus:outline-none cursor-pointer"
               aria-label="Select global tonic pitch"
             >
               {TONIC_OPTIONS.map((tOpt) => (
@@ -235,7 +235,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             <button
               onClick={toggleDrone}
-              className={`flex items-center gap-1 px-2 2xl:px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 ${
+              className={`flex items-center gap-1 px-2 py-0.5 sm:py-1 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 ${
                 isDroneOn
                   ? 'bg-gradient-to-r from-[#DFB960] to-[#C7A45B] text-[#11110F] shadow-[0_0_15px_rgba(199,164,91,0.5)] animate-pulse'
                   : 'bg-[#222019] text-[#BDB4A4] hover:text-[#F4EBDD] hover:bg-[#2a2820]'
