@@ -14,7 +14,6 @@ import {
   Activity,
   Mic,
   AlertTriangle,
-  Wind,
   Layers,
   Volume2
 } from 'lucide-react';

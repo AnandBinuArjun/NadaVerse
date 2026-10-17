@@ -537,7 +537,7 @@ class AudioEngine {
 
       // Dynamic amplitude envelope tailored to timbre
       let attack = Math.min(0.04, durationSeconds * 0.15);
-      let release = Math.min(0.06, durationSeconds * 0.25);
+      const release = Math.min(0.06, durationSeconds * 0.25);
       let peakGain = 0.4;
       let sustainGain = 0.35;
 

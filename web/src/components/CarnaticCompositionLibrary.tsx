@@ -11,8 +11,7 @@ import {
   CheckCircle2,
   Volume2,
   Mic,
-  Layers,
-  Music
+  Layers
 } from 'lucide-react';
 import { VERIFIED_COMPOSITIONS } from '../data/compositionLibraryData';
 import { PlayableComposition } from '../types/composition';
