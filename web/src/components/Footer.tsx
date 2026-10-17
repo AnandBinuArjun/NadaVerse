@@ -34,6 +34,18 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPrivacy, onOpenAttribution
             <p className="leading-relaxed text-[13px] text-[#BDB4A4]/90">
               {t.footerMission}
             </p>
+            <div className="pt-1">
+              <a
+                href="https://abarjun.online"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center space-x-2 text-xs font-mono text-[#C7A45B] hover:text-[#E0C98F] bg-[#22221D] px-3 py-1.5 rounded-lg border border-[#3B392F] hover:border-[#C7A45B]/60 transition-all shadow-sm group"
+              >
+                <span className="text-[#BDB4A4]">{lang === 'ml' ? 'സ്രഷ്ടാവ്:' : 'Creator:'}</span>
+                <span className="font-semibold text-[#F4EBDD] group-hover:underline decoration-[#C7A45B]/50">Anand Binu Arjun</span>
+                <span className="text-[#87947A] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform">↗</span>
+              </a>
+            </div>
           </div>
 
           {/* Col 2: Treatises & Provenance */}
@@ -118,13 +130,36 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPrivacy, onOpenAttribution
 
         {/* Bottom Bar */}
         <div className="pt-6 flex flex-col sm:flex-row items-center justify-between text-[11px] text-[#BDB4A4]/80 gap-3 text-center sm:text-left">
-          <div>
-            <span>{t.footerCopyright}</span>
-            {lang === 'ml'
-              ? ' © 2026 നാദവേഴ്സ് ഫൗണ്ടേഷൻ. ശാസ്ത്രീയ സംഗീത പൈതൃക സംരക്ഷണം.'
-              : ' © 2026 NadaVerse Foundation. Preserving and illuminating classical heritage.'}
+          <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2">
+            <span>
+              {lang === 'ml'
+                ? '© 2026 നാദവേഴ്സ്. ശാസ്ത്രീയ സംഗീത പൈതൃക സംരക്ഷണം.'
+                : '© 2026 NadaVerse. Preserving and illuminating classical heritage.'}
+            </span>
+            <span className="hidden sm:inline">·</span>
+            <span>
+              {lang === 'ml' ? 'സങ്കൽപ്പവും നിർമ്മാണവും: ' : 'Conceived & Crafted by '}
+              <a
+                href="https://abarjun.online"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#C7A45B] hover:text-[#E0C98F] font-medium transition-colors underline decoration-[#C7A45B]/40 hover:decoration-[#E0C98F]"
+              >
+                Anand Binu Arjun
+              </a>
+            </span>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
+            <a
+              href="https://abarjun.online"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#C7A45B] hover:text-[#E0C98F] transition-colors font-medium inline-flex items-center space-x-1"
+            >
+              <span>{lang === 'ml' ? 'പോർട്ട്ഫോളിയോ' : 'Portfolio'}</span>
+              <span>↗</span>
+            </a>
+            <span>·</span>
             <button
               onClick={onOpenPrivacy}
               className="hover:text-[#F4EBDD] transition-colors cursor-pointer"
