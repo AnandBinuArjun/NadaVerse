@@ -26,7 +26,7 @@ class Settings(BaseSettings):
                 raise ValueError(
                     "Production security violation: SECRET_KEY must be set to a cryptographically secure "
                     "secret of at least 32 bytes / 64 hex characters (e.g. generated via 'openssl rand -hex 32' "
-                    "or 'python scripts/generate_secret.py')."
+                    "or 'python -c \"import secrets; print(secrets.token_hex(32))\"')."
                 )
         return v
     
