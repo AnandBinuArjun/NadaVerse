@@ -78,6 +78,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   - Updated community and accessibility email to `anandbinuarjun@zohomail.eu`.
 
 ### Security
-- Verified trusted-proxy token-bucket rate limiter with rightmost untrusted hop extraction.
+- **Service Worker v3 Privacy Hardening (`web/public/sw.js`):**
+  - Upgraded to `nadaverse-cache-v3` with explicit `PUBLIC_HTML_ALLOWLIST` restricting offline HTML caching strictly to public routes.
+  - Added strict guards bypassing cache for `Cookie`, `Authorization`, and Next.js RSC navigation headers/queries.
+  - Enforced `isCacheableResponse()` rejecting `Set-Cookie`, `no-store`, and `private` responses from entering CacheStorage.
+  - Added automated test suite `web/scripts/test-sw-privacy.mjs` verifying all 11 privacy invariants.
+- **AI Gateway Secret & Confidence Hardening (`backend/app/services/ai_gateway.py`):**
+  - Removed API key query parameter from Gemini REST URL, transmitting key exclusively via `x-goog-api-key` HTTP header.
+  - Calibrated confidence scoring: `confidence_level` is only set to `"high"` when verified primary treatise citations exist.
+  - Codified explicit `"Unable to verify:"` refusal prefix when query cannot be grounded in reviewed corpus.
+- **Production Proxy & Rate Limiter Observability (`backend/app/core/rate_limit.py` & `config.py`):**
+  - Added `TRUSTED_PROXIES` environment variable configuration allowing reverse proxies (Vercel, Render) to be recognized.
+  - Added `X-RateLimit-Scope` header (`distributed-cluster` vs `local-process-degraded`) to provide transparent observability into rate limit fallback state.
+- **Item-Level Rights Ledger & Quarantine Protocol (`docs/content-provenance-and-licensing.md`):**
+  - Codified Section 6 Item-Level Rights Ledger tracking creator, source, edition, license basis, offline caching rights, and verification review date for all assets.
+  - Codified Section 7 Content Quarantine Protocol for 24-hour triage, exclusion, and audit of any contested or unverified material.
+- **CI Pipeline Verification (`.github/workflows/ci.yml`):**
+  - Added synthetic pitch tests, service worker privacy tests, and Alembic single-head verification to automated CI workflows.
 - Unicode NFKC normalization and prompt injection guardrails active on AI gateway endpoints.
 - Strict cross-user authorization tests on Gurukulam teacher/student classes.

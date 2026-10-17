@@ -55,16 +55,21 @@ NadaVerse implements strict database-level cascading deletion to honor user dele
 
 ## 3. Service Worker & Offline Cache Isolation
 
-To prevent private account data from leaking across users sharing a family device or public library terminal:
+To prevent private account data from leaking across users sharing a family device, mobile phone, or public library terminal:
 
-1. **Authentication Bypass:**
-   - `web/public/sw.js` explicitly inspects incoming requests. Any request with an `Authorization: Bearer ...` header completely bypasses the Service Worker cache.
-2. **API Isolation:**
+1. **Authentication & Credential Bypass:**
+   - `web/public/sw.js` explicitly inspects incoming requests. Any request with an `Authorization` or `Cookie` header completely bypasses the Service Worker cache.
+   - Responses containing `Set-Cookie` or `Cache-Control: private` / `no-store` are strictly rejected by the caching engine.
+2. **Next.js React Server Component (RSC) Bypass:**
+   - Navigation query parameter `_rsc` and server action headers (`rsc`, `next-router-state-tree`, `next-url`, `next-action`) bypass CacheStorage entirely.
+3. **Public HTML Route Allowlist:**
+   - Only explicitly declared static public routes (`PUBLIC_HTML_ALLOWLIST = new Set(['/', '/index.html'])`) are eligible for offline HTML caching. Dynamic, account-specific, or authenticated routes never enter CacheStorage.
+4. **API Isolation:**
    - All `/api/` network requests bypass static caching. If offline, the Service Worker returns an explicit HTTP 503 JSON payload:
-     `{"error": "offline", "message": "Network connection unavailable."}`
-3. **Cache Storage Hygiene:**
+     `{"offline": true, "status": "offline_unavailable", "detail": "Offline Mode: ... requires a live network connection."}`
+5. **Cache Storage Hygiene:**
    - Only public static assets (HTML shell, CSS, bundled JavaScript, SVG diagrams, and user-initiated offline learning packs) are stored in `CacheStorage`.
-   - Outdated caches (`nadaverse-cache-v1`) are purged automatically upon activation of `nadaverse-cache-v2`.
+   - Outdated caches (`nadaverse-cache-v1`, `nadaverse-cache-v2`) are purged immediately upon activation of `nadaverse-cache-v3`.
 
 ---
 

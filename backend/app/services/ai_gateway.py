@@ -156,11 +156,16 @@ class AIGatewayService:
     async def call_gemini_api(self, prompt: str) -> Optional[str]:
         """
         Invokes Google Gemini API with temperature 0.2 for deterministic musicological reasoning.
+        API Key is passed securely via x-goog-api-key header to prevent URL trace leakage.
         """
         if not settings.AI_GATEWAY_API_KEY:
             return None
             
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={settings.AI_GATEWAY_API_KEY}"
+        url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
+        headers = {
+            "Content-Type": "application/json",
+            "x-goog-api-key": settings.AI_GATEWAY_API_KEY,
+        }
         payload = {
             "contents": [{"parts": [{"text": prompt}]}],
             "generationConfig": {
@@ -172,7 +177,7 @@ class AIGatewayService:
         try:
             import httpx
             async with httpx.AsyncClient(timeout=15.0) as client:
-                res = await client.post(url, json=payload)
+                res = await client.post(url, headers=headers, json=payload)
                 if res.status_code == 200:
                     data = res.json()
                     candidates = data.get("candidates", [])
@@ -189,7 +194,7 @@ class AIGatewayService:
         if not self.sanitize_and_check_injection(query):
             return TutorResponse(
                 conversation_id=conversation_id,
-                answer="I can only assist with verified Carnatic music theory, history, and practice queries grounded in authentic treatises. Your request contained instructions that cannot be processed.",
+                answer="Unable to verify: I can only assist with verified Carnatic music theory, history, and practice queries grounded in authentic treatises. Your request contained instructions that cannot be processed.",
                 citations=[],
                 confidence_level="uncertain",
                 provenance="guardrail_blocked",
@@ -203,11 +208,11 @@ class AIGatewayService:
         if not matched_docs:
             return TutorResponse(
                 conversation_id=conversation_id,
-                answer="I do not possess sufficient reviewed musicological documentation in the peer-reviewed NadaVerse knowledge base to answer this inquiry with authoritative confidence. In keeping with our product principles, I refrain from fabricating unverified claims.",
+                answer="Unable to verify: I do not possess sufficient reviewed musicological documentation in the peer-reviewed NadaVerse knowledge base to answer this inquiry with authoritative confidence. In keeping with our product principles, I refrain from fabricating unverified claims.",
                 citations=[],
                 confidence_level="uncertain",
                 provenance="insufficient_evidence",
-                uncertainty_note="Topic outside currently reviewed corpus. Refusal/fallback applied per product safety principles.",
+                uncertainty_note="Unable to verify: Topic outside currently reviewed corpus. Refusal/fallback applied per product safety principles.",
                 suggested_followups=[
                     "Why is Mayamalavagowla used for beginner exercises?",
                     "What are the kriyas of Adi Tala?",
@@ -215,7 +220,7 @@ class AIGatewayService:
                 ]
             )
 
-        # Build citations
+        # Build citations with validated source fields
         primary_doc = matched_docs[0]
         citations: List[TutorCitation] = []
         for doc in matched_docs[:2]:
@@ -244,7 +249,12 @@ class AIGatewayService:
             answer_text = await self.call_gemini_api(prompt)
             if answer_text:
                 provenance = "model_generated"
-                confidence_level = "high"
+                # Calibrate confidence based on verified primary treatise backing rather than text length
+                has_treatise_backing = any(
+                    doc.get("source") and "treatise" in str(doc.get("source")).lower() or "chaturdandi" in str(doc).lower() or "ratnakara" in str(doc).lower()
+                    for doc in matched_docs
+                )
+                confidence_level = "high" if has_treatise_backing else "moderate"
             else:
                 provenance = "model_unavailable"
                 confidence_level = "moderate"

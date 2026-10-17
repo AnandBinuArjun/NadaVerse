@@ -70,7 +70,7 @@ class Settings(BaseSettings):
     RATE_LIMIT_AUTH_PER_MINUTE: int = int(os.getenv("RATE_LIMIT_AUTH_PER_MINUTE", "10"))
     RATE_LIMIT_TUTOR_PER_MINUTE: int = int(os.getenv("RATE_LIMIT_TUTOR_PER_MINUTE", "30"))
     REDIS_URL: Union[str, None] = os.getenv("REDIS_URL", None)
-    TRUSTED_PROXIES: Union[str, List[str]] = ["127.0.0.1", "::1"]
+    TRUSTED_PROXIES: Union[str, List[str]] = os.getenv("TRUSTED_PROXIES", "127.0.0.1,::1")
 
     @field_validator("TRUSTED_PROXIES", mode="after")
     @classmethod

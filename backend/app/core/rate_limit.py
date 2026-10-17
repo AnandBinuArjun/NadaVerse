@@ -228,4 +228,5 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             max_req, remaining = rate_limit_info
             response.headers["X-RateLimit-Limit"] = str(max_req)
             response.headers["X-RateLimit-Remaining"] = str(remaining)
+            response.headers["X-RateLimit-Scope"] = "distributed-cluster" if redis_limiter else "local-process-degraded"
         return response

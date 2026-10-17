@@ -6,7 +6,7 @@
 
 > **Discover Carnatic music. Understand its language. Practise with purpose. 100% Free Forever.**
 
-NadaVerse is a comprehensive, production-tested Carnatic music ecosystem combining authentic musicological research, microtonal Just Intonation sound synthesis, evidence-grounded AI acoustic analysis, structured curriculum paths, and collaborative mentorship.
+NadaVerse is a comprehensive, open-source Carnatic music ecosystem combining authentic musicological research, microtonal Just Intonation sound synthesis, evidence-grounded AI acoustic analysis, structured curriculum paths, and collaborative mentorship.
 
 ---
 
@@ -55,7 +55,7 @@ NadaVerse is a comprehensive, production-tested Carnatic music ecosystem combini
 - **Audio Engine:** Low-latency Web Audio API (Tanpura overtone synthesis, instrument timbre modeling, autocorrelation pitch tracking, drift-free metronome)
 - **Backend API:** Python 3.12 + FastAPI + SQLAlchemy + SQLite / PostgreSQL
 - **AI Gateway:** Provider-neutral gateway with Google Gemini 1.5 Flash / Pro and deterministic classical treatise fallback
-- **Testing:** Pytest (22 backend unit/integration tests) + Next.js production build & strict TypeScript verification
+- **Testing:** Pytest (30 backend unit/integration tests) + Next.js production build & strict TypeScript verification + 10 synthetic pitch tests + 11 service worker privacy tests
 
 ---
 
@@ -101,15 +101,30 @@ Open `http://localhost:3000` in your browser.
 ```bash
 python -m pytest backend/tests -v
 ```
-*Current status:* **22 passed (100%)** covering curriculum progression, tala calculations, audio practice companion analysis, teacher-student authorization workflows, and heritage archive moderation.
+*Current status:* **30 passed (100%)** covering curriculum progression, tala calculations, audio practice companion analysis, teacher-student authorization workflows, rate limiting scope & trusted proxy resolution, and heritage archive moderation.
+
+### Frontend Synthetic Pitch Tests
+```bash
+cd web
+npx tsx scripts/test-pitch.mjs
+```
+*Current status:* **10 passed (100%)** testing 8 swarasthanas, silence gating, and noise rejection.
+
+### Service Worker Privacy & Boundary Tests
+```bash
+cd web
+npx tsx scripts/test-sw-privacy.mjs
+```
+*Current status:* **11 passed (100%)** testing public allowlist, cookie/auth isolation, and RSC prevention.
 
 ### Frontend TypeScript & Production Build
 ```bash
 cd web
 npx tsc --noEmit
+npm run lint
 npm run build
 ```
-*Current status:* **0 TypeScript errors**, **production build successful**.
+*Current status:* **0 TypeScript errors**, **0 ESLint errors**, **production build successful**.
 
 ---
 

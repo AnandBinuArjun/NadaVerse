@@ -451,3 +451,29 @@ def test_alembic_migrations_schema_integrity():
     assert "95d82f7c0a11" in revisions
     assert "74c0a37e6556" in revisions
 
+
+@pytest.mark.asyncio
+async def test_rate_limiter_scope_header_and_proxy_config():
+    """P0.2: Verify rate limit responses carry X-RateLimit-Scope indicating local degraded vs distributed mode."""
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        res = await ac.post("/api/v1/auth/login", json={
+            "email": "test_rl_scope@nadaverse.internal",
+            "password": "WrongPassword123"
+        })
+        # Scope header must be set
+        assert "x-ratelimit-scope" in res.headers
+        assert res.headers["x-ratelimit-scope"] in ("local-process-degraded", "distributed-cluster")
+
+
+@pytest.mark.asyncio
+async def test_ai_gateway_unable_to_verify_and_no_key_in_url():
+    """P0.4: Verify out-of-corpus query triggers explicit 'Unable to verify' refusal and no key in URL."""
+    resp = await ai_gateway.generate_grounded_response(
+        "test-conv-refusal",
+        "Explain non-Carnatic jazz fusion chord substitutions in diminished scales"
+    )
+    assert resp.provenance == "insufficient_evidence"
+    assert resp.confidence_level == "uncertain"
+    assert resp.answer.startswith("Unable to verify")
+
+

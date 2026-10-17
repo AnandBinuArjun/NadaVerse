@@ -10,12 +10,13 @@
 
 | Test Category | Command | Target / Suite | Result |
 |---|---|---|---|
-| **Backend Unit & Integration Tests** | `python -m pytest backend/tests -v` | All 28 tests across API, AI gateway, rate limiting, audio consent, practice lifecycle, editorial corrections, Alembic migrations | **28 Passed (100%)** |
+| **Backend Unit & Integration Tests** | `python -m pytest backend/tests -v` | All 30 tests across API, AI gateway, rate limiting scope, trusted proxy, audio consent, practice lifecycle, editorial corrections, Alembic migrations | **30 Passed (100%)** |
 | **Frontend Synthetic Pitch Tests** | `npx tsx scripts/test-pitch.mjs` (in `web/`) | Centralized autocorrelation pitch detector across 8 swaras, silence, and noise thresholds | **10 Passed (100%)** |
+| **Service Worker Privacy Tests** | `npx tsx scripts/test-sw-privacy.mjs` (in `web/`) | Public allowlist enforcement, Cookie/Auth header isolation, Next.js RSC bypass | **11 Passed (100%)** |
 | **Frontend TypeScript Type-Check** | `npx tsc --noEmit` (in `web/`) | Strict TypeScript 5 with App Router types | **0 Errors** |
 | **Frontend Code Quality & Lint** | `npm run lint` (in `web/`) | Next.js ESLint configuration | **0 Errors, 0 Warnings** |
 | **Frontend Production Build** | `npm run build` (in `web/`) | Next.js 16.4.2 Turbopack production compilation | **Compiled Successfully** |
-| **Database Migration Integrity** | `alembic heads` + pytest | Clean single head `95d82f7c0a11` covering all 6 feature tables | **Verified Clean Head** |
+| **Database Migration Integrity** | `python -m alembic heads` + pytest | Clean single head `95d82f7c0a11` covering all 6 feature tables | **Verified Clean Head** |
 | **Release Readiness Audit Remediation** | [Audit Report](file:///d:/Ddeveloped_things/NadaVerse/docs/public-beta-readiness-report.md) | Workstreams 1–10 remediated, tested, and documented | **All P0/P1 Items Resolved** |
 
 ---
