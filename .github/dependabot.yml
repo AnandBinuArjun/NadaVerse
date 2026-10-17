@@ -9,6 +9,9 @@ updates:
     labels:
       - "dependencies"
       - "javascript"
+    ignore:
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
 
   # Maintain dependencies for FastAPI Python backend
   - package-ecosystem: "pip"
