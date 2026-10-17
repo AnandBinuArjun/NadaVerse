@@ -349,52 +349,52 @@ export function InteractiveCompositionPlayer({
   return (
     <div className="w-full max-w-5xl mx-auto space-y-6">
       {/* Top Header & Breadcrumb */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900/80 backdrop-blur-xl border border-amber-500/20 rounded-2xl p-6 shadow-2xl">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#161410] border border-[#C7A45B]/30 rounded-2xl p-6 shadow-2xl backdrop-blur-xl">
         <div>
           <div className="flex items-center gap-2 mb-2">
             {onBackToLibrary && (
               <button
                 onClick={onBackToLibrary}
-                className="text-xs text-amber-400/90 hover:text-amber-300 transition-colors flex items-center gap-1 font-medium px-2 py-1 bg-amber-500/10 rounded-lg border border-amber-500/20"
+                className="text-xs text-[#E0C98F] hover:text-[#F4EBDD] transition-colors flex items-center gap-1 font-mono font-medium px-2.5 py-1 bg-[#C7A45B]/15 rounded-lg border border-[#C7A45B]/30"
               >
                 ← {isMl ? 'ലൈബ്രറിയിലേക്ക് മടങ്ങുക' : 'Back to Library'}
               </button>
             )}
-            <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-semibold tracking-wide uppercase">
+            <span className="text-xs px-2.5 py-0.5 rounded-full bg-[#C7A45B]/15 border border-[#C7A45B]/30 text-[#E0C98F] font-mono font-semibold tracking-wide uppercase">
               {isMl ? composition.categoryLabelMl : composition.categoryLabelEn}
             </span>
-            <span className="text-xs px-2.5 py-0.5 rounded-full bg-slate-800 border border-slate-700 text-slate-300">
+            <span className="text-xs px-2.5 py-0.5 rounded-full bg-[#22221D] border border-[#3B392F] text-[#BDB4A4] font-mono">
               {isMl ? composition.difficultyMl : composition.difficulty}
             </span>
-            <span className="text-xs px-2.5 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 font-mono">
+            <span className="text-xs px-2.5 py-0.5 rounded-full bg-[#1c1a14] border border-[#3B392F] text-[#8A7F6D] font-mono">
               Schema v{composition.schemaVersion}
             </span>
           </div>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight flex items-center gap-3">
+          <h1 className="text-2xl md:text-3xl font-serif font-bold text-[#F4EBDD] tracking-tight flex items-center gap-3">
             <span>{isMl ? composition.titleMl : composition.title}</span>
             {composition.titleMl && !isMl && (
-              <span className="text-lg text-slate-400 font-normal">({composition.titleMl})</span>
+              <span className="text-lg text-[#8A7F6D] font-normal">({composition.titleMl})</span>
             )}
           </h1>
-          <p className="text-sm text-slate-300 mt-1 flex flex-wrap items-center gap-x-4 gap-y-1">
-            <span className="text-amber-400/90 font-medium">
+          <p className="text-sm text-[#BDB4A4] mt-1 flex flex-wrap items-center gap-x-4 gap-y-1">
+            <span className="text-[#E0C98F] font-medium">
               {isMl ? 'രാഗം' : 'Raga'}: {isMl ? composition.ragaMl : composition.ragaName}
             </span>
-            <span className="text-slate-500">•</span>
-            <span className="text-cyan-400/90 font-medium">
+            <span className="text-[#3B392F]">•</span>
+            <span className="text-[#D9A441] font-medium">
               {isMl ? 'താളം' : 'Tala'}: {isMl ? composition.talaMl : composition.talaName}
             </span>
-            <span className="text-slate-500">•</span>
-            <span className="text-slate-300">
+            <span className="text-[#3B392F]">•</span>
+            <span className="text-[#BDB4A4]">
               {isMl ? 'രചന' : 'Composer'}: {isMl ? composition.composerMl : composition.composerName}
             </span>
           </p>
         </div>
 
         {/* Tonic & Tanpura Selector */}
-        <div className="flex flex-wrap items-center gap-3 bg-slate-950/60 p-3 rounded-xl border border-slate-800">
+        <div className="flex flex-wrap items-center gap-3 bg-[#11100D] p-3 rounded-xl border border-[#3B392F]">
           <div className="flex flex-col">
-            <label className="text-[11px] text-slate-400 font-medium uppercase tracking-wider">
+            <label className="text-[11px] text-[#8A7F6D] font-mono font-medium uppercase tracking-wider">
               {isMl ? 'ആധാര ഷഡ്ജം (ശ്രുതി)' : 'Shruti (Adhara Sa)'}
             </label>
             <select
@@ -403,7 +403,7 @@ export function InteractiveCompositionPlayer({
                 const tonic = TONIC_OPTIONS.find((t) => t.name === e.target.value);
                 if (tonic) handleTonicChange(tonic);
               }}
-              className="mt-1 bg-slate-900 border border-slate-700 text-amber-300 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+              className="mt-1 bg-[#1c1a14] border border-[#3B392F] text-[#E0C98F] text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-[#C7A45B]"
             >
               {TONIC_OPTIONS.map((t) => (
                 <option key={t.name} value={t.name}>
@@ -415,13 +415,13 @@ export function InteractiveCompositionPlayer({
 
           <button
             onClick={handleToggleTanpura}
-            className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold border transition-all ${
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-mono font-semibold border transition-all ${
               isTanpuraActive
-                ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-lg shadow-amber-500/20'
-                : 'bg-slate-900 text-slate-300 border-slate-700 hover:border-amber-500/40'
+                ? 'nv-gold-btn border-[#C7A45B] shadow-lg shadow-[#C7A45B]/20'
+                : 'bg-[#1c1a14] text-[#BDB4A4] border-[#3B392F] hover:border-[#C7A45B]/40 hover:text-[#F4EBDD]'
             }`}
           >
-            <Radio className={`w-3.5 h-3.5 ${isTanpuraActive ? 'animate-pulse' : ''}`} />
+            <Radio className={`w-3.5 h-3.5 ${isTanpuraActive ? 'animate-pulse text-[#11110F]' : 'text-[#C7A45B]'}`} />
             <span>{isTanpuraActive ? (isMl ? 'താംബുര നിർത്തുക' : 'Drone Active') : (isMl ? 'താംബുര ഓൺ' : 'Start Drone')}</span>
           </button>
         </div>
@@ -432,19 +432,21 @@ export function InteractiveCompositionPlayer({
         {/* Left Column (2 cols): Swara Notation Sheet & Current Highlighting */}
         <div className="lg:col-span-2 space-y-4">
           {/* Section Navigation Tabs */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 border-b border-slate-800">
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 border-b border-[#3B392F]/60">
             {composition.sections.map((sec, idx) => (
               <button
                 key={sec.id}
                 onClick={() => handleSelectSection(idx)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-2 ${
+                className={`px-4 py-2 rounded-xl text-xs font-mono font-bold transition-all whitespace-nowrap flex items-center gap-2 ${
                   currentSectionIndex === idx
-                    ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-inner'
-                    : 'bg-slate-900/50 text-slate-400 hover:text-white border border-slate-800'
+                    ? 'nv-gold-btn border border-[#C7A45B] shadow-inner'
+                    : 'bg-[#161410] text-[#BDB4A4] hover:text-[#F4EBDD] border border-[#3B392F]'
                 }`}
               >
                 <span>{isMl ? sec.nameMl : sec.name}</span>
-                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-slate-800 text-slate-400">
+                <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
+                  currentSectionIndex === idx ? 'bg-[#11110F]/20 text-[#11110F]' : 'bg-[#22221D] text-[#8A7F6D]'
+                }`}>
                   {sec.lines.length} {isMl ? 'വരി' : 'lines'}
                 </span>
               </button>
@@ -452,9 +454,9 @@ export function InteractiveCompositionPlayer({
           </div>
 
           {/* Notation Sheet Viewport */}
-          <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden">
+          <div className="bg-[#14120E] border border-[#3B392F] rounded-2xl p-6 shadow-xl relative overflow-hidden">
             <div className="absolute top-3 right-4 flex items-center gap-2">
-              <span className="text-[11px] font-mono text-slate-400 bg-slate-950 px-2 py-1 rounded-md border border-slate-800">
+              <span className="text-[11px] font-mono text-[#BDB4A4] bg-[#1c1a14] px-2.5 py-1 rounded-md border border-[#3B392F]">
                 {isMl ? 'താള ആവർത്തനം' : 'Tala'}: {composition.talaTotalAksharas} {isMl ? 'അക്ഷരങ്ങൾ' : 'Aksharas'}
               </span>
             </div>
@@ -467,17 +469,17 @@ export function InteractiveCompositionPlayer({
                     key={`line-${line.lineNumber}`}
                     className={`p-4 rounded-xl transition-all border ${
                       isLineActive
-                        ? 'bg-amber-500/5 border-amber-500/30 shadow-md'
-                        : 'bg-slate-950/40 border-slate-800/60'
+                        ? 'bg-[#C7A45B]/10 border-[#C7A45B]/40 shadow-md'
+                        : 'bg-[#161410]/80 border-[#3B392F]/80'
                     }`}
                   >
                     {/* Line Header & Sahitya text */}
-                    <div className="flex items-center justify-between text-xs text-slate-400 mb-3 border-b border-slate-800/80 pb-1.5">
-                      <span className="font-mono text-amber-400/80">
+                    <div className="flex items-center justify-between text-xs text-[#8A7F6D] mb-3 border-b border-[#3B392F]/70 pb-1.5">
+                      <span className="font-mono text-[#E0C98F]">
                         {isMl ? `വരി ${line.lineNumber}` : `Line ${line.lineNumber}`}
                       </span>
                       {line.sahityaLineText && (
-                        <span className="font-serif italic text-slate-300 tracking-wide text-xs">
+                        <span className="font-serif italic text-[#F4EBDD] tracking-wide text-xs">
                           {isMl && line.sahityaLineTextMl ? line.sahityaLineTextMl : line.sahityaLineText}
                         </span>
                       )}
@@ -492,19 +494,19 @@ export function InteractiveCompositionPlayer({
                             key={sw.id}
                             className={`flex flex-col items-center justify-center p-2 rounded-xl transition-all border text-center relative ${
                               isNoteActive
-                                ? 'bg-amber-400 text-slate-950 font-bold border-amber-300 scale-105 shadow-lg shadow-amber-500/30'
-                                : 'bg-slate-900/80 text-white border-slate-800 hover:border-slate-700'
+                                ? 'bg-[#C7A45B] text-[#11110F] font-bold border-[#E0C98F] scale-105 shadow-lg shadow-[#C7A45B]/30'
+                                : 'bg-[#1c1a14] text-[#F4EBDD] border-[#3B392F] hover:border-[#C7A45B]/40'
                             }`}
                           >
                             {/* Swara Sign */}
-                            <span className="text-base font-extrabold tracking-wider">
+                            <span className="text-base font-serif font-extrabold tracking-wider">
                               {sw.swara}
                             </span>
 
                             {/* Duration Indicator */}
                             <span
                               className={`text-[10px] font-mono ${
-                                isNoteActive ? 'text-slate-900' : 'text-slate-400'
+                                isNoteActive ? 'text-[#11110F]' : 'text-[#8A7F6D]'
                               }`}
                             >
                               {sw.durationAksharas > 1 ? `${sw.durationAksharas} ak` : '1 ak'}
@@ -514,7 +516,7 @@ export function InteractiveCompositionPlayer({
                             {sw.sahitya && (
                               <span
                                 className={`text-[11px] font-medium mt-0.5 ${
-                                  isNoteActive ? 'text-slate-950 font-semibold' : 'text-amber-300/80'
+                                  isNoteActive ? 'text-[#11110F] font-semibold' : 'text-[#E0C98F]'
                                 }`}
                               >
                                 {isMl && sw.sahityaMl ? sw.sahityaMl : sw.sahitya}
@@ -526,8 +528,8 @@ export function InteractiveCompositionPlayer({
                               <span
                                 className={`text-[9px] uppercase px-1 rounded-sm mt-1 font-mono tracking-tighter ${
                                   isNoteActive
-                                    ? 'bg-slate-950 text-amber-300'
-                                    : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                                    ? 'bg-[#11110F] text-[#C7A45B]'
+                                    : 'bg-[#C7A45B]/15 text-[#E0C98F] border border-[#C7A45B]/30'
                                 }`}
                               >
                                 {sw.gamaka.type}
@@ -538,7 +540,7 @@ export function InteractiveCompositionPlayer({
                             {violinMode && sw.violin && (
                               <div
                                 className={`mt-1 text-[10px] flex items-center gap-1 font-mono px-1 rounded ${
-                                  isNoteActive ? 'bg-slate-900 text-white' : 'bg-cyan-500/20 text-cyan-300'
+                                  isNoteActive ? 'bg-[#11110F] text-[#E0C98F]' : 'bg-[#C7A45B]/15 text-[#E0C98F] border border-[#C7A45B]/25'
                                 }`}
                               >
                                 <span>S{sw.violin.string}</span>
@@ -557,13 +559,13 @@ export function InteractiveCompositionPlayer({
             </div>
 
             {/* Synchronized Tala Kriya Beat Matrix */}
-            <div className="mt-6 pt-4 border-t border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="mt-6 pt-4 border-t border-[#3B392F]/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex items-center gap-2">
-                <Activity className="w-4 h-4 text-amber-400" />
-                <span className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <Activity className="w-4 h-4 text-[#C7A45B]" />
+                <span className="text-xs font-mono font-semibold text-[#F4EBDD] uppercase tracking-wider">
                   {isMl ? 'താള ക്രിയകൾ' : 'Tala Kriyas'}:
                 </span>
-                <span className="text-xs text-slate-400 font-mono">{composition.talaAngas}</span>
+                <span className="text-xs text-[#BDB4A4] font-mono">{composition.talaAngas}</span>
               </div>
 
               {/* Tala Beat Beads */}
@@ -575,8 +577,8 @@ export function InteractiveCompositionPlayer({
                       key={`beat-${bIdx}`}
                       className={`w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-mono font-bold transition-all border ${
                         isCurrentBeat
-                          ? 'bg-amber-400 text-slate-950 border-amber-300 scale-110 shadow-md shadow-amber-400/40 animate-pulse'
-                          : 'bg-slate-900 text-slate-400 border-slate-800'
+                          ? 'bg-[#C7A45B] text-[#11110F] border-[#E0C98F] scale-110 shadow-md shadow-[#C7A45B]/40 animate-pulse'
+                          : 'bg-[#1c1a14] text-[#8A7F6D] border-[#3B392F]'
                       }`}
                     >
                       {bIdx + 1}
@@ -588,21 +590,21 @@ export function InteractiveCompositionPlayer({
           </div>
 
           {/* Practice Controls Bar */}
-          <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-lg flex flex-wrap items-center justify-between gap-4">
+          <div className="bg-[#161410] border border-[#3B392F] rounded-2xl p-5 shadow-lg flex flex-wrap items-center justify-between gap-4">
             {/* Primary Transport Buttons */}
             <div className="flex items-center gap-2">
               <button
                 onClick={handleTogglePlay}
                 aria-label={isPlaying ? 'Pause composition' : 'Play composition'}
-                className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 flex items-center justify-center font-bold shadow-lg shadow-amber-500/25 transition-all transform active:scale-95"
+                className="w-12 h-12 rounded-2xl nv-gold-btn flex items-center justify-center font-bold shadow-lg shadow-[#C7A45B]/25 transition-all transform active:scale-95 cursor-pointer"
               >
-                {isPlaying ? <Pause className="w-6 h-6 fill-current" /> : <Play className="w-6 h-6 fill-current ml-0.5" />}
+                {isPlaying ? <Pause className="w-6 h-6 fill-current text-[#11110F]" /> : <Play className="w-6 h-6 fill-current text-[#11110F] ml-0.5" />}
               </button>
 
               <button
                 onClick={handleRestart}
                 aria-label="Restart from beginning"
-                className="w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center border border-slate-700 transition-colors"
+                className="w-10 h-10 rounded-xl bg-[#1c1a14] hover:bg-[#22221D] text-[#BDB4A4] hover:text-[#F4EBDD] flex items-center justify-center border border-[#3B392F] transition-colors"
                 title={isMl ? 'ആരംഭത്തിലേക്ക്' : 'Restart'}
               >
                 <RotateCcw className="w-4 h-4" />
@@ -610,10 +612,10 @@ export function InteractiveCompositionPlayer({
 
               <button
                 onClick={() => setIsLoopSection((prev) => !prev)}
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition-all ${
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-mono font-semibold border transition-all ${
                   isLoopSection
-                    ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
-                    : 'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'
+                    ? 'bg-[#C7A45B]/20 text-[#E0C98F] border-[#C7A45B]/40'
+                    : 'bg-[#1c1a14] text-[#BDB4A4] border-[#3B392F] hover:text-[#F4EBDD]'
                 }`}
                 title="L key shortcut"
               >
@@ -625,9 +627,9 @@ export function InteractiveCompositionPlayer({
             {/* Tempo Controls & Kalam Speeds */}
             <div className="flex items-center gap-3">
               <div className="flex flex-col">
-                <div className="flex items-center justify-between text-[11px] text-slate-400 font-mono mb-1">
+                <div className="flex items-center justify-between text-[11px] text-[#BDB4A4] font-mono mb-1">
                   <span>BPM: {Math.round(tempoBpm * speedMultiplier)}</span>
-                  <span className="text-amber-400">
+                  <span className="text-[#E0C98F]">
                     {speedMultiplier === 0.5
                       ? 'Slow Practice (0.5x)'
                       : speedMultiplier === 1
@@ -641,18 +643,18 @@ export function InteractiveCompositionPlayer({
                   max="140"
                   value={tempoBpm}
                   onChange={(e) => setTempoBpm(Number(e.target.value))}
-                  className="w-32 sm:w-40 accent-amber-500 h-1.5 bg-slate-700 rounded-lg cursor-pointer"
+                  className="w-32 sm:w-40 accent-[#C7A45B] h-1.5 bg-[#22221D] rounded-lg cursor-pointer"
                 />
               </div>
 
               {/* Speed Buttons */}
-              <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
+              <div className="flex items-center gap-1 bg-[#11100D] p-1 rounded-xl border border-[#3B392F]">
                 <button
                   onClick={() => setSpeedMultiplier(0.5)}
-                  className={`px-2 py-1 rounded-lg text-[11px] font-bold transition-all ${
+                  className={`px-2 py-1 rounded-lg text-[11px] font-mono font-bold transition-all ${
                     speedMultiplier === 0.5
-                      ? 'bg-amber-500 text-slate-950 shadow-sm'
-                      : 'text-slate-400 hover:text-white'
+                      ? 'nv-gold-btn shadow-sm'
+                      : 'text-[#BDB4A4] hover:text-[#F4EBDD]'
                   }`}
                   title="Slow tempo practice"
                 >
@@ -660,10 +662,10 @@ export function InteractiveCompositionPlayer({
                 </button>
                 <button
                   onClick={() => setSpeedMultiplier(1)}
-                  className={`px-2 py-1 rounded-lg text-[11px] font-bold transition-all ${
+                  className={`px-2 py-1 rounded-lg text-[11px] font-mono font-bold transition-all ${
                     speedMultiplier === 1
-                      ? 'bg-amber-500 text-slate-950 shadow-sm'
-                      : 'text-slate-400 hover:text-white'
+                      ? 'nv-gold-btn shadow-sm'
+                      : 'text-[#BDB4A4] hover:text-[#F4EBDD]'
                   }`}
                   title="First speed"
                 >
@@ -671,10 +673,10 @@ export function InteractiveCompositionPlayer({
                 </button>
                 <button
                   onClick={() => setSpeedMultiplier(2)}
-                  className={`px-2 py-1 rounded-lg text-[11px] font-bold transition-all ${
+                  className={`px-2 py-1 rounded-lg text-[11px] font-mono font-bold transition-all ${
                     speedMultiplier === 2
-                      ? 'bg-amber-500 text-slate-950 shadow-sm'
-                      : 'text-slate-400 hover:text-white'
+                      ? 'nv-gold-btn shadow-sm'
+                      : 'text-[#BDB4A4] hover:text-[#F4EBDD]'
                   }`}
                   title="Second speed (Double tempo)"
                 >
@@ -687,14 +689,14 @@ export function InteractiveCompositionPlayer({
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setViolinMode((prev) => !prev)}
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition-all ${
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-mono font-bold border transition-all ${
                   violinMode
-                    ? 'bg-cyan-500/20 text-cyan-300 border-cyan-400/40 shadow-sm shadow-cyan-500/10'
-                    : 'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'
+                    ? 'bg-[#C7A45B]/20 text-[#E0C98F] border-[#C7A45B]/40 shadow-sm'
+                    : 'bg-[#1c1a14] text-[#BDB4A4] border-[#3B392F] hover:text-[#F4EBDD]'
                 }`}
                 title="Press 'V' to toggle Violin Practice Mode"
               >
-                <Disc3 className="w-3.5 h-3.5" />
+                <Disc3 className="w-3.5 h-3.5 text-[#C7A45B]" />
                 <span>{isMl ? 'വയലിൻ മോഡ്' : 'Violin Mode'}</span>
               </button>
             </div>
@@ -704,27 +706,27 @@ export function InteractiveCompositionPlayer({
         {/* Right Column (1 col): Violin Practice Guides, Acoustic Info & Cultural Provenance */}
         <div className="space-y-4">
           {/* Active Note Pedagogical Focus */}
-          <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-lg space-y-3">
-            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
-              <Music className="w-4 h-4 text-amber-400" />
+          <div className="bg-[#161410] border border-[#3B392F] rounded-2xl p-5 shadow-lg space-y-3">
+            <h3 className="text-xs font-mono font-bold text-[#E0C98F] uppercase tracking-wider flex items-center gap-2">
+              <Music className="w-4 h-4 text-[#C7A45B]" />
               <span>{isMl ? 'സ്വര സാങ്കേതിക വിവരണം' : 'Active Swara Acoustics'}</span>
             </h3>
 
             {activeSwara ? (
-              <div className="bg-slate-950 p-4 rounded-xl border border-slate-800/80 space-y-2">
+              <div className="bg-[#11100D] p-4 rounded-xl border border-[#3B392F]/80 space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-2xl font-black text-amber-300">{activeSwara.swara}</span>
-                  <span className="text-xs font-mono text-slate-400 bg-slate-900 px-2 py-1 rounded border border-slate-800">
+                  <span className="text-2xl font-serif font-black text-[#E0C98F]">{activeSwara.swara}</span>
+                  <span className="text-xs font-mono text-[#BDB4A4] bg-[#1c1a14] px-2.5 py-1 rounded border border-[#3B392F]">
                     Ratio: {activeSwara.ratio.toFixed(4)}
                   </span>
                 </div>
-                <div className="text-xs text-slate-300">
-                  <span className="text-slate-400">{isMl ? 'സ്ഥായി' : 'Octave'}:</span>{' '}
-                  <span className="capitalize font-medium text-slate-200">{activeSwara.octave} Sthayi</span>
+                <div className="text-xs text-[#BDB4A4]">
+                  <span className="text-[#8A7F6D] font-mono">{isMl ? 'സ്ഥായി' : 'Octave'}:</span>{' '}
+                  <span className="capitalize font-medium text-[#F4EBDD]">{activeSwara.octave} Sthayi</span>
                 </div>
                 {activeSwara.gamaka && (
-                  <div className="text-xs text-amber-300/90 bg-amber-500/10 p-2 rounded-lg border border-amber-500/20">
-                    <span className="font-bold uppercase tracking-wider">{activeSwara.gamaka.type} Gamaka:</span>{' '}
+                  <div className="text-xs text-[#E0C98F] bg-[#C7A45B]/10 p-2.5 rounded-lg border border-[#C7A45B]/20">
+                    <span className="font-bold uppercase tracking-wider font-mono">{activeSwara.gamaka.type} Gamaka:</span>{' '}
                     <span>
                       {activeSwara.gamaka.type === 'jaru'
                         ? 'Continuous portamento slide across pitch ratios.'
@@ -734,7 +736,7 @@ export function InteractiveCompositionPlayer({
                 )}
               </div>
             ) : (
-              <div className="text-xs text-slate-500 italic p-3 text-center">
+              <div className="text-xs text-[#8A7F6D] italic p-3 text-center">
                 {isMl ? 'സ്വരങ്ങൾ പ്ലേ ചെയ്യുക' : 'Start playback to inspect swara acoustics'}
               </div>
             )}
@@ -742,19 +744,19 @@ export function InteractiveCompositionPlayer({
 
           {/* Violin Practice Guide Card (when violin mode active) */}
           {violinMode && (
-            <div className="bg-cyan-950/30 border border-cyan-500/30 rounded-2xl p-5 shadow-xl space-y-4">
+            <div className="bg-[#1c1a14] border border-[#C7A45B]/30 rounded-2xl p-5 shadow-xl space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-xs font-bold text-cyan-300 uppercase tracking-wider flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-cyan-400" />
+                <h3 className="text-xs font-mono font-bold text-[#E0C98F] uppercase tracking-wider flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-[#C7A45B]" />
                   <span>{isMl ? 'വയലിൻ സാധക സഹായി' : 'Violin Practice Guide'}</span>
                 </h3>
-                <span className="text-[10px] bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded-full border border-cyan-500/30">
+                <span className="text-[10px] font-mono bg-[#C7A45B]/15 text-[#E0C98F] px-2 py-0.5 rounded-full border border-[#C7A45B]/30">
                   Tradition-Aware
                 </span>
               </div>
 
               {composition.violinPracticeNotes && (
-                <p className="text-xs text-slate-300 leading-relaxed bg-slate-950/80 p-3 rounded-xl border border-cyan-500/20">
+                <p className="text-xs text-[#BDB4A4] leading-relaxed bg-[#11100D] p-3 rounded-xl border border-[#3B392F]">
                   {isMl && composition.violinPracticeNotesMl
                     ? composition.violinPracticeNotesMl
                     : composition.violinPracticeNotes}
@@ -763,33 +765,33 @@ export function InteractiveCompositionPlayer({
 
               {/* String & Bowing Legend */}
               <div className="grid grid-cols-2 gap-2 text-xs">
-                <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
-                  <div className="text-[10px] text-slate-400 font-semibold mb-1">Carnatic Tuning:</div>
-                  <div className="font-mono text-[11px] text-cyan-200">
+                <div className="bg-[#11100D] p-2.5 rounded-xl border border-[#3B392F]">
+                  <div className="text-[10px] text-[#8A7F6D] font-mono font-semibold mb-1">Carnatic Tuning:</div>
+                  <div className="font-mono text-[11px] text-[#E0C98F]">
                     S1: Ṡ | S2: P | S3: S | S4: Ḍ
                   </div>
                 </div>
-                <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
-                  <div className="text-[10px] text-slate-400 font-semibold mb-1">Bowing Glyphs:</div>
-                  <div className="font-mono text-[11px] text-cyan-200">
+                <div className="bg-[#11100D] p-2.5 rounded-xl border border-[#3B392F]">
+                  <div className="text-[10px] text-[#8A7F6D] font-mono font-semibold mb-1">Bowing Glyphs:</div>
+                  <div className="font-mono text-[11px] text-[#E0C98F]">
                     ⊓ Down-Bow | ∨ Up-Bow
                   </div>
                 </div>
               </div>
 
               {/* Microphone Pitch Feedback Toggle with Non-judgmental Disclaimer */}
-              <div className="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-2.5">
+              <div className="bg-[#11100D] p-3.5 rounded-xl border border-[#3B392F] space-y-2.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                    <Mic className="w-3.5 h-3.5 text-cyan-400" />
+                  <span className="text-xs font-mono font-semibold text-[#F4EBDD] flex items-center gap-1.5">
+                    <Mic className="w-3.5 h-3.5 text-[#C7A45B]" />
                     <span>{isMl ? 'മൈക്രോഫോൺ പിച്ച് സഹായി' : 'Mic Pitch Reference'}</span>
                   </span>
                   <button
                     onClick={toggleMicPitch}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-colors ${
+                    className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition-colors ${
                       micPitchActive
                         ? 'bg-rose-500 text-white'
-                        : 'bg-slate-800 text-slate-300 hover:text-white'
+                        : 'bg-[#1c1a14] text-[#BDB4A4] border border-[#3B392F] hover:text-[#F4EBDD]'
                     }`}
                   >
                     {micPitchActive ? (isMl ? 'ഓഫ്' : 'Stop') : (isMl ? 'ഓൺ' : 'Start')}
@@ -797,17 +799,17 @@ export function InteractiveCompositionPlayer({
                 </div>
 
                 {micPitchActive && (
-                  <div className="p-2.5 bg-cyan-500/10 border border-cyan-500/30 rounded-lg flex items-center justify-between">
-                    <span className="text-xs text-slate-300">Target Note:</span>
-                    <span className="text-base font-extrabold text-cyan-300">
+                  <div className="p-2.5 bg-[#C7A45B]/10 border border-[#C7A45B]/30 rounded-lg flex items-center justify-between">
+                    <span className="text-xs text-[#BDB4A4] font-mono">Target Note:</span>
+                    <span className="text-base font-serif font-extrabold text-[#E0C98F]">
                       {detectedPitchNote || activeSwara?.swara || 'S'}
                     </span>
                   </div>
                 )}
 
                 {/* Honest Cultural Accuracy Disclaimer */}
-                <div className="flex items-start gap-1.5 text-[10px] text-amber-300/80 bg-amber-500/5 p-2 rounded-lg border border-amber-500/15">
-                  <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
+                <div className="flex items-start gap-1.5 text-[10px] text-[#E0C98F]/90 bg-[#C7A45B]/10 p-2.5 rounded-lg border border-[#C7A45B]/20">
+                  <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5 text-[#C7A45B]" />
                   <span>
                     {isMl
                       ? 'മൈക്രോഫോൺ പിച്ച് ഗമകങ്ങളുടെയോ വില്ലിന്റെ സൂക്ഷ്മ ഭാവങ്ങളുടെയോ പൂർണ്ണത അളക്കുന്നതല്ല; സാധക സഹായി മാത്രമാണ്.'
@@ -819,33 +821,33 @@ export function InteractiveCompositionPlayer({
           )}
 
           {/* Cultural Provenance & Copyright Status */}
-          <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-lg space-y-3">
-            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+          <div className="bg-[#161410] border border-[#3B392F] rounded-2xl p-5 shadow-lg space-y-3">
+            <h3 className="text-xs font-mono font-bold text-[#E0C98F] uppercase tracking-wider flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-emerald-400" />
               <span>{isMl ? 'പൈതൃക ആധികാരികതയും പകർപ്പവകാശവും' : 'Provenance & Rights'}</span>
             </h3>
 
             <div className="space-y-2 text-xs">
-              <div className="flex items-center justify-between bg-slate-950 p-2.5 rounded-xl border border-slate-800">
-                <span className="text-slate-400">{isMl ? 'അവകാശം' : 'Rights Status'}:</span>
-                <span className="font-semibold text-emerald-400 capitalize">
+              <div className="flex items-center justify-between bg-[#11100D] p-2.5 rounded-xl border border-[#3B392F]">
+                <span className="text-[#8A7F6D] font-mono">{isMl ? 'അവകാശം' : 'Rights Status'}:</span>
+                <span className="font-semibold text-emerald-400 font-mono capitalize">
                   {composition.rights.status.replace('_', ' ')}
                 </span>
               </div>
-              <div className="flex items-center justify-between bg-slate-950 p-2.5 rounded-xl border border-slate-800">
-                <span className="text-slate-400">{isMl ? 'ഓഡിയോ മാധ്യമം' : 'Audio Engine'}:</span>
-                <span className="font-mono text-[11px] text-cyan-300">
+              <div className="flex items-center justify-between bg-[#11100D] p-2.5 rounded-xl border border-[#3B392F]">
+                <span className="text-[#8A7F6D] font-mono">{isMl ? 'ഓഡിയോ മാധ്യമം' : 'Audio Engine'}:</span>
+                <span className="font-mono text-[11px] text-[#E0C98F]">
                   {composition.audioReference?.type === 'synthetic_browser_generated'
                     ? 'Pure Just Intonation Web Audio'
                     : 'Verified Classical Recording'}
                 </span>
               </div>
               {composition.sources && composition.sources.length > 0 && (
-                <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800 space-y-1">
-                  <span className="text-slate-400 block text-[11px] font-semibold">
+                <div className="bg-[#11100D] p-2.5 rounded-xl border border-[#3B392F] space-y-1">
+                  <span className="text-[#8A7F6D] block text-[11px] font-mono font-semibold">
                     {isMl ? 'പ്രമാണ സ്രോതസ്സ്' : 'Primary Source Citation'}:
                   </span>
-                  <div className="text-[11px] text-slate-300">
+                  <div className="text-[11px] text-[#F4EBDD]">
                     {composition.sources[0].title} — {composition.sources[0].authorOrCreator} (
                     {composition.sources[0].citation})
                   </div>
@@ -853,7 +855,7 @@ export function InteractiveCompositionPlayer({
               )}
             </div>
 
-            <div className="text-[10px] text-slate-400 italic text-center pt-1">
+            <div className="text-[10px] text-[#8A7F6D] italic text-center pt-1 font-mono">
               {isMl
                 ? 'നാദവേഴ്സ് എന്നെന്നും 100% സൗജന്യമാണ്. പരസ്യങ്ങളോ സബ്‌സ്‌ക്രിപ്ഷനുകളോ ഇല്ല.'
                 : 'NadaVerse is 100% free forever. No paywalls, no subscriptions, no ads.'}

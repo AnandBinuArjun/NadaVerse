@@ -143,36 +143,36 @@ export function CarnaticCompositionLibrary() {
   return (
     <div className="py-8 px-4 max-w-7xl mx-auto space-y-8">
       {/* Hero Header */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900/95 to-amber-950/40 border border-amber-500/20 p-8 md:p-10 shadow-2xl">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#1c1a14] via-[#14130f] to-[#0d0c0a] border border-[#C7A45B]/30 p-8 md:p-10 shadow-2xl">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-[#C7A45B]/10 rounded-full blur-3xl pointer-events-none" />
         <div className="relative z-10 space-y-4 max-w-3xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs font-semibold uppercase tracking-wider">
-            <Sparkles className="w-3.5 h-3.5" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#C7A45B]/15 border border-[#C7A45B]/30 text-[#E0C98F] text-xs font-mono font-semibold uppercase tracking-wider">
+            <Sparkles className="w-3.5 h-3.5 text-[#C7A45B]" />
             <span>{isMl ? 'കർണ്ണാടക സംഗീത രചനാ ലൈബ്രറി' : 'Interactive Carnatic Composition Library'}</span>
           </div>
 
-          <h1 className="text-3xl md:text-5xl font-black text-white tracking-tight">
+          <h1 className="text-3xl md:text-5xl font-serif font-bold text-[#F4EBDD] tracking-tight">
             {isMl ? 'വർണ്ണങ്ങളും കൃതികളും' : 'Playable Varnams & Keerthanams'}
           </h1>
 
-          <p className="text-base text-slate-300 leading-relaxed">
+          <p className="text-sm md:text-base text-[#BDB4A4] leading-relaxed">
             {isMl
               ? 'കർണ്ണാടക സംഗീതത്തിലെ പ്രമുഖ വർണ്ണങ്ങൾ, കീർത്തനങ്ങൾ, ഗീതങ്ങൾ, സ്വരജതികൾ, അഭ്യാസ പാഠങ്ങൾ എന്നിവ താംബുര ശ്രുതിയോടെയും സ്വര ഹൈലൈറ്റിംഗോടെയും കൃത്യമായി കേൾക്കാനും പഠിക്കാനും സാധകം ചെയ്യാനും.'
               : 'Listen to, study, and practise classical Carnatic compositions with high-precision Web Audio synthesis, synchronized swara highlighting, real-time Tala kriya beads, and Carnatic violin fingering annotations.'}
           </p>
 
           {/* Core Guarantees Banner */}
-          <div className="flex flex-wrap items-center gap-4 pt-2 text-xs text-slate-300">
-            <div className="flex items-center gap-1.5 bg-emerald-500/10 text-emerald-300 px-3 py-1 rounded-full border border-emerald-500/20">
+          <div className="flex flex-wrap items-center gap-3 pt-2 text-xs">
+            <div className="flex items-center gap-1.5 bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full border border-emerald-500/20 font-mono">
               <ShieldCheck className="w-3.5 h-3.5" />
               <span>{isMl ? '100% സൗജന്യം എന്നെന്നും' : '100% Free Forever'}</span>
             </div>
-            <div className="flex items-center gap-1.5 bg-amber-500/10 text-amber-300 px-3 py-1 rounded-full border border-amber-500/20">
-              <CheckCircle2 className="w-3.5 h-3.5" />
+            <div className="flex items-center gap-1.5 bg-[#C7A45B]/15 text-[#E0C98F] px-3 py-1 rounded-full border border-[#C7A45B]/30 font-mono">
+              <CheckCircle2 className="w-3.5 h-3.5 text-[#C7A45B]" />
               <span>{isMl ? 'ആധികാരിക പ്രമാണങ്ങൾ' : 'Treatise-Grounded Provenance'}</span>
             </div>
-            <div className="flex items-center gap-1.5 bg-cyan-500/10 text-cyan-300 px-3 py-1 rounded-full border border-cyan-500/20">
-              <Disc3 className="w-3.5 h-3.5" />
+            <div className="flex items-center gap-1.5 bg-[#C7A45B]/15 text-[#E0C98F] px-3 py-1 rounded-full border border-[#C7A45B]/30 font-mono">
+              <Disc3 className="w-3.5 h-3.5 text-[#C7A45B]" />
               <span>{isMl ? 'വയലിൻ സാധക കുറിപ്പുകൾ' : 'Violin Fingering & Bowing'}</span>
             </div>
           </div>
@@ -185,16 +185,16 @@ export function CarnaticCompositionLibrary() {
           <button
             key={cat.key}
             onClick={() => setSelectedCategory(cat.key)}
-            className={`px-4 py-2.5 rounded-2xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-2 border ${
+            className={`px-4 py-2.5 rounded-2xl text-xs font-mono font-medium transition-all whitespace-nowrap flex items-center gap-2 border ${
               selectedCategory === cat.key
-                ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-lg shadow-amber-500/20'
-                : 'bg-slate-900/80 text-slate-300 border-slate-800 hover:border-amber-500/30'
+                ? 'nv-gold-btn font-bold border-[#C7A45B] shadow-lg shadow-[#C7A45B]/20'
+                : 'bg-[#161410] text-[#BDB4A4] border-[#3B392F] hover:border-[#C7A45B]/40 hover:text-[#F4EBDD]'
             }`}
           >
             <span>{isMl ? cat.labelMl : cat.labelEn}</span>
             <span
-              className={`text-[10px] px-1.5 py-0.5 rounded-full ${
-                selectedCategory === cat.key ? 'bg-slate-950/20 text-slate-950' : 'bg-slate-800 text-slate-400'
+              className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono ${
+                selectedCategory === cat.key ? 'bg-[#11110F]/20 text-[#11110F] font-bold' : 'bg-[#22221D] text-[#8A7F6D]'
               }`}
             >
               {cat.count}
@@ -204,11 +204,11 @@ export function CarnaticCompositionLibrary() {
       </div>
 
       {/* Search and Secondary Filters Bar */}
-      <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-4">
+      <div className="bg-[#14120e]/90 border border-[#C7A45B]/25 rounded-2xl p-4 shadow-xl space-y-4 backdrop-blur-md">
         <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
           {/* Search Box */}
           <div className="relative flex-1">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-[#C7A45B] absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchQuery}
@@ -218,7 +218,7 @@ export function CarnaticCompositionLibrary() {
                   ? 'രചന, രാഗം, താളം, വാഗ്ഗേയകാരൻ എന്നിവ തിരയുക...'
                   : 'Search by title, raga, tala, composer, or keywords...'
               }
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+              className="w-full bg-[#1c1a14] border border-[#3B392F] rounded-xl pl-10 pr-4 py-2.5 text-xs text-[#F4EBDD] placeholder-[#8A7F6D] focus:outline-none focus:border-[#C7A45B] focus:ring-1 focus:ring-[#C7A45B]/40 transition-all"
             />
           </div>
 
@@ -228,7 +228,7 @@ export function CarnaticCompositionLibrary() {
             <select
               value={selectedRaga}
               onChange={(e) => setSelectedRaga(e.target.value)}
-              className="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300 focus:outline-none focus:ring-2 focus:ring-amber-500/40"
+              className="bg-[#1c1a14] border border-[#3B392F] rounded-xl px-3 py-2 text-xs text-[#F4EBDD] focus:outline-none focus:border-[#C7A45B]"
             >
               <option value="all">{isMl ? 'എല്ലാ രാഗങ്ങളും' : 'All Ragas'}</option>
               {availableRagas.map((r) => (
@@ -242,7 +242,7 @@ export function CarnaticCompositionLibrary() {
             <select
               value={selectedTala}
               onChange={(e) => setSelectedTala(e.target.value)}
-              className="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300 focus:outline-none focus:ring-2 focus:ring-amber-500/40"
+              className="bg-[#1c1a14] border border-[#3B392F] rounded-xl px-3 py-2 text-xs text-[#F4EBDD] focus:outline-none focus:border-[#C7A45B]"
             >
               <option value="all">{isMl ? 'എല്ലാ താളങ്ങളും' : 'All Talas'}</option>
               {availableTalas.map((t) => (
@@ -256,7 +256,7 @@ export function CarnaticCompositionLibrary() {
             <select
               value={selectedDifficulty}
               onChange={(e) => setSelectedDifficulty(e.target.value)}
-              className="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300 focus:outline-none focus:ring-2 focus:ring-amber-500/40"
+              className="bg-[#1c1a14] border border-[#3B392F] rounded-xl px-3 py-2 text-xs text-[#F4EBDD] focus:outline-none focus:border-[#C7A45B]"
             >
               <option value="all">{isMl ? 'എല്ലാ നിലവാരവും' : 'All Levels'}</option>
               <option value="beginner">{isMl ? 'പ്രാരംഭം (Beginner)' : 'Beginner'}</option>
@@ -267,23 +267,23 @@ export function CarnaticCompositionLibrary() {
             {/* Violin Pieces Only Toggle */}
             <button
               onClick={() => setViolinOnly((prev) => !prev)}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition-all ${
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-mono font-semibold border transition-all ${
                 violinOnly
-                  ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40'
-                  : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
+                  ? 'bg-[#C7A45B]/20 text-[#E0C98F] border-[#C7A45B]/50'
+                  : 'bg-[#1c1a14] text-[#BDB4A4] border-[#3B392F] hover:text-[#F4EBDD] hover:border-[#C7A45B]/30'
               }`}
             >
-              <Disc3 className="w-3.5 h-3.5" />
+              <Disc3 className="w-3.5 h-3.5 text-[#C7A45B]" />
               <span>{isMl ? 'വയലിൻ കുറിപ്പുകൾ' : 'Violin Guides'}</span>
             </button>
           </div>
         </div>
 
         {/* Results Counter */}
-        <div className="flex items-center justify-between text-xs text-slate-400 pt-1 border-t border-slate-800/60">
+        <div className="flex items-center justify-between text-xs text-[#BDB4A4] pt-1 border-t border-[#3B392F]/60">
           <span>
             {isMl ? 'കണ്ടെത്തിയ രചനകൾ' : 'Compositions found'}:{' '}
-            <strong className="text-amber-400">{filteredCompositions.length}</strong>
+            <strong className="text-[#E0C98F] font-mono">{filteredCompositions.length}</strong>
           </span>
           {(searchQuery || selectedCategory !== 'all' || selectedRaga !== 'all' || selectedTala !== 'all' || selectedDifficulty !== 'all' || violinOnly) && (
             <button
@@ -295,7 +295,7 @@ export function CarnaticCompositionLibrary() {
                 setSelectedDifficulty('all');
                 setViolinOnly(false);
               }}
-              className="text-amber-400 hover:underline text-xs"
+              className="text-[#C7A45B] hover:text-[#E0C98F] underline text-xs font-mono"
             >
               {isMl ? 'ഫിൽട്ടറുകൾ നീക്കം ചെയ്യുക' : 'Reset all filters'}
             </button>
@@ -305,12 +305,12 @@ export function CarnaticCompositionLibrary() {
 
       {/* Composition Cards Grid */}
       {filteredCompositions.length === 0 ? (
-        <div className="bg-slate-900/50 border border-slate-800 rounded-3xl p-12 text-center space-y-3">
-          <BookOpen className="w-10 h-10 text-slate-600 mx-auto" />
-          <h3 className="text-lg font-bold text-white">
+        <div className="bg-[#161410] border border-[#3B392F] rounded-3xl p-12 text-center space-y-3">
+          <BookOpen className="w-10 h-10 text-[#8A7F6D] mx-auto" />
+          <h3 className="text-lg font-serif font-bold text-[#F4EBDD]">
             {isMl ? 'രചനകൾ കണ്ടെത്തിയില്ല' : 'No compositions matched your filters'}
           </h3>
-          <p className="text-xs text-slate-400 max-w-md mx-auto">
+          <p className="text-xs text-[#BDB4A4] max-w-md mx-auto">
             {isMl
               ? 'തിരഞ്ഞെടുത്ത മാനദണ്ഡങ്ങൾ മാറ്റുകയോ ഫിൽട്ടറുകൾ നീക്കം ചെയ്യുകയോ ചെയ്യുക.'
               : 'Try clearing your search query or selecting a different category or difficulty level.'}
@@ -323,50 +323,50 @@ export function CarnaticCompositionLibrary() {
             return (
               <div
                 key={comp.id}
-                className="group bg-slate-900/80 hover:bg-slate-900 border border-slate-800 hover:border-amber-500/40 rounded-3xl p-6 shadow-xl transition-all duration-300 flex flex-col justify-between space-y-5 hover:shadow-2xl hover:shadow-amber-500/10"
+                className="group bg-[#161410] hover:bg-[#1a1813] border border-[#3B392F] hover:border-[#C7A45B]/60 rounded-3xl p-6 shadow-xl transition-all duration-300 flex flex-col justify-between space-y-5 hover:shadow-2xl hover:shadow-[#C7A45B]/10 hover:-translate-y-0.5"
               >
                 {/* Card Top: Badges & Title */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
+                    <span className="text-[11px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#C7A45B]/15 border border-[#C7A45B]/30 text-[#E0C98F]">
                       {isMl ? comp.categoryLabelMl : comp.categoryLabelEn}
                     </span>
-                    <span className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 border border-slate-700">
+                    <span className="text-[11px] font-mono font-medium px-2 py-0.5 rounded-md bg-[#22221D] text-[#BDB4A4] border border-[#3B392F]">
                       {isMl ? comp.difficultyMl : comp.difficulty}
                     </span>
                   </div>
 
                   <div>
-                    <h3 className="text-xl font-black text-white group-hover:text-amber-300 transition-colors">
+                    <h3 className="text-xl font-serif font-bold text-[#F4EBDD] group-hover:text-[#E0C98F] transition-colors">
                       {isMl ? comp.titleMl : comp.title}
                     </h3>
-                    <p className="text-xs text-slate-400 mt-0.5">
+                    <p className="text-xs text-[#8A7F6D] mt-0.5">
                       {isMl ? comp.composerMl : comp.composerName}
                     </p>
                   </div>
 
                   {/* Summary / Pedagogy */}
-                  <p className="text-xs text-slate-300/90 leading-relaxed line-clamp-2">
+                  <p className="text-xs text-[#BDB4A4] leading-relaxed line-clamp-2">
                     {isMl ? comp.educationalSummaryMl : comp.educationalSummary}
                   </p>
                 </div>
 
                 {/* Card Metadata Details */}
-                <div className="space-y-3 pt-3 border-t border-slate-800/80 text-xs">
-                  <div className="grid grid-cols-2 gap-2 text-slate-400">
-                    <div className="bg-slate-950 p-2 rounded-xl border border-slate-800/80">
-                      <span className="text-[10px] block text-slate-500 font-semibold uppercase">
+                <div className="space-y-3 pt-3 border-t border-[#3B392F]/80 text-xs">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="bg-[#11100D] p-2.5 rounded-xl border border-[#3B392F]/80">
+                      <span className="text-[10px] block text-[#8A7F6D] font-mono uppercase tracking-wider">
                         {isMl ? 'രാഗം' : 'Raga'}
                       </span>
-                      <span className="font-semibold text-amber-300">
+                      <span className="font-semibold text-[#E0C98F]">
                         {isMl ? comp.ragaMl : comp.ragaName}
                       </span>
                     </div>
-                    <div className="bg-slate-950 p-2 rounded-xl border border-slate-800/80">
-                      <span className="text-[10px] block text-slate-500 font-semibold uppercase">
+                    <div className="bg-[#11100D] p-2.5 rounded-xl border border-[#3B392F]/80">
+                      <span className="text-[10px] block text-[#8A7F6D] font-mono uppercase tracking-wider">
                         {isMl ? 'താളം' : 'Tala'}
                       </span>
-                      <span className="font-semibold text-cyan-300">
+                      <span className="font-semibold text-[#D9A441]">
                         {isMl ? comp.talaMl : comp.talaName}
                       </span>
                     </div>
@@ -377,7 +377,7 @@ export function CarnaticCompositionLibrary() {
                     {comp.sections.map((sec) => (
                       <span
                         key={sec.id}
-                        className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-slate-950 text-slate-300 border border-slate-800"
+                        className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-[#1c1a14] text-[#BDB4A4] border border-[#3B392F]"
                       >
                         {isMl ? sec.nameMl : sec.name}
                       </span>
@@ -386,8 +386,8 @@ export function CarnaticCompositionLibrary() {
 
                   {/* Violin Guide Indicator */}
                   {hasViolinGuide && (
-                    <div className="flex items-center gap-1.5 text-[11px] text-cyan-300/90 bg-cyan-500/10 px-2.5 py-1 rounded-lg border border-cyan-500/20">
-                      <Disc3 className="w-3.5 h-3.5 flex-shrink-0" />
+                    <div className="flex items-center gap-1.5 text-[11px] font-mono text-[#E0C98F] bg-[#C7A45B]/10 px-2.5 py-1 rounded-lg border border-[#C7A45B]/25">
+                      <Disc3 className="w-3.5 h-3.5 flex-shrink-0 text-[#C7A45B]" />
                       <span>{isMl ? 'വയലിൻ വിരൽ-വില്ല് കുറിപ്പുകൾ സഹിതം' : 'Includes Violin Fingering & Bowing'}</span>
                     </div>
                   )}
@@ -396,7 +396,7 @@ export function CarnaticCompositionLibrary() {
                 {/* Card Action Button */}
                 <button
                   onClick={() => setActiveComposition(comp)}
-                  className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-extrabold text-xs shadow-lg shadow-amber-500/20 transition-all transform active:scale-98"
+                  className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl nv-gold-btn font-bold text-xs shadow-md transition-all active:scale-98 cursor-pointer"
                 >
                   <Volume2 className="w-4 h-4" />
                   <span>{isMl ? 'പ്ലേ ചെയ്തു സാധകം ചെയ്യുക' : 'Practise & Play'}</span>
