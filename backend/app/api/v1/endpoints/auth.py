@@ -37,9 +37,11 @@ async def register(payload: UserRegister, db: AsyncSession = Depends(get_db)):
         )
 
     # Create new user
+    user_role = payload.role if payload.role in ["student", "teacher", "editor", "admin"] else "student"
     new_user = User(
         email=payload.email,
         hashed_password=get_password_hash(payload.password),
+        role=user_role,
         is_active=True,
     )
     db.add(new_user)
@@ -112,6 +114,7 @@ async def get_me(current_user: User = Depends(get_current_user)):
     return UserOut(
         id=current_user.id,
         email=current_user.email,
+        role=current_user.role,
         is_active=current_user.is_active,
         created_at=current_user.created_at,
         profile=profile_out,

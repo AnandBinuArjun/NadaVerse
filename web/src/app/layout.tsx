@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { LanguageProvider } from '../context/LanguageContext';
 import { PWARegistration } from '../components/PWARegistration';
+import { ErrorBoundary } from '../components/ErrorBoundary';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -151,10 +152,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} bg-[#11110F] text-[#F4EBDD] min-h-full flex flex-col antialiased`}
       >
-        <LanguageProvider>
-          {children}
-          <PWARegistration />
-        </LanguageProvider>
+        <ErrorBoundary>
+          <LanguageProvider>
+            {children}
+            <PWARegistration />
+          </LanguageProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );

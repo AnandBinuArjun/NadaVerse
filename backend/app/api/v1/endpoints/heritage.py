@@ -14,7 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db
 from app.models.entities import HeritageEntry, User, AuditEvent
-from app.api.deps import get_optional_current_user, get_current_user
+from app.api.deps import get_optional_current_user, get_current_user, get_current_editor_or_admin
 from app.schemas.heritage import (
     HeritageEntryCreate,
     HeritageEntryOut,
@@ -240,7 +240,7 @@ async def submit_heritage_entry_for_review(
 
 @router.get("/editorial/pending", response_model=List[HeritageEntryOut])
 async def list_pending_heritage_reviews(
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_editor_or_admin),
     db: AsyncSession = Depends(get_db)
 ):
     stmt = (
@@ -275,7 +275,7 @@ async def list_pending_heritage_reviews(
 async def review_heritage_submission(
     id: str,
     action: HeritageReviewAction,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_editor_or_admin),
     db: AsyncSession = Depends(get_db)
 ):
     entry = await db.get(HeritageEntry, id)

@@ -5,31 +5,11 @@ import { Volume2, Play, Pause, Info, Music2, SlidersHorizontal } from 'lucide-re
 import { audioEngine, TONIC_OPTIONS, TonicNote, ShrutiTuning } from '../lib/audioEngine';
 import { useLanguage } from '../context/LanguageContext';
 import { practiceShortcuts } from '../lib/practiceShortcuts';
+import { SWARASTHANA_DEFINITIONS, SwarasthanaInfo } from '../lib/carnaticRatios';
 
-interface SwaraButton {
-  symbol: string;
-  name: string;
-  nameMl: string;
-  ratio: number;
-  fraction: string;
-  description: string;
-}
+type SwaraButton = SwarasthanaInfo;
 
-const COMMON_SWARAS: SwaraButton[] = [
-  { symbol: 'S', name: 'Shadjam', nameMl: 'ഷഡ്ജം', ratio: 1.0, fraction: '1/1', description: 'Adhara Shadjam (Tonic foundation)' },
-  { symbol: 'R₁', name: 'Shuddha Rishabham', nameMl: 'ശുദ്ധ ഋഷഭം', ratio: 16 / 15, fraction: '16/15', description: 'Used in Mayamalavagowla, Saveri' },
-  { symbol: 'R₂', name: 'Chatushruti Rishabham', nameMl: 'ചതുശ്രുതി ഋഷഭം', ratio: 9 / 8, fraction: '9/8', description: 'Used in Shankarabharanam, Kalyani' },
-  { symbol: 'G₂', name: 'Sadharana Gandharam', nameMl: 'സാധാരണ ഗാന്ധാരം', ratio: 6 / 5, fraction: '6/5', description: 'Minor third (Kharaharapriya, Thodi)' },
-  { symbol: 'G₃', name: 'Antara Gandharam', nameMl: 'അന്തര ഗാന്ധാരം', ratio: 5 / 4, fraction: '5/4', description: 'Major third (Mayamalavagowla, Kalyani)' },
-  { symbol: 'M₁', name: 'Shuddha Madhyamam', nameMl: 'ശുദ്ധ മധ്യമം', ratio: 4 / 3, fraction: '4/3', description: 'Natural fourth (Shankarabharanam)' },
-  { symbol: 'M₂', name: 'Prati Madhyamam', nameMl: 'പ്രതി മധ്യമം', ratio: 45 / 32, fraction: '45/32', description: 'Sharp fourth (Kalyani, Pantuvarali)' },
-  { symbol: 'P', name: 'Panchamam', nameMl: 'പഞ്ചമം', ratio: 3 / 2, fraction: '3/2', description: 'Invariable fifth (Achala swara)' },
-  { symbol: 'D₁', name: 'Shuddha Dhaivatam', nameMl: 'ശുദ്ധ ധൈവതം', ratio: 8 / 5, fraction: '8/5', description: 'Minor sixth (Mayamalavagowla)' },
-  { symbol: 'D₂', name: 'Chatushruti Dhaivatam', nameMl: 'ചതുശ്രുതി ധൈവതം', ratio: 27 / 16, fraction: '27/16', description: 'Major sixth (Shankarabharanam)' },
-  { symbol: 'N₂', name: 'Kaisiki Nishadam', nameMl: 'കൈശികി നിഷാദം', ratio: 9 / 5, fraction: '9/5', description: 'Minor seventh (Kharaharapriya)' },
-  { symbol: 'N₃', name: 'Kakali Nishadam', nameMl: 'കാകലി നിഷാദം', ratio: 15 / 8, fraction: '15/8', description: 'Leading tone (Shankarabharanam, Kalyani)' },
-  { symbol: 'Ṡ', name: 'Tara Shadjam', nameMl: 'താര ഷഡ്ജം', ratio: 2.0, fraction: '2/1', description: 'Higher octave tonic' }
-];
+const COMMON_SWARAS: SwaraButton[] = SWARASTHANA_DEFINITIONS;
 
 export const ShrutiCompanion: React.FC = () => {
   const { lang } = useLanguage();

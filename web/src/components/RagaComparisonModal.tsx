@@ -14,6 +14,7 @@ import { VERIFIED_RAGAS } from '../data/carnaticData';
 import { audioEngine } from '../lib/audioEngine';
 import { useLanguage } from '../context/LanguageContext';
 import { RAGA_ML_NAMES } from '../lib/translations';
+import { STANDARD_SWARA_RATIOS as SWARA_RATIO_TABLE } from '../lib/carnaticRatios';
 
 interface RagaComparisonModalProps {
   isOpen: boolean;
@@ -22,23 +23,6 @@ interface RagaComparisonModalProps {
   initialRagaB?: RagaItem;
   onAskTutor?: (topic: string) => void;
 }
-
-// Just intonation swara ratios for scale audiation
-const SWARA_RATIO_TABLE: Record<string, number> = {
-  'S': 1.0, 'Sa': 1.0,
-  'R₁': 16 / 15, 'R1': 16 / 15, 'Ri1': 16 / 15,
-  'R₂': 9 / 8, 'R2': 9 / 8, 'Ri2': 9 / 8, 'G₁': 9 / 8, 'G1': 9 / 8,
-  'R₃': 6 / 5, 'R3': 6 / 5, 'Ri3': 6 / 5, 'G₂': 6 / 5, 'G2': 6 / 5,
-  'G₃': 5 / 4, 'G3': 5 / 4, 'Ga3': 5 / 4,
-  'M₁': 4 / 3, 'M1': 4 / 3, 'Ma1': 4 / 3,
-  'M₂': 45 / 32, 'M2': 45 / 32, 'Ma2': 45 / 32,
-  'P': 3 / 2, 'Pa': 3 / 2,
-  'D₁': 8 / 5, 'D1': 8 / 5, 'Dha1': 8 / 5,
-  'D₂': 27 / 16, 'D2': 27 / 16, 'Dha2': 27 / 16, 'N₁': 27 / 16, 'N1': 27 / 16,
-  'D₃': 9 / 5, 'D3': 9 / 5, 'Dha3': 9 / 5, 'N₂': 9 / 5, 'N2': 9 / 5,
-  'N₃': 15 / 8, 'N3': 15 / 8, 'Ni3': 15 / 8,
-  'Ṡ': 2.0, 'S˙': 2.0, 'S.': 2.0
-};
 
 export const RagaComparisonModal: React.FC<RagaComparisonModalProps> = ({
   isOpen,

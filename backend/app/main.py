@@ -6,10 +6,13 @@ practice session persistence, user authentication, and grounded AI tutor orchest
 
 from typing import List, Optional
 import uuid
+import logging
 from datetime import datetime, timezone, timedelta
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, Query, Depends, Request, Response, status
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -24,7 +27,7 @@ from app.schemas.practice import (
     PracticeSummaryOut,
 )
 from app.schemas.tutor import TutorMessageRequest, TutorResponse
-from app.api.deps import get_optional_current_user, get_current_user
+from app.api.deps import get_optional_current_user, get_current_user, get_current_editor_or_admin
 from app.api.v1.endpoints.auth import router as auth_router, user_router
 from app.api.v1.endpoints.search import router as search_router
 from app.api.v1.endpoints.curriculum import router as curriculum_router
@@ -143,6 +146,29 @@ async def health_readiness(db: AsyncSession = Depends(get_db)):
         return {"status": "ready", "database": "healthy"}
     except Exception:
         raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Database connectivity unavailable")
+
+
+class ClientTelemetryError(BaseModel):
+    message: str
+    name: Optional[str] = None
+    stack: Optional[str] = None
+    isAudioError: Optional[bool] = False
+    extra: Optional[dict] = None
+    timestamp: Optional[str] = None
+
+
+@app.post("/api/v1/telemetry/errors", status_code=status.HTTP_204_NO_CONTENT, tags=["System"])
+async def ingest_client_error(payload: ClientTelemetryError, request: Request):
+    """
+    Ingests and logs unhandled browser client exceptions and Web Audio hardware access issues.
+    Enables server-side monitoring and observability for user-encountered runtime failures.
+    """
+    client_ip = request.client.host if request.client else "unknown"
+    logging.warning(
+        f"[Client Error Telemetry] IP={client_ip} AudioError={payload.isAudioError} "
+        f"Name={payload.name} Msg={payload.message} Extra={payload.extra}"
+    )
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 # -----------------------------------------------------------------------------
@@ -669,7 +695,7 @@ async def list_pending_corrections(
 async def review_correction(
     correction_id: str,
     action: CorrectionReviewAction,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_editor_or_admin),
     db: AsyncSession = Depends(get_db)
 ):
     """

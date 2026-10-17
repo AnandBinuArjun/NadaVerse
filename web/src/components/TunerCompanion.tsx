@@ -5,6 +5,7 @@ import { Mic, MicOff, AlertCircle, Info, Activity, ShieldCheck } from 'lucide-re
 import { TONIC_OPTIONS, TonicNote } from '../lib/audioEngine';
 import { useLanguage } from '../context/LanguageContext';
 import { practiceShortcuts } from '../lib/practiceShortcuts';
+import { SWARASTHANA_DEFINITIONS } from '../lib/carnaticRatios';
 
 interface TunerCompanionProps {
   activeTonic?: TonicNote;
@@ -19,20 +20,13 @@ interface SwarasthanaDef {
   justRatio: number;
 }
 
-const CARNATIC_SWARASTHANAS: SwarasthanaDef[] = [
-  { symbol: 'S', name: 'Shadjam', nameMl: 'ഷഡ്ജം', semitoneOffset: 0, justRatio: 1.0 },
-  { symbol: 'R₁', name: 'Shuddha Rishabham', nameMl: 'ശുദ്ധ രിഷഭം', semitoneOffset: 1, justRatio: 16 / 15 },
-  { symbol: 'R₂ / G₁', name: 'Chatushruti Rishabham', nameMl: 'ചതുശ്രുതി രിഷഭം', semitoneOffset: 2, justRatio: 9 / 8 },
-  { symbol: 'G₂ / R₃', name: 'Sadharana Gandharam', nameMl: 'സാധാരണ ഗാന്ധാരം', semitoneOffset: 3, justRatio: 6 / 5 },
-  { symbol: 'G₃', name: 'Antara Gandharam', nameMl: 'അന്തര ഗാന്ധാരം', semitoneOffset: 4, justRatio: 5 / 4 },
-  { symbol: 'M₁', name: 'Shuddha Madhyamam', nameMl: 'ശുദ്ധ മധ്യമം', semitoneOffset: 5, justRatio: 4 / 3 },
-  { symbol: 'M₂', name: 'Prati Madhyamam', nameMl: 'പ്രതി മധ്യമം', semitoneOffset: 6, justRatio: 45 / 32 },
-  { symbol: 'P', name: 'Panchamam', nameMl: 'പഞ്ചമം', semitoneOffset: 7, justRatio: 3 / 2 },
-  { symbol: 'D₁', name: 'Shuddha Dhaivatam', nameMl: 'ശുദ്ധ ധൈവതം', semitoneOffset: 8, justRatio: 8 / 5 },
-  { symbol: 'D₂ / N₁', name: 'Chatushruti Dhaivatam', nameMl: 'ചതുശ്രുതി ധൈവതം', semitoneOffset: 9, justRatio: 27 / 16 },
-  { symbol: 'N₂ / D₃', name: 'Kaisiki Nishadam', nameMl: 'കൈശികി നിഷാദം', semitoneOffset: 10, justRatio: 9 / 5 },
-  { symbol: 'N₃', name: 'Kakali Nishadam', nameMl: 'കാകളി നിഷാദം', semitoneOffset: 11, justRatio: 15 / 8 },
-];
+const CARNATIC_SWARASTHANAS: SwarasthanaDef[] = SWARASTHANA_DEFINITIONS.slice(0, 12).map((def, idx) => ({
+  symbol: def.symbol,
+  name: def.name,
+  nameMl: def.nameMl,
+  semitoneOffset: idx,
+  justRatio: def.ratio,
+}));
 
 export const TunerCompanion: React.FC<TunerCompanionProps> = ({
   activeTonic = TONIC_OPTIONS[0], // default C (261.63 Hz)

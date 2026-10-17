@@ -5,6 +5,8 @@
  * listening pedagogy. Fully open-access, zero monetisation, public domain / CC-BY-SA.
  */
 
+import { STANDARD_SWARA_RATIOS } from '../lib/carnaticRatios';
+
 export interface ListeningComposition {
   id: string;
   title: string;
@@ -59,28 +61,7 @@ export interface ListeningComposition {
 }
 
 // Swara frequency ratios from Shadjam (1.0)
-const RATIOS = {
-  S: 1.0,
-  R1: 16 / 15,
-  R2: 9 / 8,
-  G2: 6 / 5,
-  G3: 5 / 4,
-  M1: 4 / 3,
-  M2: 45 / 32,
-  P: 3 / 2,
-  D1: 8 / 5,
-  D2: 5 / 3,
-  N2: 9 / 5,
-  N3: 15 / 8,
-  S_HIGH: 2.0,
-  R1_HIGH: (16 / 15) * 2,
-  R2_HIGH: (9 / 8) * 2,
-  G3_HIGH: (5 / 4) * 2,
-  M1_HIGH: (4 / 3) * 2,
-  P_LOW: 3 / 4,
-  D1_LOW: 4 / 5,
-  N3_LOW: 15 / 16,
-};
+const RATIOS = STANDARD_SWARA_RATIOS;
 
 export const CURATED_LISTENING_COMPOSITIONS: ListeningComposition[] = [
   {

@@ -7,6 +7,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [1.0.0-beta] - 2026-10-17
 
+### Security & Code Quality Hardening
+- **Role-Based Access Control (RBAC) Hardening:**
+  - Added user roles (`student`, `teacher`, `editor`, `admin`) to `User` database model and auth schemas.
+  - Added `get_current_editor_or_admin` security dependency enforcing HTTP 403 Forbidden on editorial moderation endpoints (`/api/v1/corrections/{id}/review`, `/api/v1/heritage/editorial/pending`, `/api/v1/heritage/{id}/review`).
+  - Added regression test suites validating that regular students/teachers cannot approve corrections or heritage articles while authorized editors can.
+- **Client Auth Consistency & API Base URL Unification:**
+  - Unified local storage token retrieval across all components to check both `nadaverse_token` and `nadaverse_access_token`.
+  - Fixed relative API path calls in `TeacherStudentWorkspace.tsx`, `HeritageArchive.tsx`, and `ExplainablePracticeCompanion.tsx` to prepend `API_BASE_URL`.
+  - Added transparent Next.js API proxy rewrites in `web/next.config.ts` mapping `/api/v1/:path*` to `NEXT_PUBLIC_API_URL` or `http://localhost:8000`.
+- **Musicological Just Intonation Ratio Consolidation:**
+  - Created canonical microtonal module `web/src/lib/carnaticRatios.ts` defining `STANDARD_SWARA_RATIOS`, `SWARASTHANA_DEFINITIONS`, `getSwaraRatio`, and `getSwaraFrequency`.
+  - Refactored `RagaCard.tsx`, `RagaComparisonModal.tsx`, `GradedExercises.tsx`, `TunerCompanion.tsx`, `ShrutiCompanion.tsx`, `SwarasthanaVisualizer.tsx`, and `listeningLibraryData.ts` to source ratios and swarasthana metadata from the canonical module, eliminating divergent tuning definitions.
+  - Unified tonic note options in `AudioCalibrationWizard.tsx` with `audioEngine.ts` `TONIC_OPTIONS`.
+- **Observability & Error Telemetry:**
+  - Implemented React `<ErrorBoundary>` component with cultural Carnatic styling ("Nada Shanti") and recovery controls, wrapping the entire Next.js application tree.
+  - Implemented client-side error telemetry beaconing (`web/src/lib/errorMonitoring.ts`) using non-blocking `navigator.sendBeacon` targeting `POST /api/v1/telemetry/errors`.
+  - Added `POST /api/v1/telemetry/errors` endpoint in FastAPI backend with structured error logging and Pytest coverage.
+
 ### Added
 - **Playable Carnatic Composition Library & Interactive Player (`InteractiveCompositionPlayer.tsx` & `CarnaticCompositionLibrary.tsx`):**
   - **Comprehensive Multi-Category Library:** Searchable, filterable catalog spanning all 6 primary repertoire forms: Tana Varnams (*Ninnukori* in Mohanam), Kritis/Keerthanams (*Vatapi Ganapatim* in Hamsadhwani), Geethams (*Sri Gananatha* Pillari Geetham in Malahari), Swarajathis (*Rara Venu Gopa Bala* in Bilahari), Varisais/Abhyasa Ganam (*Sarali Varisai 1* in Mayamalavagowla), and Carnatic Violin Practice Studies (String-Crossing & Bow Balance).

@@ -1,8 +1,4 @@
-/**
- * NadaVerse Observability & Error Monitoring
- * Catches and logs unhandled audio exceptions, Web Audio suspension,
- * and microphone hardware access denials. Plugs into Sentry when NEXT_PUBLIC_SENTRY_DSN is configured.
- */
+import { API_BASE_URL } from './api';
 
 class ErrorMonitoringService {
   private sentryDsn = process.env.NEXT_PUBLIC_SENTRY_DSN;
@@ -47,7 +43,33 @@ class ErrorMonitoringService {
 
     if (process.env.NODE_ENV !== 'production' || !this.sentryDsn) {
       console.warn(`[NadaVerse Monitor] ${isAudioError ? '🎵 Audio Exception:' : '⚠️ Exception:'}`, err.message, extra || '');
-      return;
+    }
+
+    // Always attempt client-to-backend error telemetry beacon
+    if (typeof window !== 'undefined') {
+      try {
+        const payload = JSON.stringify({
+          message: err.message,
+          name: err.name,
+          stack: err.stack ? err.stack.slice(0, 1000) : undefined,
+          isAudioError,
+          extra,
+          timestamp: new Date().toISOString(),
+        });
+        const endpoint = `${API_BASE_URL}/api/v1/telemetry/errors`;
+        if (navigator.sendBeacon) {
+          navigator.sendBeacon(endpoint, new Blob([payload], { type: 'application/json' }));
+        } else {
+          fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: payload,
+            keepalive: true,
+          }).catch(() => {});
+        }
+      } catch {
+        // Drop reporting failures silently to prevent recursive crash
+      }
     }
 
     // Forward to Sentry if client SDK is installed or via Sentry ingest endpoint
@@ -70,3 +92,4 @@ class ErrorMonitoringService {
 }
 
 export const errorMonitor = new ErrorMonitoringService();
+export const errorMonitoring = errorMonitor;

@@ -5,6 +5,7 @@ import { Play, Pause, RotateCcw, CheckCircle2, BookOpen } from 'lucide-react';
 import { CARNATIC_EXERCISES } from '../data/carnaticExercises';
 import { audioEngine, TONIC_OPTIONS, TonicNote } from '../lib/audioEngine';
 import { useLanguage } from '../context/LanguageContext';
+import { STANDARD_SWARA_RATIOS } from '../lib/carnaticRatios';
 
 interface GradedExercisesProps {
   activeTonic?: TonicNote;
@@ -13,15 +14,8 @@ interface GradedExercisesProps {
 
 // Swara frequency multiplier ratios in Just Intonation (Mayamalavagowla)
 const MAYAMALAVAGOWLA_SWARA_RATIOS: Record<string, number> = {
-  'S': 1.0,
-  'R₁': 16 / 15, // Shuddha Rishabham
-  'G₃': 5 / 4,    // Antara Gandharam
-  'M₁': 4 / 3,    // Shuddha Madhyamam
-  'P': 3 / 2,     // Panchamam
-  'D₁': 8 / 5,    // Shuddha Dhaivatam
-  'N₃': 15 / 8,   // Kakali Nishadam
-  'Ṡ': 2.0,       // Tara Shadjam
-  '•': 0          // Karvai / pause
+  ...STANDARD_SWARA_RATIOS,
+  '•': 0, // Karvai / pause
 };
 
 export const GradedExercises: React.FC<GradedExercisesProps> = ({

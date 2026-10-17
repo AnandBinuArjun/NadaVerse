@@ -12,6 +12,7 @@ import {
   Sparkles
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import { API_BASE_URL } from '../lib/api';
 
 interface LearningGroup {
   id: string;
@@ -127,7 +128,7 @@ export const TeacherStudentWorkspace: React.FC<Props> = ({
     const headers: Record<string, string> = {};
     if (includeJson) headers['Content-Type'] = 'application/json';
     if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('nadaverse_access_token');
+      const token = localStorage.getItem('nadaverse_token') || localStorage.getItem('nadaverse_access_token');
       if (token) headers['Authorization'] = `Bearer ${token}`;
     }
     return headers;
@@ -146,19 +147,19 @@ export const TeacherStudentWorkspace: React.FC<Props> = ({
     setErrorNotice(null);
     try {
       // Enrolled groups
-      const enrollRes = await fetch('/api/v1/teaching/groups/enrolled', { headers: makeHeaders(false) });
+      const enrollRes = await fetch(`${API_BASE_URL}/api/v1/teaching/groups/enrolled`, { headers: makeHeaders(false) });
       if (enrollRes.ok) {
         setEnrolledGroups(await enrollRes.json());
       }
 
       // My assignments as student
-      const assignRes = await fetch('/api/v1/teaching/my-assignments', { headers: makeHeaders(false) });
+      const assignRes = await fetch(`${API_BASE_URL}/api/v1/teaching/my-assignments`, { headers: makeHeaders(false) });
       if (assignRes.ok) {
         setAssignments(await assignRes.json());
       }
 
       // Teaching groups
-      const teachRes = await fetch('/api/v1/teaching/groups/teaching', { headers: makeHeaders(false) });
+      const teachRes = await fetch(`${API_BASE_URL}/api/v1/teaching/groups/teaching`, { headers: makeHeaders(false) });
       if (teachRes.ok) {
         const tGroups: LearningGroup[] = await teachRes.json();
         setTeachingGroups(tGroups);
@@ -182,7 +183,7 @@ export const TeacherStudentWorkspace: React.FC<Props> = ({
     setErrorNotice(null);
     setSuccessNotice(null);
     try {
-      const res = await fetch('/api/v1/teaching/invitations/accept', {
+      const res = await fetch(`${API_BASE_URL}/api/v1/teaching/invitations/accept`, {
         method: 'POST',
         headers: makeHeaders(true),
         body: JSON.stringify({ token: joinToken.trim() }),
@@ -206,7 +207,7 @@ export const TeacherStudentWorkspace: React.FC<Props> = ({
     if (!newGroupName.trim()) return;
     setErrorNotice(null);
     try {
-      const res = await fetch('/api/v1/teaching/groups', {
+      const res = await fetch(`${API_BASE_URL}/api/v1/teaching/groups`, {
         method: 'POST',
         headers: makeHeaders(true),
         body: JSON.stringify({ name: newGroupName, description: newGroupDesc }),
@@ -226,7 +227,7 @@ export const TeacherStudentWorkspace: React.FC<Props> = ({
   const handleGenerateInvite = async (groupId: string) => {
     setErrorNotice(null);
     try {
-      const res = await fetch(`/api/v1/teaching/groups/${groupId}/invitations`, {
+      const res = await fetch(`${API_BASE_URL}/api/v1/teaching/groups/${groupId}/invitations`, {
         method: 'POST',
         headers: makeHeaders(true),
         body: JSON.stringify({ valid_days: 7 }),
@@ -246,7 +247,7 @@ export const TeacherStudentWorkspace: React.FC<Props> = ({
     if (!activeGroupId || !assignTitle.trim()) return;
     setErrorNotice(null);
     try {
-      const res = await fetch(`/api/v1/teaching/groups/${activeGroupId}/assignments`, {
+      const res = await fetch(`${API_BASE_URL}/api/v1/teaching/groups/${activeGroupId}/assignments`, {
         method: 'POST',
         headers: makeHeaders(true),
         body: JSON.stringify({
@@ -273,7 +274,7 @@ export const TeacherStudentWorkspace: React.FC<Props> = ({
     if (!submissionNotes.trim()) return;
     setErrorNotice(null);
     try {
-      const res = await fetch(`/api/v1/teaching/assignments/${assignmentId}/submit`, {
+      const res = await fetch(`${API_BASE_URL}/api/v1/teaching/assignments/${assignmentId}/submit`, {
         method: 'POST',
         headers: makeHeaders(true),
         body: JSON.stringify({

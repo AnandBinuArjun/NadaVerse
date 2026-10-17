@@ -58,3 +58,18 @@ async def get_optional_current_user(
     ).options(selectinload(User.profile))
     result = await db.execute(query)
     return result.scalars().first()
+
+
+async def get_current_editor_or_admin(
+    current_user: User = Depends(get_current_user)
+) -> User:
+    """
+    Enforces Role-Based Access Control (RBAC):
+    Allows only users with 'editor' or 'admin' roles to perform platform-level reviews.
+    """
+    if current_user.role not in ["editor", "admin"]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Editor or Administrator role required to perform editorial actions."
+        )
+    return current_user

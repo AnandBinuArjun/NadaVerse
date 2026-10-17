@@ -8,6 +8,7 @@ class UserRegister(BaseModel):
     password: str = Field(..., min_length=8, description="Minimum 8 characters")
     display_name: str = Field(..., min_length=2, max_length=100)
     experience_level: Optional[str] = "beginner"
+    role: Optional[str] = "student"
 
 
 class UserLogin(BaseModel):
@@ -32,6 +33,7 @@ class UserProfileOut(BaseModel):
 class UserOut(BaseModel):
     id: str
     email: str
+    role: str = "student"
     is_active: bool
     created_at: datetime
     profile: Optional[UserProfileOut] = None

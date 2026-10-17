@@ -11,6 +11,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import { API_BASE_URL } from '../lib/api';
 
 interface HeritageEntry {
   id: string;
@@ -149,7 +150,7 @@ export const HeritageArchive: React.FC = () => {
   const fetchEntries = useCallback(async () => {
     setIsLoading(true);
     try {
-      let url = '/api/v1/heritage';
+      let url = `${API_BASE_URL}/api/v1/heritage`;
       const params = new URLSearchParams();
       if (activeCategory !== 'all') params.append('category', activeCategory);
       if (searchQuery.trim()) params.append('q', searchQuery.trim());
@@ -192,7 +193,7 @@ export const HeritageArchive: React.FC = () => {
     }
 
     try {
-      const res = await fetch('/api/v1/heritage/submit', {
+      const res = await fetch(`${API_BASE_URL}/api/v1/heritage/submit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

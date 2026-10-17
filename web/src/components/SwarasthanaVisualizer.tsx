@@ -7,6 +7,7 @@ import { VERIFIED_RAGAS } from '../data/carnaticData';
 import { RagaItem } from '../types/carnatic';
 import { useLanguage } from '../context/LanguageContext';
 import { RAGA_ML_NAMES } from '../lib/translations';
+import { STANDARD_SWARA_RATIOS } from '../lib/carnaticRatios';
 
 // 12 Semitones mapped to Carnatic 16 Swarasthanas
 export interface SwarasthanaDef {
@@ -21,19 +22,19 @@ export interface SwarasthanaDef {
 }
 
 const SWARASTHANAS: SwarasthanaDef[] = [
-  { semitone: 0, isBlack: false, westernRelative: 'C', primaryCarnatic: 'Shadjam', symbol: 'S', swarasthanaVariants: 'Sa', ratio: 1.0, fraction: '1/1' },
-  { semitone: 1, isBlack: true, westernRelative: 'C#', primaryCarnatic: 'Shuddha Rishabham', symbol: 'R₁', swarasthanaVariants: 'Suddha Ri', ratio: 16 / 15, fraction: '16/15' },
-  { semitone: 2, isBlack: false, westernRelative: 'D', primaryCarnatic: 'Chatushruti Rishabham', symbol: 'R₂', swarasthanaVariants: 'Chatusruti Ri / Suddha Ga (G₁)', ratio: 9 / 8, fraction: '9/8' },
-  { semitone: 3, isBlack: true, westernRelative: 'D#', primaryCarnatic: 'Sadharana Gandharam', symbol: 'G₂', swarasthanaVariants: 'Sadharana Ga / Shatsruti Ri (R₃)', ratio: 6 / 5, fraction: '6/5' },
-  { semitone: 4, isBlack: false, westernRelative: 'E', primaryCarnatic: 'Antara Gandharam', symbol: 'G₃', swarasthanaVariants: 'Antara Ga', ratio: 5 / 4, fraction: '5/4' },
-  { semitone: 5, isBlack: false, westernRelative: 'F', primaryCarnatic: 'Shuddha Madhyamam', symbol: 'M₁', swarasthanaVariants: 'Suddha Ma', ratio: 4 / 3, fraction: '4/3' },
-  { semitone: 6, isBlack: true, westernRelative: 'F#', primaryCarnatic: 'Prati Madhyamam', symbol: 'M₂', swarasthanaVariants: 'Prati Ma', ratio: 45 / 32, fraction: '45/32' },
-  { semitone: 7, isBlack: false, westernRelative: 'G', primaryCarnatic: 'Panchamam', symbol: 'P', swarasthanaVariants: 'Pa', ratio: 3 / 2, fraction: '3/2' },
-  { semitone: 8, isBlack: true, westernRelative: 'G#', primaryCarnatic: 'Shuddha Dhaivatam', symbol: 'D₁', swarasthanaVariants: 'Suddha Dha', ratio: 8 / 5, fraction: '8/5' },
-  { semitone: 9, isBlack: false, westernRelative: 'A', primaryCarnatic: 'Chatushruti Dhaivatam', symbol: 'D₂', swarasthanaVariants: 'Chatusruti Dha / Suddha Ni (N₁)', ratio: 5 / 3, fraction: '5/3' },
-  { semitone: 10, isBlack: true, westernRelative: 'A#', primaryCarnatic: 'Kaishiki Nishadam', symbol: 'N₂', swarasthanaVariants: 'Kaisiki Ni / Shatsruti Dha (D₃)', ratio: 9 / 5, fraction: '9/5' },
-  { semitone: 11, isBlack: false, westernRelative: 'B', primaryCarnatic: 'Kakali Nishadam', symbol: 'N₃', swarasthanaVariants: 'Kakali Ni', ratio: 15 / 8, fraction: '15/8' },
-  { semitone: 12, isBlack: false, westernRelative: 'C˙', primaryCarnatic: 'Tara Shadjam', symbol: 'Ṡ', swarasthanaVariants: 'Tara Sa', ratio: 2.0, fraction: '2/1' }
+  { semitone: 0, isBlack: false, westernRelative: 'C', primaryCarnatic: 'Shadjam', symbol: 'S', swarasthanaVariants: 'Sa', ratio: STANDARD_SWARA_RATIOS['S'], fraction: '1/1' },
+  { semitone: 1, isBlack: true, westernRelative: 'C#', primaryCarnatic: 'Shuddha Rishabham', symbol: 'R₁', swarasthanaVariants: 'Suddha Ri', ratio: STANDARD_SWARA_RATIOS['R1'], fraction: '16/15' },
+  { semitone: 2, isBlack: false, westernRelative: 'D', primaryCarnatic: 'Chatushruti Rishabham', symbol: 'R₂', swarasthanaVariants: 'Chatusruti Ri / Suddha Ga (G₁)', ratio: STANDARD_SWARA_RATIOS['R2'], fraction: '9/8' },
+  { semitone: 3, isBlack: true, westernRelative: 'D#', primaryCarnatic: 'Sadharana Gandharam', symbol: 'G₂', swarasthanaVariants: 'Sadharana Ga / Shatsruti Ri (R₃)', ratio: STANDARD_SWARA_RATIOS['G2'], fraction: '6/5' },
+  { semitone: 4, isBlack: false, westernRelative: 'E', primaryCarnatic: 'Antara Gandharam', symbol: 'G₃', swarasthanaVariants: 'Antara Ga', ratio: STANDARD_SWARA_RATIOS['G3'], fraction: '5/4' },
+  { semitone: 5, isBlack: false, westernRelative: 'F', primaryCarnatic: 'Shuddha Madhyamam', symbol: 'M₁', swarasthanaVariants: 'Suddha Ma', ratio: STANDARD_SWARA_RATIOS['M1'], fraction: '4/3' },
+  { semitone: 6, isBlack: true, westernRelative: 'F#', primaryCarnatic: 'Prati Madhyamam', symbol: 'M₂', swarasthanaVariants: 'Prati Ma', ratio: STANDARD_SWARA_RATIOS['M2'], fraction: '45/32' },
+  { semitone: 7, isBlack: false, westernRelative: 'G', primaryCarnatic: 'Panchamam', symbol: 'P', swarasthanaVariants: 'Pa', ratio: STANDARD_SWARA_RATIOS['P'], fraction: '3/2' },
+  { semitone: 8, isBlack: true, westernRelative: 'G#', primaryCarnatic: 'Shuddha Dhaivatam', symbol: 'D₁', swarasthanaVariants: 'Suddha Dha', ratio: STANDARD_SWARA_RATIOS['D1'], fraction: '8/5' },
+  { semitone: 9, isBlack: false, westernRelative: 'A', primaryCarnatic: 'Chatushruti Dhaivatam', symbol: 'D₂', swarasthanaVariants: 'Chatusruti Dha / Suddha Ni (N₁)', ratio: STANDARD_SWARA_RATIOS['D2'], fraction: '27/16' },
+  { semitone: 10, isBlack: true, westernRelative: 'A#', primaryCarnatic: 'Kaishiki Nishadam', symbol: 'N₂', swarasthanaVariants: 'Kaisiki Ni / Shatsruti Dha (D₃)', ratio: STANDARD_SWARA_RATIOS['N2'], fraction: '9/5' },
+  { semitone: 11, isBlack: false, westernRelative: 'B', primaryCarnatic: 'Kakali Nishadam', symbol: 'N₃', swarasthanaVariants: 'Kakali Ni', ratio: STANDARD_SWARA_RATIOS['N3'], fraction: '15/8' },
+  { semitone: 12, isBlack: false, westernRelative: 'C˙', primaryCarnatic: 'Tara Shadjam', symbol: 'Ṡ', swarasthanaVariants: 'Tara Sa', ratio: STANDARD_SWARA_RATIOS['Ṡ'], fraction: '2/1' }
 ];
 
 export const SwarasthanaVisualizer: React.FC = () => {

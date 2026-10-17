@@ -598,13 +598,35 @@ async def test_heritage_archive_editorial_workflow():
         direct_check = await ac.get(f"/api/v1/heritage/{entry_slug}")
         assert direct_check.status_code == 404
 
-        # 5. Editorial user approves and publishes entry
+        # 5. Non-editor student attempt to review -> 403 Forbidden
+        student_res = await ac.post(
+            "/api/v1/auth/register",
+            json={
+                "email": f"student_{uuid.uuid4().hex[:6]}@example.com",
+                "password": "SecurePassword123!",
+                "display_name": "Standard Student",
+                "role": "student"
+            }
+        )
+        student_token = student_res.json()["access_token"]
+        student_headers = {"Authorization": f"Bearer {student_token}"}
+
+        student_rev = await ac.post(
+            f"/api/v1/heritage/{entry_id}/review",
+            json={"editorial_status": "published", "reviewer_notes": "Attempt by student"},
+            headers=student_headers
+        )
+        assert student_rev.status_code == 403
+        assert "Editor or Administrator role required" in student_rev.json()["detail"]
+
+        # 6. Editorial user approves and publishes entry
         editor_res = await ac.post(
             "/api/v1/auth/register",
             json={
                 "email": f"editor_{uuid.uuid4().hex[:6]}@example.com",
                 "password": "SecurePassword123!",
-                "display_name": "Editorial Scholar"
+                "display_name": "Editorial Scholar",
+                "role": "editor"
             }
         )
         ed_token = editor_res.json()["access_token"]
@@ -754,6 +776,23 @@ async def test_compositions_api():
         val_bad_data = val_bad_res.json()
         assert val_bad_data["isValid"] is False
         assert any("title" in err.lower() for err in val_bad_data["errors"])
+
+
+@pytest.mark.asyncio
+async def test_client_error_telemetry_endpoint():
+    """Verify client exception beacon telemetry endpoint accepts and logs error payloads."""
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        payload = {
+            "message": "AudioContext not allowed to start before user gesture",
+            "name": "NotAllowedError",
+            "stack": "Error: NotAllowedError\n    at AudioEngine.unlockAudio",
+            "isAudioError": True,
+            "extra": {"component": "InteractiveCompositionPlayer", "sampleRate": 48000},
+            "timestamp": "2026-10-17T22:00:00.000Z"
+        }
+        res = await ac.post("/api/v1/telemetry/errors", json=payload)
+        assert res.status_code == 204
+
 
 
 

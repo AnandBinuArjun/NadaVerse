@@ -398,10 +398,21 @@ async def test_content_correction_editorial_lifecycle():
             "email": f"editor_{ts}@nadaverse.internal",
             "password": "StrongPassword123!",
             "display_name": "Senior Musicologist",
+            "role": "editor"
         })
         assert reg_res.status_code == 201
         token = reg_res.json()["access_token"]
         headers = {"Authorization": f"Bearer {token}"}
+
+        # Register regular student without editor privileges
+        student_reg = await ac.post("/api/v1/auth/register", json={
+            "email": f"student_{ts}@nadaverse.internal",
+            "password": "StrongPassword123!",
+            "display_name": "Regular Student",
+            "role": "student"
+        })
+        student_token = student_reg.json()["access_token"]
+        student_headers = {"Authorization": f"Bearer {student_token}"}
 
         # 1. Submit a correction (can be guest or authenticated)
         sub_res = await ac.post("/api/v1/corrections", json={
@@ -430,7 +441,15 @@ async def test_content_correction_editorial_lifecycle():
         assert target is not None
         assert target["status"] == "pending_review"
 
-        # 4. Review correction -> approve with notes
+        # 4. Student attempt to review -> 403 Forbidden
+        student_rev = await ac.post(f"/api/v1/corrections/{corr_id}/review", json={
+            "status": "approved",
+            "reviewer_notes": "Attempt by unauthorized student"
+        }, headers=student_headers)
+        assert student_rev.status_code == 403
+        assert "Editor or Administrator role required" in student_rev.json()["detail"]
+
+        # 5. Review correction with editor credentials -> approve with notes
         rev_res = await ac.post(f"/api/v1/corrections/{corr_id}/review", json={
             "status": "approved",
             "reviewer_notes": "Verified against 1934 Music Academy edition of Chaturdandi Prakasika."

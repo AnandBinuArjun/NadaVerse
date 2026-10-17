@@ -19,6 +19,7 @@ import { TONIC_OPTIONS, TonicNote } from '../lib/audioEngine';
 import { CARNATIC_EXERCISES, ExerciseItem } from '../data/carnaticExercises';
 import { useLanguage } from '../context/LanguageContext';
 import { detectPitch, evaluateSyntheticPitch } from '../lib/pitchDetector';
+import { API_BASE_URL } from '../lib/api';
 
 interface SwaraCentDef {
   symbol: string;
@@ -331,7 +332,7 @@ export const ExplainablePracticeCompanion: React.FC<Props> = ({
     };
 
     try {
-      const res = await fetch('/api/v1/audio/analyze-practice', {
+      const res = await fetch(`${API_BASE_URL}/api/v1/audio/analyze-practice`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),

@@ -55,7 +55,59 @@ NadaVerse is a comprehensive, open-source Carnatic music ecosystem combining aut
 - **Audio Engine:** Low-latency Web Audio API (Tanpura overtone synthesis, instrument timbre modeling, autocorrelation pitch tracking, drift-free metronome)
 - **Backend API:** Python 3.12 + FastAPI + SQLAlchemy + SQLite / PostgreSQL
 - **AI Gateway:** Provider-neutral gateway with Google Gemini 1.5 Flash / Pro and deterministic classical treatise fallback
-- **Testing:** Pytest (30 backend unit/integration tests) + Next.js production build & strict TypeScript verification + 10 synthetic pitch tests + 11 service worker privacy tests
+- **Testing:** Pytest (33 backend unit/integration tests) + Next.js 16 production build & strict TypeScript verification + 40 composition schema tests + 10 synthetic pitch tests + 13 service worker privacy tests
+
+---
+
+## 🔄 System Data Flow & Security Architecture
+
+### Data Flow Diagram
+
+```text
+[ Browser Client (Next.js 16) ]
+  ├── Web Audio Hardware Clock
+  │     ├── Tanpura Drone Synthesis (Pa, Ma, Ni with Jivari resonance)
+  │     ├── Tala Metronome Scheduler (Acoustic Bell + Mridangam Solkattu)
+  │     └── Just Intonation Auditioning (web/src/lib/carnaticRatios.ts)
+  │
+  ├── Browser-Local Acoustic Tracking
+  │     ├── Microphone Input (User-Calibrated)
+  │     ├── Local Autocorrelation Pitch Detector (Zero audio leaves client)
+  │     └── Cent Deviation & Stability Contours
+  │
+  ├── Transparent API Gateway / Next.js Proxy
+  │     └── Rewrites: /api/v1/:path* ──► FastAPI Backend (:8000)
+  │
+  └── Error Boundary & Telemetry Beacon
+        └── Non-blocking navigator.sendBeacon ──► POST /api/v1/telemetry/errors
+
+[ FastAPI Backend (:8000) ]
+  ├── Security & Authorization Middleware
+  │     ├── Trusted Proxy & Sliding-Window IP Rate Limiting
+  │     ├── Bearer JWT Verification (deps.get_current_active_user)
+  │     └── Role-Based Access Control (deps.get_current_editor_or_admin)
+  │           ├── Guarded: POST /api/v1/corrections/{id}/review
+  │           ├── Guarded: GET  /api/v1/heritage/editorial/pending
+  │           └── Guarded: POST /api/v1/heritage/{id}/review
+  │
+  ├── Pedagogical & Musicological Engines
+  │     ├── Composition Catalog & Schema Validation (6 Cornerstone Forms)
+  │     ├── Gurukulam Teacher-Student Assignments & Ownership Gating
+  │     └── AI Practice Companion Analysis (Provider-neutral Gemini + Treatise fallback)
+  │
+  └── Telemetry Ingestion
+        └── Structured audit logging for uncaught runtime & audio errors
+```
+
+### Security & Privacy Commitments
+
+1. **Role-Based Access Control (RBAC):**
+   - User identities support distinct roles (`student`, `teacher`, `editor`, `admin`).
+   - Ordinary students and teachers are strictly forbidden (HTTP 403 Forbidden) from approving or rejecting editorial corrections or heritage archive submissions. Only authenticated `editor` and `admin` accounts can modify canonical content.
+2. **Zero Raw Audio Retention:**
+   - Microphone pitch analysis is executed entirely on the client's device using real-time Web Audio API autocorrelation. Only extracted numerical features (mean cents deviation, pitch stability score, swarasthana timestamps) are submitted to `/api/v1/audio/analyze-practice`.
+3. **Resilient Error Telemetry:**
+   - Uncaught UI and Web Audio exceptions are trapped by the React `<ErrorBoundary>` and dispatched non-blocking via `navigator.sendBeacon` to `/api/v1/telemetry/errors` without degrading the user's practice experience.
 
 ---
 
@@ -101,7 +153,14 @@ Open `http://localhost:3000` in your browser.
 ```bash
 python -m pytest backend/tests -v
 ```
-*Current status:* **30 passed (100%)** covering curriculum progression, tala calculations, audio practice companion analysis, teacher-student authorization workflows, rate limiting scope & trusted proxy resolution, and heritage archive moderation.
+*Current status:* **33 passed (100%)** covering curriculum progression, tala calculations, audio practice companion analysis, teacher-student authorization workflows, rate limiting scope & trusted proxy resolution, heritage archive moderation, role-based access control (RBAC 403 Forbidden enforcement), and client error telemetry ingestion.
+
+### Frontend Composition Schema & Rhythmic Integrity Tests
+```bash
+cd web
+npx tsx scripts/test-compositions-schema.mjs
+```
+*Current status:* **40 passed (100%)** testing all 6 repertoire forms, akshara duration sums, section structures, public domain assertions, and treatise citations.
 
 ### Frontend Synthetic Pitch Tests
 ```bash

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '../context/LanguageContext';
+import { TONIC_OPTIONS as ENGINE_TONIC_OPTIONS } from '../lib/audioEngine';
 
 interface AudioCalibrationWizardProps {
   onComplete?: (calibrationData: {
@@ -14,17 +15,11 @@ interface AudioCalibrationWizardProps {
   onClose?: () => void;
 }
 
-const TONIC_OPTIONS = [
-  { note: 'C', hz: 261.63, shrutiName: '1 Kattai (Madhyama Sa)' },
-  { note: 'C#', hz: 277.18, shrutiName: '1.5 Kattai' },
-  { note: 'D', hz: 293.66, shrutiName: '2 Kattai' },
-  { note: 'D#', hz: 311.13, shrutiName: '2.5 Kattai' },
-  { note: 'E', hz: 329.63, shrutiName: '3 Kattai' },
-  { note: 'F', hz: 349.23, shrutiName: '4 Kattai' },
-  { note: 'G', hz: 392.00, shrutiName: '5 Kattai (Panchama Sa)' },
-  { note: 'A', hz: 220.00, shrutiName: '6 Kattai' },
-  { note: 'B', hz: 246.94, shrutiName: '7 Kattai' },
-];
+const TONIC_OPTIONS = ENGINE_TONIC_OPTIONS.map((t) => ({
+  note: t.name,
+  hz: t.frequency,
+  shrutiName: `${t.kattai} (${t.name})`,
+}));
 
 export const AudioCalibrationWizard: React.FC<AudioCalibrationWizardProps> = ({
   onComplete,
