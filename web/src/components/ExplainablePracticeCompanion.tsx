@@ -72,6 +72,10 @@ interface AnalysisReport {
   limitations_notice: string;
   confidence: string;
   provenance: string;
+  analysis_quality?: string;
+  is_heuristic_fallback?: boolean;
+  measured_metrics?: string[];
+  inferred_metrics?: string[];
 }
 
 interface Props {
@@ -87,7 +91,7 @@ export const ExplainablePracticeCompanion: React.FC<Props> = ({
 }) => {
   const { lang } = useLanguage();
   const [selectedExercise, setSelectedExercise] = useState<ExerciseItem>(CARNATIC_EXERCISES[0]);
-  const [consentGranted, setConsentGranted] = useState<boolean>(true);
+  const [consentGranted, setConsentGranted] = useState<boolean>(false);
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [recordingSeconds, setRecordingSeconds] = useState<number>(0);
   const [currentHz, setCurrentHz] = useState<number | null>(null);
@@ -343,7 +347,7 @@ export const ExplainablePracticeCompanion: React.FC<Props> = ({
       overall_stability_pct: overallStability,
       mean_absolute_cent_error: Math.round(meanAbsError * 10) / 10,
       tempo_bpm: 60,
-      user_consent_granted: true,
+      user_consent_granted: consentGranted,
     };
 
     try {
@@ -414,13 +418,25 @@ export const ExplainablePracticeCompanion: React.FC<Props> = ({
       overall_score_pct: Math.min(99, Math.max(30, Math.round(payload.overall_stability_pct * 0.5 + Math.max(0, 100 - payload.mean_absolute_cent_error * 2) * 0.5))),
       pitch_accuracy_label: accuracyLabel,
       stability_label: stabilityLabel,
-      summary_explanation: `Your performance of ${payload.exercise_name} demonstrated a mean cent error of ${payload.mean_absolute_cent_error} cents with ${payload.overall_stability_pct}% vocal stability against Adhara Shadjam ${activeTonic.name}.`,
+      summary_explanation: `Your performance of ${payload.exercise_name} demonstrated an estimated mean cent error of ${payload.mean_absolute_cent_error} cents with ${payload.overall_stability_pct}% vocal stability against Adhara Shadjam ${activeTonic.name}. Computed via local deterministic rules.`,
       identified_strengths: strengths.slice(0, 3),
       targeted_improvements: improvements.slice(0, 3),
       recommended_exercises: ['Shruti & Adhara Shadjam Alignment (Lesson V-01)', 'Sapta Swaras in Mayamalavagowla (Lesson V-02)'],
-      limitations_notice: 'Acoustic Notice: Pitch measurements are extracted via local time-domain autocorrelation and cepstral analysis relative to Adhara Shadjam. Background room acoustics and harmonics can cause bounded variance.',
-      confidence: 'high',
+      limitations_notice: 'Acoustic Notice: Pitch measurements are extracted via client-side autocorrelation relative to Adhara Shadjam. Room reverberation and vocal harmonics can cause bounded variance. This is an educational guide, not an automated grading verdict.',
+      confidence: 'Moderate (Local Estimate)',
       provenance: 'local_deterministic_rule_engine',
+      analysis_quality: 'local_heuristic_estimate',
+      is_heuristic_fallback: true,
+      measured_metrics: [
+        'Client-side autocorrelation fundamental pitch',
+        'Cent deviation relative to 22 Shruti just intonation',
+        'Pitch frame stability index (%)',
+      ],
+      inferred_metrics: [
+        'Shruti alignment classification',
+        'Vocal production stability category',
+        'Targeted sadhana exercise recommendations',
+      ],
     };
   };
 
@@ -567,15 +583,18 @@ export const ExplainablePracticeCompanion: React.FC<Props> = ({
             <input
               type="checkbox"
               checked={consentGranted}
-              onChange={(e) => setConsentGranted(e.target.checked)}
+              onChange={(e) => {
+                setConsentGranted(e.target.checked);
+                if (e.target.checked) setErrorNotice(null);
+              }}
               className="mt-0.5 rounded border-slate-700 text-amber-500 focus:ring-amber-500/50"
             />
             <div>
               <span className="font-medium text-slate-200 flex items-center gap-1">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> Local Processing Consent
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> Explicit Audio Opt-In Consent
               </span>
               <span className="text-slate-400 block mt-0.5 text-[11px] leading-tight">
-                Audio is analyzed locally in browser; raw audio is never retained on server.
+                Microphone audio is processed entirely locally in your browser to extract pitch metrics. Only anonymous cent numbers & stability aggregates are submitted for guidance. No raw audio recordings are stored.
               </span>
             </div>
           </label>
@@ -693,16 +712,58 @@ export const ExplainablePracticeCompanion: React.FC<Props> = ({
 
             <div className="bg-slate-950 p-4 rounded-xl border border-slate-800">
               <span className="text-xs text-slate-400 font-medium">Sustained Tone Stability</span>
-              <div className="text-2xl font-bold text-emerald-400 mt-1 flex items-center gap-1.5">
-                <TrendingUp className="w-5 h-5" /> Verified
+              <div className="text-2xl font-bold text-emerald-400 mt-1 flex items-center gap-1.5 font-mono">
+                <Activity className="w-5 h-5 text-emerald-400" /> {report.overall_score_pct ? `${report.overall_score_pct}% Ratio` : 'Estimated'}
               </div>
               <p className="text-xs text-slate-400 mt-1">{report.stability_label}</p>
             </div>
 
             <div className="bg-slate-950 p-4 rounded-xl border border-slate-800">
-              <span className="text-xs text-slate-400 font-medium">AI Pedagogical Grounding</span>
-              <div className="text-xs font-mono text-slate-300 mt-2 bg-slate-900 p-2 rounded border border-slate-800">
-                Provenance: {report.provenance}
+              <span className="text-xs text-slate-400 font-medium">Analysis Quality & Provenance</span>
+              <div className="text-xs font-mono text-slate-300 mt-2 bg-slate-900 p-2 rounded border border-slate-800 truncate" title={report.provenance}>
+                {report.analysis_quality === 'local_heuristic_estimate' ? 'Local Heuristic Analysis' : report.provenance}
+              </div>
+            </div>
+          </div>
+
+          {/* Measured vs Inferred Provenance Transparency */}
+          <div className="bg-slate-950/90 border border-slate-800/90 rounded-xl p-3.5 text-xs">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2 mb-2.5">
+              <span className="font-semibold text-slate-300 flex items-center gap-1.5">
+                <Activity className="w-3.5 h-3.5 text-amber-400" /> Measurement vs Inference Transparency
+              </span>
+              <span className={`px-2 py-0.5 rounded text-[11px] font-mono ${report.is_heuristic_fallback ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'}`}>
+                {report.analysis_quality === 'local_heuristic_estimate' ? 'Deterministic Local Estimate' : 'Algorithmic Synthesis'}
+              </span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-slate-400">
+              <div>
+                <span className="text-[11px] uppercase tracking-wider text-slate-400 font-bold block mb-1">
+                  Directly Measured Features:
+                </span>
+                <ul className="space-y-1 text-[11px] list-disc list-inside">
+                  {(report.measured_metrics || [
+                    'Autocorrelation fundamental pitch (f0)',
+                    'Cent deviation from 22 Shruti just intonation',
+                    'Pitch frame variance stability index'
+                  ]).map((m, idx) => (
+                    <li key={idx} className="text-slate-300">{m}</li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <span className="text-[11px] uppercase tracking-wider text-slate-400 font-bold block mb-1">
+                  Pedagogical Deductions (Inferred):
+                </span>
+                <ul className="space-y-1 text-[11px] list-disc list-inside">
+                  {(report.inferred_metrics || [
+                    'Pedagogical feedback commentary',
+                    'Shruti alignment classification',
+                    'Targeted remedial lesson recommendations'
+                  ]).map((m, idx) => (
+                    <li key={idx} className="text-slate-300">{m}</li>
+                  ))}
+                </ul>
               </div>
             </div>
           </div>

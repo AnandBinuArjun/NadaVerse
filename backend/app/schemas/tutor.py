@@ -8,6 +8,9 @@ class TutorCitation(BaseModel):
     content_type: str  # "raga", "tala", "instrument", "composer", "glossary"
     excerpt: str
     source_attribution: str
+    source_id: Optional[str] = Field(default=None, description="Stable identifier for cited corpus record")
+    reference_edition: Optional[str] = Field(default=None, description="Documented edition, treatise, or treatise chapter")
+    verbatim_source_quote: Optional[str] = Field(default=None, description="Direct excerpt from the verified musicological treatise")
 
 
 class TutorMessageRequest(BaseModel):

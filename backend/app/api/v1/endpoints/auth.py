@@ -127,33 +127,50 @@ async def delete_my_account(
     Deactivates user account and permanently purges personal bookmarks,
     lesson progress, practice logs, and user profile data.
     """
-    from app.models.entities import PracticeSession
+    from app.models.entities import (
+        PracticeSession,
+        GroupMember,
+        AssignmentSubmission,
+        AssignmentFeedback,
+        LearningGroup,
+        HeritageEntry,
+    )
 
     user_id = current_user.id
 
-    # Purge all user-associated entities
+    # Purge all user-associated entities across learning, teaching, and practice domains
     await db.execute(delete(Bookmark).where(Bookmark.user_id == user_id))
     await db.execute(delete(LessonProgress).where(LessonProgress.user_id == user_id))
     await db.execute(delete(PracticeSession).where(PracticeSession.user_id == user_id))
     await db.execute(delete(UserProfile).where(UserProfile.user_id == user_id))
+    await db.execute(delete(GroupMember).where(GroupMember.student_id == user_id))
+    await db.execute(delete(AssignmentFeedback).where(AssignmentFeedback.teacher_id == user_id))
+    await db.execute(delete(AssignmentSubmission).where(AssignmentSubmission.student_id == user_id))
+    await db.execute(delete(LearningGroup).where(LearningGroup.teacher_id == user_id))
+
+    # Anonymize any submitted heritage records
+    heritage_res = await db.execute(select(HeritageEntry).where(HeritageEntry.submitter_id == user_id))
+    for entry in heritage_res.scalars().all():
+        entry.submitter_id = None
+        entry.primary_contributor = "Anonymous Contributor (Account Deleted)"
 
     current_user.is_active = False
     current_user.deleted_at = datetime.now(timezone.utc)
     current_user.hashed_password = "account_deleted_unusable_hash"
     current_user.email = f"deleted_{user_id[:8]}@anonymized.nadaverse"
-    
+
     audit = AuditEvent(
         actor_id=user_id,
         action="account_deleted",
         target_type="user",
         target_id=user_id,
-        details="User requested account deletion. Personal data, profile, bookmarks, and practice sessions purged.",
+        details="User requested account deletion. Personal data, profile, bookmarks, practice sessions, group memberships, and submissions purged.",
     )
     db.add(audit)
     await db.commit()
     return {
         "status": "success",
-        "message": "Account successfully deactivated. All personal bookmarks, practice logs, and profile records have been permanently purged.",
+        "message": "Account successfully deactivated. All personal bookmarks, practice logs, group data, and profile records have been permanently purged.",
         "audit_event_logged": True
     }
 

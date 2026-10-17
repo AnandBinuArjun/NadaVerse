@@ -17,9 +17,9 @@ from app.core.config import settings
 from app.db.session import engine, Base, get_db
 from app.models.entities import User, PracticeSession, AuditEvent
 from app.schemas.content import RagaDetail, TalaDetail, InstrumentDetail
-from app.schemas.practice import PracticeSessionCreate, PracticeSessionOut
+from app.schemas.practice import PracticeSessionCreate, PracticeSessionComplete, PracticeSessionOut
 from app.schemas.tutor import TutorMessageRequest, TutorResponse
-from app.api.deps import get_optional_current_user
+from app.api.deps import get_optional_current_user, get_current_user
 from app.api.v1.endpoints.auth import router as auth_router, user_router
 from app.api.v1.endpoints.search import router as search_router
 from app.api.v1.endpoints.curriculum import router as curriculum_router
@@ -232,13 +232,31 @@ async def create_practice_session(
     now = datetime.now(timezone.utc)
     user_id = current_user.id if current_user else "guest_session"
 
-    ended_at = now + timedelta(seconds=payload.duration_seconds)
+    status_str = payload.status or "completed"
+    if status_str == "completed":
+        # When user finishes and logs an exercise with duration_seconds,
+        # the session was completed at 'now' and started 'duration_seconds' ago.
+        # This prevents ended_at from being a calculated future timestamp.
+        completed_at = now
+        started_at = now - timedelta(seconds=payload.duration_seconds)
+        ended_at = completed_at
+        actual_duration = payload.duration_seconds
+    else:
+        # For in_progress sessions (live active timer), actual completed duration is 0,
+        # completed_at is None until explicitly finished.
+        started_at = now
+        completed_at = None
+        ended_at = None
+        actual_duration = 0
 
     session = PracticeSession(
         id=session_id,
         user_id=user_id,
-        started_at=now,
-        duration_seconds=payload.duration_seconds,
+        started_at=started_at,
+        completed_at=completed_at,
+        duration_seconds=actual_duration,
+        planned_duration_seconds=payload.planned_duration_seconds or (payload.duration_seconds if status_str != "completed" else None),
+        status=status_str,
         focus=payload.focus,
         tonic=payload.tonic or "C",
         tala_id=payload.tala_id or "adi-tala",
@@ -253,11 +271,55 @@ async def create_practice_session(
         user_id=session.user_id,
         started_at=session.started_at,
         ended_at=ended_at,
+        completed_at=completed_at,
         duration_seconds=session.duration_seconds,
+        planned_duration_seconds=session.planned_duration_seconds,
+        status=session.status,
         focus=session.focus,
         tonic=session.tonic,
         tala_id=session.tala_id,
-        notes=session.notes,
+        notes=session.notes or "",
+    )
+
+
+@app.patch("/api/v1/practice/sessions/{session_id}/complete", response_model=PracticeSessionOut, tags=["Practice"])
+async def complete_practice_session(
+    session_id: str,
+    payload: PracticeSessionComplete,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    stmt = select(PracticeSession).where(PracticeSession.id == session_id, PracticeSession.user_id == current_user.id)
+    res = await db.execute(stmt)
+    session = res.scalars().first()
+    if not session:
+        raise HTTPException(status_code=404, detail="Practice session not found or does not belong to you.")
+
+    if session.status == "completed":
+        raise HTTPException(status_code=400, detail="Practice session has already been completed.")
+
+    now = datetime.now(timezone.utc)
+    session.duration_seconds = payload.actual_duration_seconds
+    session.completed_at = now
+    session.status = "completed"
+    if payload.notes is not None:
+        session.notes = payload.notes
+
+    await db.commit()
+    await db.refresh(session)
+    return PracticeSessionOut(
+        id=session.id,
+        user_id=session.user_id,
+        started_at=session.started_at,
+        ended_at=session.completed_at,
+        completed_at=session.completed_at,
+        duration_seconds=session.duration_seconds,
+        planned_duration_seconds=session.planned_duration_seconds,
+        status=session.status,
+        focus=session.focus,
+        tonic=session.tonic,
+        tala_id=session.tala_id,
+        notes=session.notes or "",
     )
 
 
@@ -268,7 +330,7 @@ async def list_practice_sessions(
 ):
     if not current_user:
         return []
-    
+
     stmt = select(PracticeSession).where(PracticeSession.user_id == current_user.id).order_by(PracticeSession.started_at.desc())
     res = await db.execute(stmt)
     db_sessions = res.scalars().all()
@@ -277,12 +339,15 @@ async def list_practice_sessions(
             id=s.id,
             user_id=s.user_id,
             started_at=s.started_at,
-            ended_at=s.started_at + timedelta(seconds=s.duration_seconds),
+            ended_at=s.completed_at or (s.started_at + timedelta(seconds=s.duration_seconds) if s.duration_seconds else None),
+            completed_at=s.completed_at,
             duration_seconds=s.duration_seconds,
+            planned_duration_seconds=s.planned_duration_seconds,
+            status=s.status or "completed",
             focus=s.focus,
             tonic=s.tonic,
             tala_id=s.tala_id,
-            notes=s.notes,
+            notes=s.notes or "",
         )
         for s in db_sessions
     ]

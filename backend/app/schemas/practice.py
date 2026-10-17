@@ -24,7 +24,14 @@ class PracticeSessionCreate(BaseModel):
     tonic: Optional[str] = "C"
     tala_id: Optional[str] = "adi-tala"
     notes: Optional[str] = Field(default="", max_length=2000)
-    duration_seconds: int = Field(default=0, ge=0)
+    duration_seconds: int = Field(default=0, ge=0, le=86400, description="Actual completed practice duration in elapsed seconds")
+    planned_duration_seconds: Optional[int] = Field(default=None, ge=0, le=86400, description="Intended practice goal duration in seconds")
+    status: Optional[str] = Field(default="completed", description="Lifecycle state: in_progress, completed, abandoned")
+
+
+class PracticeSessionComplete(BaseModel):
+    actual_duration_seconds: int = Field(..., ge=0, le=86400, description="Actual practice elapsed seconds completed")
+    notes: Optional[str] = Field(default=None, max_length=2000)
 
 
 class PracticeSessionOut(BaseModel):
@@ -32,7 +39,10 @@ class PracticeSessionOut(BaseModel):
     user_id: Optional[str] = None
     started_at: datetime
     ended_at: Optional[datetime] = None
+    completed_at: Optional[datetime] = None
     duration_seconds: int
+    planned_duration_seconds: Optional[int] = None
+    status: str = "completed"
     focus: str
     tonic: Optional[str]
     tala_id: Optional[str]

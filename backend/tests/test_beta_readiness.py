@@ -198,3 +198,108 @@ async def test_auth_deleted_account_and_cascade_lifecycle():
         # 5. Attempt to use old token on protected route -> 401
         me_res = await ac.get("/api/v1/auth/me", headers=auth_headers)
         assert me_res.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_audio_practice_consent_enforcement_and_metrics_separation():
+    """P0.1 & P0.2: Verify explicit opt-in requirement and truthful metric separation."""
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        base_payload = {
+            "exercise_name": "Mayamalavagowla Sarali Varisai 1",
+            "tonic": "C",
+            "tonic_frequency": 261.63,
+            "duration_seconds": 15.0,
+            "overall_stability_pct": 85.0,
+            "mean_absolute_cent_error": 12.0,
+            "tempo_bpm": 60,
+        }
+
+        # 1. Omitted consent must be rejected by Pydantic schema validation (422)
+        omitted_res = await ac.post("/api/v1/audio/analyze-practice", json=base_payload)
+        assert omitted_res.status_code == 422
+        assert "user_consent_granted" in str(omitted_res.json()).lower()
+
+        # 2. Explicit False consent must be rejected by endpoint check (400)
+        false_payload = {**base_payload, "user_consent_granted": False}
+        false_res = await ac.post("/api/v1/audio/analyze-practice", json=false_payload)
+        assert false_res.status_code == 400
+        assert "consent" in false_res.json()["detail"].lower()
+
+        # 3. Explicit True consent must be accepted with transparent metrics separation
+        true_payload = {**base_payload, "user_consent_granted": True}
+        ok_res = await ac.post("/api/v1/audio/analyze-practice", json=true_payload)
+        assert ok_res.status_code == 200
+        data = ok_res.json()
+
+        # Verify truthful confidence semantics and separation of measured vs inferred metrics
+        assert "moderate" in data["confidence"].lower() or "estimate" in data["confidence"].lower()
+        assert data["analysis_quality"] in ("local_heuristic_estimate", "algorithmic_synthesis")
+        assert isinstance(data["measured_metrics"], list) and len(data["measured_metrics"]) >= 2
+        assert isinstance(data["inferred_metrics"], list) and len(data["inferred_metrics"]) >= 2
+        # Ensure no misleading "verified" grading claim is made in limitations notice
+        assert "not an automated examination grading tool" in data["limitations_notice"].lower()
+
+
+@pytest.mark.asyncio
+async def test_practice_session_lifecycle_and_duration_accuracy():
+    """P0.3: Verify accurate session lifecycle, planned vs actual duration, and no duplicate completions."""
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        # Register user
+        reg_res = await ac.post("/api/v1/auth/register", json={
+            "email": f"practice_{datetime.datetime.now().timestamp()}@nadaverse.internal",
+            "password": "StrongPassword123!",
+            "display_name": "Sadhana Student",
+        })
+        token = reg_res.json()["access_token"]
+        headers = {"Authorization": f"Bearer {token}"}
+
+        # 1. Start an in-progress session with planned duration
+        start_res = await ac.post("/api/v1/practice/sessions", json={
+            "focus": "Sarali Varisai 1-4 with tambura",
+            "tonic": "C",
+            "tala_id": "adi-tala",
+            "duration_seconds": 0,
+            "planned_duration_seconds": 900,
+            "status": "in_progress"
+        }, headers=headers)
+        assert start_res.status_code == 201
+        sess = start_res.json()
+        assert sess["status"] == "in_progress"
+        assert sess["duration_seconds"] == 0
+        assert sess["planned_duration_seconds"] == 900
+        assert sess["completed_at"] is None
+        sess_id = sess["id"]
+
+        # 2. Complete session via PATCH with actual elapsed duration
+        comp_res = await ac.patch(f"/api/v1/practice/sessions/{sess_id}/complete", json={
+            "actual_duration_seconds": 845,
+            "notes": "Completed 3 speeds with metronome"
+        }, headers=headers)
+        assert comp_res.status_code == 200
+        completed_sess = comp_res.json()
+        assert completed_sess["status"] == "completed"
+        assert completed_sess["duration_seconds"] == 845
+        assert completed_sess["completed_at"] is not None
+
+        # 3. Duplicate completion attempt must be rejected
+        dup_res = await ac.patch(f"/api/v1/practice/sessions/{sess_id}/complete", json={
+            "actual_duration_seconds": 900
+        }, headers=headers)
+        assert dup_res.status_code == 400
+        assert "already been completed" in dup_res.json()["detail"].lower()
+
+
+@pytest.mark.asyncio
+async def test_ai_citations_source_traceability():
+    """P1.1: Verify citations carry traceable source identifiers and reference edition metadata."""
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        res = await ac.post("/api/v1/tutor/messages", json={
+            "query": "Tell me about Mayamalavagowla raga"
+        })
+        assert res.status_code == 200
+        data = res.json()
+        assert len(data["citations"]) > 0
+        for cit in data["citations"]:
+            assert "source_id" in cit and cit["source_id"] is not None
+            assert "reference_edition" in cit and cit["reference_edition"] is not None
+            assert "verbatim_source_quote" in cit and cit["verbatim_source_quote"] is not None

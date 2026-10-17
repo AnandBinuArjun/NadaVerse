@@ -10,9 +10,10 @@
 
 | Test Category | Command | Target / Suite | Result |
 |---|---|---|---|
-| **Backend Unit & Integration Tests** | `python -m pytest backend/tests -v` | All 22 tests across API, AI gateway, rate limiting, and 6 features | **22 Passed (100%)** |
+| **Backend Unit & Integration Tests** | `python -m pytest backend/tests -v` | All 25 tests across API, AI gateway, rate limiting, audio consent, practice lifecycle, and 6 features | **25 Passed (100%)** |
 | **Frontend TypeScript Type-Check** | `npx tsc --noEmit` (in `web/`) | Strict TypeScript 5 with App Router types | **0 Errors** |
 | **Frontend Production Build** | `npm run build` (in `web/`) | Next.js 16.4.2 Turbopack production compilation | **Compiled Successfully** |
+| **Release Readiness Audit Remediation** | [Audit Report](file:///d:/Ddeveloped_things/NadaVerse/docs/public-beta-readiness-audit.md) | P0.1, P0.2, P0.3, P0.4, P1.1, P1.2 remediated & verified | **All Items Resolved** |
 
 ---
 

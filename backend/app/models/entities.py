@@ -76,11 +76,14 @@ class PracticeSession(Base):
     focus = Column(String(200), nullable=False)
     tonic = Column(String(10), default="C")
     tala_id = Column(String(50), default="adi-tala")
-    duration_seconds = Column(Integer, default=0)
+    duration_seconds = Column(Integer, default=0)  # Actual completed elapsed seconds
+    planned_duration_seconds = Column(Integer, nullable=True)  # Intended target duration
     notes = Column(Text, default="")
     has_recording = Column(Boolean, default=False)
     recording_asset_key = Column(String(255), nullable=True)
+    status = Column(String(30), default="completed")  # completed, in_progress, paused, abandoned
     started_at = Column(DateTime(timezone=True), default=utc_now)
+    completed_at = Column(DateTime(timezone=True), nullable=True)
 
     user = relationship("User", back_populates="practice_sessions")
 

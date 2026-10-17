@@ -29,6 +29,10 @@ jobs:
         working-directory: web
         run: npm run lint
 
+      - name: TypeScript Type Check
+        working-directory: web
+        run: npx tsc --noEmit
+
       - name: Next.js Production Build
         working-directory: web
         run: npm run build

@@ -226,7 +226,10 @@ class AIGatewayService:
                     title=source_info.get("title", doc["title"]),
                     content_type=doc["type"],
                     excerpt=source_info.get("citation", doc["text"][:120]),
-                    source_attribution=source_info.get("author_or_creator", "NadaVerse Musicology Board")
+                    source_attribution=source_info.get("author_or_creator", "NadaVerse Musicology Board"),
+                    source_id=f"corpus_{doc['type']}_{doc['slug']}",
+                    reference_edition=source_info.get("citation", "NadaVerse Reviewed Classical Corpus, 2026"),
+                    verbatim_source_quote=doc["text"][:180],
                 )
             )
 
@@ -410,7 +413,9 @@ class AIGatewayService:
         )
 
         provenance = "grounded_rule_engine"
-        confidence = "high"
+        confidence = "moderate_deterministic_estimate"
+        analysis_quality = "local_heuristic_estimate"
+        is_heuristic_fallback = True
 
         # Attempt Gemini synthesis if API key is present
         if self.provider == "gemini" and settings.AI_GATEWAY_API_KEY:
@@ -429,6 +434,9 @@ class AIGatewayService:
             if ai_summary and len(ai_summary.strip()) > 15:
                 summary_explanation = ai_summary.strip()
                 provenance = "gemini_grounded_acoustic_synthesis"
+                confidence = "moderate_grounded_synthesis"
+                analysis_quality = "algorithmic_synthesis"
+                is_heuristic_fallback = False
 
         limitations = (
             f"Acoustic Notice: Pitch measurements are extracted via local time-domain autocorrelation and cepstral analysis "
@@ -437,6 +445,17 @@ class AIGatewayService:
             f"naturally introduce bounded measurement variance. This system serves as a pedagogical practice companion, "
             f"not an automated examination grading tool."
         )
+
+        measured_metrics = [
+            "autocorrelation_fundamental_pitch_f0",
+            "cent_deviation_from_just_intonation",
+            "frame_variance_stability_pct"
+        ]
+        inferred_metrics = [
+            "pitch_accuracy_classification",
+            "guru_pedagogical_guidance",
+            "recommended_sadhana_lessons"
+        ]
 
         return AudioPracticeAnalysisResponse(
             exercise_name=payload.exercise_name,
@@ -450,6 +469,10 @@ class AIGatewayService:
             limitations_notice=limitations,
             confidence=confidence,
             provenance=provenance,
+            analysis_quality=analysis_quality,
+            is_heuristic_fallback=is_heuristic_fallback,
+            measured_metrics=measured_metrics,
+            inferred_metrics=inferred_metrics,
         )
 
 
