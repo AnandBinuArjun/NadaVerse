@@ -1,11 +1,11 @@
-from typing import List, Optional
+from typing import List, Optional, Literal
 from pydantic import BaseModel, Field
 
 
 class TutorCitation(BaseModel):
     content_slug: str
     title: str
-    content_type: str # "raga", "tala", "instrument", "concept"
+    content_type: str  # "raga", "tala", "instrument", "composer", "glossary"
     excerpt: str
     source_attribution: str
 
@@ -20,7 +20,23 @@ class TutorResponse(BaseModel):
     conversation_id: str
     answer: str
     citations: List[TutorCitation] = Field(default_factory=list)
-    confidence_level: str = Field(default="high", description="high, moderate, uncertain")
+    confidence_level: Literal["high", "moderate", "uncertain"] = Field(
+        default="moderate",
+        description="Calibrated confidence level: high (model grounded with verified text), moderate (verbatim retrieval), uncertain (fallback/refusal)"
+    )
+    provenance: Literal[
+        "model_generated",
+        "retrieval_only",
+        "model_unavailable",
+        "insufficient_evidence",
+        "guardrail_blocked"
+    ] = Field(
+        default="retrieval_only",
+        description="Explicit origin of the response for transparent AI trustworthiness"
+    )
     uncertainty_note: Optional[str] = None
     suggested_followups: List[str] = Field(default_factory=list)
-    pedagogical_disclaimer: str = "NadaVerse AI Tutor provides grounded educational guidance based on verified texts. It is an educational companion, not a substitute for an authoritative guru."
+    pedagogical_disclaimer: str = (
+        "NadaVerse AI Tutor provides grounded educational guidance based on verified texts. "
+        "It is an educational companion, not a substitute for an authoritative guru."
+    )

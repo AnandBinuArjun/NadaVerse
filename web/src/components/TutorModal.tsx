@@ -18,6 +18,7 @@ interface Message {
   text: string;
   citations?: Citation[];
   confidence?: 'high' | 'moderate' | 'uncertain';
+  provenance?: 'model_generated' | 'retrieval_only' | 'model_unavailable' | 'insufficient_evidence' | 'guardrail_blocked';
   uncertaintyNote?: string;
   timestamp: string;
 }
@@ -48,10 +49,11 @@ export const TutorModal: React.FC<TutorModalProps> = ({ isOpen, onClose, initial
 
   if (!isOpen) return null;
 
-  const handleSend = async () => {
-    if (!query.trim() || isLoading) return;
+  const handleSend = async (overrideText?: string) => {
+    const textToSend = (overrideText ?? query).trim();
+    if (!textToSend || isLoading) return;
 
-    const userText = query.trim();
+    const userText = textToSend;
     const userMsg: Message = {
       id: `user-${Date.now()}`,
       sender: 'user',
@@ -71,7 +73,8 @@ export const TutorModal: React.FC<TutorModalProps> = ({ isOpen, onClose, initial
       const q = userText.toLowerCase();
       let answer = '';
       let citations: Citation[] = [];
-      let confidence: 'high' | 'moderate' | 'uncertain' = 'high';
+      let provenance: 'model_generated' | 'retrieval_only' | 'model_unavailable' | 'insufficient_evidence' | 'guardrail_blocked' = 'retrieval_only';
+      let confidence: 'high' | 'moderate' | 'uncertain' = 'moderate';
       let uncertaintyNote: string | undefined = undefined;
 
       if (q.includes('mayamalavagowla') || q.includes('purandara') || q.includes('sarali') || q.includes('മായാമാളവഗൗള')) {
@@ -155,6 +158,7 @@ export const TutorModal: React.FC<TutorModalProps> = ({ isOpen, onClose, initial
           ? `നാദവേഴ്സിന്റെ ആധികാരിക സംഗീത ഡാറ്റാബേസിൽ ഈ വിഷയത്തിൽ പൂർണ്ണ ശാസ്ത്രീയ വിവരങ്ങൾ കണ്ടെത്താനായില്ല. സംഗീത സത്യസന്ധത കാത്തുസൂക്ഷിക്കാൻ അനുമാനങ്ങൾ പറഞ്ഞുണ്ടാക്കുന്നില്ല. മായാമാളവഗൗള, ശങ്കരാഭരണം, കല്യാണി, ആദി താളം, വീണ, മൃദംഗം എന്നിവയെക്കുറിച്ച് ചോദിച്ചുനോക്കൂ.`
           : `I do not have sufficient verified musicology documents in the NadaVerse peer-reviewed database to answer this specific inquiry with high authority. To maintain scholarly integrity, I refrain from fabricating speculative details. You may explore our verified records on Mayamalavagowla, Shankarabharanam, Kalyani, Adi Tala, Veena, or Mridangam.`;
         confidence = 'uncertain';
+        provenance = 'insufficient_evidence';
         uncertaintyNote = lang === 'ml'
           ? 'നാദവേഴ്സിന്റെ സംഗീത ബോർഡ് ഈ വിഷയത്തിൽ കൂടുതൽ ഗ്രന്ഥങ്ങൾ ചേർത്തുകൊണ്ടിരിക്കുന്നു.'
           : 'Question outside currently reviewed knowledge corpus. Verified fallback applied.';
@@ -168,6 +172,7 @@ export const TutorModal: React.FC<TutorModalProps> = ({ isOpen, onClose, initial
           text: answer,
           citations,
           confidence,
+          provenance,
           uncertaintyNote,
           timestamp: timestampStr
         }
@@ -175,9 +180,19 @@ export const TutorModal: React.FC<TutorModalProps> = ({ isOpen, onClose, initial
       setIsLoading(false);
     };
 
-    // Attempt Server-Sent Events (SSE) streaming from backend AI gateway
+    // Attempt Server-Sent Events (SSE) streaming from backend AI gateway (POST preferred to avoid URL leakage)
     try {
-      const response = await fetch(`${API_BASE_URL}/api/v1/tutor/stream?query=${encodeURIComponent(userText)}`);
+      let response = await fetch(`${API_BASE_URL}/api/v1/tutor/stream`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: userText })
+      });
+
+      if (!response.ok && response.status === 405) {
+        // Fallback to GET streaming if POST is not accepted
+        response = await fetch(`${API_BASE_URL}/api/v1/tutor/stream?query=${encodeURIComponent(userText)}`);
+      }
+
       if (!response.ok || !response.body) {
         throw new Error('Streaming connection unavailable');
       }
@@ -195,6 +210,7 @@ export const TutorModal: React.FC<TutorModalProps> = ({ isOpen, onClose, initial
           sender: 'tutor',
           text: '',
           confidence: 'high',
+          provenance: 'model_generated',
           timestamp: timestampStr
         }
       ]);
@@ -350,6 +366,42 @@ export const TutorModal: React.FC<TutorModalProps> = ({ isOpen, onClose, initial
             {lang === 'ml'
               ? 'നാദവേഴ്സ് എഐ ട്യൂട്ടർ ഒരു ശാസ്ത്രീയ പഠന സഹായി മാത്രമാണ്. ഒരു സദ്ഗുരുവിന്റെ പ്രായോഗിക ശിക്ഷണത്തിന് ഇത് പകരമാവില്ല.'
               : 'NadaVerse AI Tutor is an educational reference companion grounded in verified texts. It does not replace the experiential guidance of an authentic Guru.'}
+          </div>
+
+          {/* Quick Study Prompt Chips */}
+          <div className="flex flex-wrap gap-1.5 mb-3">
+            {[
+              {
+                en: 'Generate a 30-min beginner vocal practice plan',
+                ml: 'തുടക്കക്കാർക്കായി 30 മിനിറ്റ് സാധക ക്രമം നിർദ്ദേശിക്കുക'
+              },
+              {
+                en: 'Quiz me on the 72 Melakarta system',
+                ml: '72 മേളകർത്താ പദ്ധതിയെക്കുറിച്ച് ഒരു ചോദ്യം ചോദിക്കുക'
+              },
+              {
+                en: 'Explain the difference between Shankarabharanam and Kalyani',
+                ml: 'ശങ്കരാഭരണവും കല്യാണിയും തമ്മിലുള്ള സ്വര വ്യത്യാസം എന്താണ്?'
+              },
+              {
+                en: 'What is the role of Purandara Dasa in Abhyasa Gana?',
+                ml: 'അഭ്യാസ ഗാനത്തിൽ പുരന്ദര ദാസരുടെ സംഭാവന എന്താണ്?'
+              }
+            ].map((chip, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => {
+                  const txt = lang === 'ml' ? chip.ml : chip.en;
+                  setQuery(txt);
+                  handleSend(txt);
+                }}
+                disabled={isLoading}
+                className="text-[11px] font-mono bg-[#191916] hover:bg-[#24211a] border border-[#C7A45B]/30 hover:border-[#C7A45B] text-[#E0C98F] px-2.5 py-1 rounded-lg transition-colors cursor-pointer disabled:opacity-50 text-left"
+              >
+                {lang === 'ml' ? chip.ml : chip.en}
+              </button>
+            ))}
           </div>
 
           <form

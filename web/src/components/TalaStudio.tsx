@@ -1,7 +1,21 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
-import { Play, Pause, Activity, Disc3, Smartphone, Drum } from 'lucide-react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import {
+  Play,
+  Pause,
+  Activity,
+  Disc3,
+  Smartphone,
+  Drum,
+  Clock,
+  TrendingUp,
+  Sparkles,
+  Settings2,
+  RotateCcw,
+  Volume2,
+  CheckCircle2
+} from 'lucide-react';
 import { audioEngine } from '../lib/audioEngine';
 import { audioKeepAlive } from '../lib/audioKeepAlive';
 import { practiceShortcuts } from '../lib/practiceShortcuts';
@@ -10,6 +24,75 @@ import { TalaItem } from '../types/carnatic';
 import { useLanguage } from '../context/LanguageContext';
 import { TALA_ML_NAMES } from '../lib/translations';
 import { TALA_ML_DETAILS } from '../data/malayalamTranslations';
+
+interface RhythmExercise {
+  id: string;
+  title: string;
+  titleMl: string;
+  talaSlug: string;
+  startBpm: number;
+  targetBpm: number;
+  nadai: 'chatusra' | 'tisra';
+  solkattu: boolean;
+  rampCycles: number;
+  description: string;
+  descriptionMl: string;
+}
+
+const RHYTHM_DRILLS: RhythmExercise[] = [
+  {
+    id: 'drill-adi-kalam',
+    title: 'Adi Tala Kalam Acceleration (60 → 120 BPM)',
+    titleMl: 'ആദിതാള ദ്വിതീയ കാല സാധകം (60 → 120 BPM)',
+    talaSlug: 'adi-tala',
+    startBpm: 60,
+    targetBpm: 120,
+    nadai: 'chatusra',
+    solkattu: true,
+    rampCycles: 2,
+    description: 'Master transitioning smoothly from 1st Kalam (Vilamba) to 2nd Kalam (Madhyama).',
+    descriptionMl: 'ഒന്നാം കാലത്തിൽ നിന്ന് രണ്ടാം കാലത്തിലേക്ക് പിഴവില്ലാതെ വേഗത വർദ്ധിപ്പിച്ചു ശീലിക്കുക.'
+  },
+  {
+    id: 'drill-rupaka-tisra',
+    title: 'Rupaka Tala Tisra Nadai Drill (72 BPM)',
+    titleMl: 'രൂപക താള തിസ്ര നട സാധകം (72 BPM)',
+    talaSlug: 'rupaka-tala',
+    startBpm: 72,
+    targetBpm: 72,
+    nadai: 'tisra',
+    solkattu: true,
+    rampCycles: 0,
+    description: 'Subdivide each akshara into 3 matras (Tha-Ki-Ta) within 6-count Rupaka Tala.',
+    descriptionMl: 'രൂപക താളത്തിന്റെ 6 അക്ഷരങ്ങളിൽ തിസ്ര നട (ത-കി-ട) ഉറപ്പിച്ചു പാടുക.'
+  },
+  {
+    id: 'drill-khanda-chapu',
+    title: 'Khanda Chapu Balance Drill (84 BPM)',
+    titleMl: 'ഖണ്ഡ ചാപ്പ് ലയ സമതുലനം (84 BPM)',
+    talaSlug: 'khanda-chapu',
+    startBpm: 84,
+    targetBpm: 108,
+    nadai: 'chatusra',
+    solkattu: false,
+    rampCycles: 4,
+    description: '2 + 3 asymmetrical syncopation developing internal laya agility.',
+    descriptionMl: '2 + 3 എന്ന അസമമായ വിഭജനത്തിൽ താളത്തിൽ ഉറച്ചുനിൽക്കാൻ സഹായിക്കുന്ന സാധകം.'
+  },
+  {
+    id: 'drill-misra-chapu',
+    title: 'Misra Chapu 7-Beat Flow (76 BPM)',
+    titleMl: 'മിശ്ര ചാപ്പ് 7 മാത്ര സഞ്ചാരം (76 BPM)',
+    talaSlug: 'misra-chapu',
+    startBpm: 76,
+    targetBpm: 76,
+    nadai: 'chatusra',
+    solkattu: true,
+    rampCycles: 0,
+    description: '3 + 2 + 2 rhythmic kriya used in revered Syama Sastri masterworks.',
+    descriptionMl: 'ശ്യാമ ശാസ്ത്രി കൃതികളിൽ വ്യാപകമായ 3 + 2 + 2 ക്രമത്തിലുള്ള ചാപ്പ് താള ലയം.'
+  }
+];
 
 export const TalaStudio: React.FC = () => {
   const { lang, t } = useLanguage();
@@ -23,46 +106,129 @@ export const TalaStudio: React.FC = () => {
   const [nadai, setNadai] = useState<'chatusra' | 'tisra'>('chatusra');
   const [isNadaiLoopEnabled, setIsNadaiLoopEnabled] = useState<boolean>(false);
 
+  // Advanced features: Count-in, Tempo Ramp, Cycle Tracker, Timer
+  const [countInEnabled, setCountInEnabled] = useState<boolean>(false);
+  const [isCountingIn, setIsCountingIn] = useState<boolean>(false);
+  const [countInValue, setCountInValue] = useState<number>(4);
+
+  // Tempo Ramp State
+  const [tempoRampEnabled, setTempoRampEnabled] = useState<boolean>(false);
+  const [targetBpm, setTargetBpm] = useState<number>(120);
+  const [rampCycleInterval, setRampCycleInterval] = useState<number>(2); // every N cycles
+  const [rampBpmIncrement, setRampBpmIncrement] = useState<number>(5); // +X bpm
+
+  // Cycle and Timer
+  const [cycleCount, setCycleCount] = useState<number>(0);
+  const [elapsedSeconds, setElapsedSeconds] = useState<number>(0);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const cycleCountRef = useRef<number>(0);
+
   // Tap Tempo state
   const tapTimesRef = useRef<number[]>([]);
 
+  // Stop metronome when unmounting
   useEffect(() => {
-    // Stop metronome when unmounting
     return () => {
       audioEngine.stopTala();
+      if (timerRef.current) clearInterval(timerRef.current);
     };
   }, []);
 
-  const handleTogglePlay = () => {
-    if (isPlaying) {
-      audioEngine.stopTala();
-      setIsPlaying(false);
-      setActiveBeat(-1);
+  // Timer runner
+  useEffect(() => {
+    if (isPlaying && !isCountingIn) {
+      timerRef.current = setInterval(() => {
+        setElapsedSeconds((prev) => prev + 1);
+      }, 1000);
     } else {
-      const beatActions = selectedTala.beatActions.map((b) => ({
-        isAccent: b.actionType === 'thattu',
-        syllable: b.syllable
-      }));
-
-      audioEngine.setSolkattuMode(isSolkattuMode);
-      audioEngine.setNadai(nadai);
-      audioEngine.setNadaiLoopsEnabled(isNadaiLoopEnabled);
-
-      audioEngine.startTala(bpm, selectedTala.totalAksharas, beatActions, (beatIdx, isAccent) => {
-        setActiveBeat(beatIdx);
-        setIsAccentBeat(isAccent);
-      });
-      setIsPlaying(true);
+      if (timerRef.current) clearInterval(timerRef.current);
     }
-  };
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [isPlaying, isCountingIn]);
 
-  const handleBpmChange = (newBpm: number) => {
-    const clamped = Math.max(30, Math.min(220, newBpm));
+  const handleBpmChange = useCallback((newBpm: number) => {
+    const clamped = Math.max(30, Math.min(240, newBpm));
     setBpm(clamped);
     audioEngine.setTalaBpm(clamped);
-  };
+  }, []);
 
-  const handleTapTempo = () => {
+  const startActualMetronome = useCallback(() => {
+    const beatActions = selectedTala.beatActions.map((b) => ({
+      isAccent: b.actionType === 'thattu',
+      syllable: b.syllable
+    }));
+
+    audioEngine.setSolkattuMode(isSolkattuMode);
+    audioEngine.setNadai(nadai);
+    audioEngine.setNadaiLoopsEnabled(isNadaiLoopEnabled);
+
+    cycleCountRef.current = 0;
+    setCycleCount(0);
+
+    audioEngine.startTala(bpm, selectedTala.totalAksharas, beatActions, (beatIdx, isAccent) => {
+      setActiveBeat(beatIdx);
+      setIsAccentBeat(isAccent);
+
+      // On Samam (beat 0), increment cycle
+      if (beatIdx === 0) {
+        cycleCountRef.current += 1;
+        setCycleCount(cycleCountRef.current);
+
+        // Check tempo ramp
+        if (tempoRampEnabled && rampCycleInterval > 0) {
+          if (cycleCountRef.current > 1 && (cycleCountRef.current - 1) % rampCycleInterval === 0) {
+            setBpm((currentBpm) => {
+              if (currentBpm < targetBpm) {
+                const nextBpm = Math.min(targetBpm, currentBpm + rampBpmIncrement);
+                audioEngine.setTalaBpm(nextBpm);
+                return nextBpm;
+              }
+              return currentBpm;
+            });
+          }
+        }
+      }
+    });
+    setIsPlaying(true);
+    setIsCountingIn(false);
+  }, [bpm, selectedTala, isSolkattuMode, nadai, isNadaiLoopEnabled, tempoRampEnabled, rampCycleInterval, targetBpm, rampBpmIncrement]);
+
+  const handleTogglePlay = useCallback(() => {
+    if (isPlaying || isCountingIn) {
+      audioEngine.stopTala();
+      setIsPlaying(false);
+      setIsCountingIn(false);
+      setActiveBeat(-1);
+    } else {
+      if (countInEnabled) {
+        setIsCountingIn(true);
+        setCountInValue(4);
+        let count = 4;
+        const intervalMs = Math.round(60000 / bpm);
+
+        // Lead-in audio click
+        audioEngine.auditionNote(880, 0.08);
+
+        const countInterval = setInterval(() => {
+          count -= 1;
+          if (count > 0) {
+            setCountInValue(count);
+            audioEngine.auditionNote(660, 0.08);
+          } else {
+            clearInterval(countInterval);
+            audioEngine.auditionNote(1320, 0.12);
+            startActualMetronome();
+          }
+        }, intervalMs);
+      } else {
+        startActualMetronome();
+      }
+    }
+  }, [isPlaying, isCountingIn, countInEnabled, bpm, startActualMetronome]);
+
+  const handleTapTempo = useCallback(() => {
     const now = performance.now();
     const recentTaps = tapTimesRef.current.filter((t) => now - t < 3000);
     recentTaps.push(now);
@@ -79,8 +245,9 @@ export const TalaStudio: React.FC = () => {
         handleBpmChange(calculatedBpm);
       }
     }
-  };
+  }, [handleBpmChange]);
 
+  // Keyboard shortcut listener
   useEffect(() => {
     const unsubTala = practiceShortcuts.subscribe('toggle_tala', () => {
       handleTogglePlay();
@@ -92,7 +259,7 @@ export const TalaStudio: React.FC = () => {
       unsubTala();
       unsubTap();
     };
-  }, [isPlaying, selectedTala, bpm, isSolkattuMode, nadai, isNadaiLoopEnabled]);
+  }, [handleTogglePlay, handleTapTempo]);
 
   const handleTalaChange = (tala: TalaItem) => {
     const wasPlaying = isPlaying;
@@ -101,6 +268,8 @@ export const TalaStudio: React.FC = () => {
     }
     setSelectedTala(tala);
     setActiveBeat(-1);
+    setCycleCount(0);
+    cycleCountRef.current = 0;
 
     if (wasPlaying) {
       const beatActions = tala.beatActions.map((b) => ({
@@ -110,395 +279,431 @@ export const TalaStudio: React.FC = () => {
       audioEngine.startTala(bpm, tala.totalAksharas, beatActions, (beatIdx, isAccent) => {
         setActiveBeat(beatIdx);
         setIsAccentBeat(isAccent);
+        if (beatIdx === 0) {
+          cycleCountRef.current += 1;
+          setCycleCount(cycleCountRef.current);
+        }
       });
     }
   };
 
-  const handleNadaiSelect = (selectedNadai: 'chatusra' | 'tisra') => {
-    setNadai(selectedNadai);
-    audioEngine.setNadai(selectedNadai);
-  };
+  const handleApplyDrill = (drill: RhythmExercise) => {
+    const foundTala = VERIFIED_TALAS.find((t) => t.slug === drill.talaSlug) || VERIFIED_TALAS[0];
+    handleTalaChange(foundTala);
+    handleBpmChange(drill.startBpm);
+    setNadai(drill.nadai);
+    audioEngine.setNadai(drill.nadai);
+    setIsSolkattuMode(drill.solkattu);
+    audioEngine.setSolkattuMode(drill.solkattu);
 
-  const handleToggleNadaiLoop = () => {
-    const next = !isNadaiLoopEnabled;
-    setIsNadaiLoopEnabled(next);
-    audioEngine.setNadaiLoopsEnabled(next);
-    if (next && !isSolkattuMode) {
-      setIsSolkattuMode(true);
-      audioEngine.setSolkattuMode(true);
+    if (drill.rampCycles > 0 && drill.targetBpm > drill.startBpm) {
+      setTempoRampEnabled(true);
+      setTargetBpm(drill.targetBpm);
+      setRampCycleInterval(drill.rampCycles);
+    } else {
+      setTempoRampEnabled(false);
     }
   };
 
-  const currentAction = activeBeat >= 0 ? selectedTala.beatActions[activeBeat] : null;
-  const talaMl = TALA_ML_DETAILS[selectedTala.slug];
-
-  const getActionLabel = (actionType: string, fallback: string) => {
-    if (lang !== 'ml') return fallback;
-    if (actionType === 'thattu') return 'തട്ട് (അടി)';
-    if (actionType === 'veecheduthal') return 'വീച്ചെടുക്കൽ';
-    return 'വിരലെണ്ണൽ';
+  const handleLogToSadhana = () => {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = JSON.parse(localStorage.getItem('nadaverse_sadhana_sessions') || '[]');
+        const mins = Math.max(1, Math.round(elapsedSeconds / 60) || 5);
+        const record = {
+          id: `s-${Date.now()}`,
+          date: new Date().toISOString(),
+          focus: `${selectedTala.canonicalName} (${bpm} BPM - ${cycleCount} cycles)`,
+          kattai: 'Laya Studio',
+          tala: `${selectedTala.canonicalName} (${selectedTala.totalAksharas} aksharas)`,
+          durationMinutes: mins,
+          instrument: 'Tala Metronome',
+          category: 'Laya Practice',
+          notes: `Tempo: ${bpm} BPM, Nadai: ${nadai}, Solkattu: ${isSolkattuMode ? 'ON' : 'OFF'}`
+        };
+        stored.unshift(record);
+        localStorage.setItem('nadaverse_sadhana_sessions', JSON.stringify(stored));
+        window.dispatchEvent(new Event('nadaverse:sadhana_updated'));
+        alert(lang === 'ml' ? 'താള സാധകം വിജയകരമായി രേഖപ്പെടുത്തി!' : 'Tala session saved to Sadhana Journal!');
+      } catch {}
+    }
   };
 
-  const getAngaName = (anga: string) => {
-    if (lang !== 'ml') return anga;
-    if (anga === 'Laghu') return 'ലഘു';
-    if (anga === 'Dhrutam') return 'ദ്രുതം';
-    if (anga === 'Anudhrutam') return 'അനുദ്രുതം';
-    return anga;
+  const ml = TALA_ML_DETAILS[selectedTala.slug];
+  const formatTime = (secs: number) => {
+    const m = Math.floor(secs / 60);
+    const s = secs % 60;
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
   return (
-    <section className="nv-glass-panel rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.8),0_0_40px_rgba(199,164,91,0.08)] relative overflow-hidden">
-      {/* Ambient background glow */}
-      <div className="absolute -top-24 -left-24 w-80 h-80 bg-[#C7A45B]/10 rounded-full blur-3xl pointer-events-none" />
+    <div className="nv-glass-panel rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 shadow-2xl relative overflow-hidden border border-[#C7A45B]/20">
+      <div className="absolute top-0 right-0 w-96 h-96 bg-[#C7A45B]/5 rounded-full blur-3xl pointer-events-none" />
 
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between pb-5 sm:pb-6 border-b border-[#C7A45B]/20 gap-4 relative z-10">
+      {/* Header, BPM & Primary Controls */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between pb-5 sm:pb-6 border-b border-[#C7A45B]/20 gap-4 relative z-10">
         <div>
           <div className="flex items-center space-x-2 text-[#C7A45B] text-xs font-mono uppercase tracking-wider mb-1">
-            <Activity className="w-4 h-4" />
-            <span>{lang === 'ml' ? 'താള കൃത്യതാ വാസ്തുവിദ്യ' : 'Rhythmic Precision Architecture'}</span>
+            <Activity className="w-4 h-4 text-[#C7A45B]" />
+            <span>{lang === 'ml' ? 'ശാസ്ത്രീയ താള യന്ത്രം' : 'Interactive Tala Studio'}</span>
           </div>
           <h2 className="text-xl sm:text-2xl md:text-3xl font-serif font-bold text-[#F4EBDD]">
-            {lang === 'ml' ? 'താള സ്റ്റുഡിയോ & മെട്രോനോം' : 'Tala Studio & Metronome'}
+            {lang === 'ml' && TALA_ML_NAMES[selectedTala.slug]
+              ? `${TALA_ML_NAMES[selectedTala.slug]} (${selectedTala.canonicalName})`
+              : selectedTala.canonicalName}
           </h2>
-          <p className="text-xs sm:text-sm text-[#BDB4A4] mt-1 max-w-xl leading-relaxed">
-            {lang === 'ml'
-              ? 'ലഘു, ദ്രുതം എന്നീ അംഗങ്ങളും, ചൊല്ല്കെട്ടുകളും, തട്ട്/വീച്ച് കൈക്രിയകളും കൃത്യമായി പാലിച്ച് സാധകം ചെയ്യാനുള്ള ഉന്നത മെട്രോനോം.'
-              : 'Precision audio scheduler tracking traditional Carnatic Angas (Laghu & Dhrutam) with solkattu syllables and thattu/veechu kriya guidance.'}
+          <p className="text-xs sm:text-sm text-[#BDB4A4] mt-1 max-w-xl">
+            {lang === 'ml' && ml ? ml.descriptionMl : selectedTala.description}
           </p>
         </div>
 
-        {/* Master Action Button & Haptic Toggle */}
-        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-          <button
-            onClick={() => {
-              const next = !isSolkattuMode;
-              setIsSolkattuMode(next);
-              audioEngine.setSolkattuMode(next);
-            }}
-            className={`px-3 py-3 rounded-xl border text-xs flex items-center space-x-1.5 transition-all min-h-[46px] ${
-              isSolkattuMode
-                ? 'bg-[#C7A45B] border-[#E0C98F] text-[#11110F] font-bold shadow-[0_0_20px_rgba(199,164,91,0.4)]'
-                : 'bg-[#22221D] border-[#3B392F] text-[#BDB4A4] hover:border-[#C7A45B]/50'
-            }`}
-            title="Switch between pure click metronome and spoken Mridangam Solkattu strokes (Tha - Dhi - Thom - Nam)"
-            aria-label="Toggle Solkattu Mridangam accompaniment"
-          >
-            <Drum className="w-4 h-4" />
-            <span className="font-mono text-[11px]">
-              {isSolkattuMode
-                ? (lang === 'ml' ? 'മൃദംഗ ചൊല്ല്: ഓൺ' : 'Solkattu: ON')
-                : (lang === 'ml' ? 'മൃദംഗ ചൊല്ല്: ഓഫ്' : 'Solkattu: OFF')}
-            </span>
-          </button>
+        {/* Live Cycle Counter & Timer HUD */}
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Cycle Counter */}
+          <div className="bg-[#141310] px-3.5 py-2 rounded-xl border border-[#C7A45B]/30 font-mono text-xs flex items-center space-x-2">
+            <Disc3 className={`w-4 h-4 text-[#C7A45B] ${isPlaying ? 'animate-spin' : ''}`} />
+            <span className="text-[#BDB4A4]">{lang === 'ml' ? 'ആവർത്തനം:' : 'Cycle:'}</span>
+            <span className="text-[#E0C98F] font-bold text-sm">#{cycleCount}</span>
+          </div>
 
-          <button
-            onClick={() => {
-              const next = !hapticsEnabled;
-              setHapticsEnabled(next);
-              audioKeepAlive.setHapticsEnabled(next);
-              if (next) audioKeepAlive.triggerSamamHaptic(35);
-            }}
-            className={`px-3 py-3 rounded-xl border text-xs flex items-center space-x-1.5 transition-all min-h-[46px] ${
-              hapticsEnabled
-                ? 'bg-[#C7A45B]/20 border-[#C7A45B] text-[#F4EBDD] shadow-[0_0_15px_rgba(199,164,91,0.2)]'
-                : 'bg-[#22221D] border-[#3B392F] text-[#BDB4A4]'
-            }`}
-            title="Gentle haptic vibration on Samam (beat 1) for mobile devices"
-            aria-label="Toggle haptic vibration on beat 1"
-          >
-            <Smartphone className="w-4 h-4" />
-            <span className="hidden sm:inline font-mono text-[11px]">
-              {hapticsEnabled ? 'Haptics: ON' : 'Haptics: OFF'}
-            </span>
-          </button>
+          {/* Practice Timer */}
+          <div className="bg-[#141310] px-3.5 py-2 rounded-xl border border-[#C7A45B]/30 font-mono text-xs flex items-center space-x-2">
+            <Clock className="w-4 h-4 text-[#6EA887]" />
+            <span className="text-[#BDB4A4]">{lang === 'ml' ? 'സമയം:' : 'Time:'}</span>
+            <span className="text-[#F4EBDD] font-bold text-sm">{formatTime(elapsedSeconds)}</span>
+          </div>
 
+          {/* Master Play/Pause Button */}
           <button
             onClick={handleTogglePlay}
-            className={`flex-1 sm:flex-initial flex items-center justify-center space-x-2.5 px-6 sm:px-7 py-3.5 sm:py-4 rounded-xl font-bold text-xs sm:text-sm transition-all duration-300 shadow-lg active:scale-95 cursor-pointer min-h-[46px] ${
-              isPlaying
-                ? 'bg-gradient-to-r from-[#E8D7A8] via-[#C7A45B] to-[#DFB960] text-[#11110F] shadow-[0_0_30px_rgba(199,164,91,0.6)] animate-pulse'
+            className={`flex items-center justify-center space-x-2.5 px-6 py-3 rounded-xl font-bold text-xs sm:text-sm transition-all duration-300 shadow-lg active:scale-95 cursor-pointer min-h-[46px] ${
+              isPlaying || isCountingIn
+                ? 'bg-gradient-to-r from-[#E8D7A8] via-[#C7A45B] to-[#DFB960] text-[#11110F] shadow-[0_0_30px_rgba(199,164,91,0.6)]'
                 : 'nv-gold-btn'
             }`}
-            aria-label={isPlaying ? 'Stop Tala Metronome' : 'Start Tala Metronome'}
           >
-            {isPlaying ? (
+            {isCountingIn ? (
+              <span className="font-mono text-base font-bold animate-pulse text-[#11110F]">
+                Count-in: {countInValue}
+              </span>
+            ) : isPlaying ? (
               <>
                 <Pause className="w-5 h-5 fill-current" />
                 <span>{t.stopMetronome}</span>
-                <kbd className="hidden sm:inline-block ml-1 px-1.5 py-0.5 text-[10px] font-mono bg-black/30 rounded border border-black/20">Space</kbd>
               </>
             ) : (
               <>
                 <Play className="w-5 h-5 fill-current" />
                 <span>{t.startMetronome}</span>
-                <kbd className="hidden sm:inline-block ml-1 px-1.5 py-0.5 text-[10px] font-mono bg-[#11110F]/20 rounded border border-[#11110F]/30">Space</kbd>
               </>
             )}
           </button>
         </div>
       </div>
 
-      {/* Rhythmic Nadai & Loop Accompaniment Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-[#191916] rounded-2xl border border-[#3B392F] mt-5">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs font-mono uppercase text-[#C7A45B] font-semibold">
-            {lang === 'ml' ? 'ഗതി / നടൈ (Rhythmic Nadai):' : 'Nadai Gati:'}
-          </span>
-          <div className="inline-flex rounded-xl bg-[#22221D] p-1 border border-[#3B392F]">
+      {/* Tala Selector Pills */}
+      <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 my-5 relative z-10">
+        <span className="text-xs font-mono uppercase text-[#C7A45B] mr-2 font-semibold">
+          {lang === 'ml' ? 'താളങ്ങൾ:' : 'Select Tala:'}
+        </span>
+        {VERIFIED_TALAS.map((tala) => {
+          const isSelected = tala.id === selectedTala.id;
+          return (
             <button
-              onClick={() => handleNadaiSelect('chatusra')}
-              className={`px-3 py-1 rounded-lg text-xs font-mono transition-all ${
-                nadai === 'chatusra'
-                  ? 'bg-[#C7A45B] text-[#11110F] font-bold shadow'
-                  : 'text-[#BDB4A4] hover:text-[#F4EBDD]'
+              key={tala.id}
+              onClick={() => handleTalaChange(tala)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-mono transition-all cursor-pointer ${
+                isSelected
+                  ? 'bg-[#C7A45B] text-[#11110F] font-bold shadow-md shadow-[#C7A45B]/20'
+                  : 'bg-[#181714] text-[#BDB4A4] hover:text-[#F4EBDD] border border-[#3B392F] hover:border-[#C7A45B]/40'
               }`}
-              title="Chatusra Nadai: 4 sub-divisions per beat (Tha-Ka-Dhi-Mi)"
             >
-              Chatusra (4 Gati)
+              {lang === 'ml' && TALA_ML_NAMES[tala.slug] ? TALA_ML_NAMES[tala.slug] : tala.canonicalName}
+              <span className="ml-1 opacity-70">({tala.totalAksharas})</span>
             </button>
-            <button
-              onClick={() => handleNadaiSelect('tisra')}
-              className={`px-3 py-1 rounded-lg text-xs font-mono transition-all ${
-                nadai === 'tisra'
-                  ? 'bg-[#C7A45B] text-[#11110F] font-bold shadow'
-                  : 'text-[#BDB4A4] hover:text-[#F4EBDD]'
-              }`}
-              title="Tisra Nadai: 3 sub-divisions per beat (Tha-Ki-Ta)"
-            >
-              Tisra (3 Gati)
-            </button>
-          </div>
-        </div>
+          );
+        })}
+      </div>
 
-        <button
-          onClick={handleToggleNadaiLoop}
-          className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-xl border text-xs font-mono transition-all ${
-            isNadaiLoopEnabled
-              ? 'bg-[#C7A45B]/25 border-[#C7A45B] text-[#F4EBDD] font-bold shadow-md'
-              : 'bg-[#22221D] border-[#3B392F] text-[#BDB4A4] hover:text-[#F4EBDD]'
-          }`}
-          title="Enable spoken rhythmic loop sub-division strokes"
-        >
-          <span className={isNadaiLoopEnabled ? 'text-[#E0C98F]' : ''}>
-            {isNadaiLoopEnabled ? '●' : '○'}
+      {/* Prominent Visual Beat Progression Grid */}
+      <div className="my-6 bg-[#0d0c0a]/80 backdrop-blur-md p-4 sm:p-6 rounded-2xl border border-[#C7A45B]/25 relative z-10 shadow-inner">
+        <div className="flex items-center justify-between mb-3 text-xs font-mono text-[#BDB4A4]">
+          <span className="flex items-center space-x-1.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#DFB960] inline-block" />
+            <span>Samam (Beat 1)</span>
           </span>
           <span>
-            {isNadaiLoopEnabled
-              ? (lang === 'ml' ? 'മൃദംഗ ലൂപ്പ് സജീവം' : 'Nadai Loop: ON')
-              : (lang === 'ml' ? 'മൃദംഗ ലൂപ്പ് ചേർക്കുക' : 'Add Nadai Loop')}
+            Formula: {selectedTala.angasFormula} = {selectedTala.totalAksharas} Aksharas
           </span>
-        </button>
-      </div>
-
-      {/* Tala Selector Tabs */}
-      <div className="pt-5 sm:pt-6">
-        <label className="block text-xs uppercase tracking-wider font-mono text-[#BDB4A4] mb-2.5 sm:mb-3">
-          {t.talaSelector}
-        </label>
-        <div className="flex flex-wrap gap-2 sm:gap-3">
-          {VERIFIED_TALAS.map((tala) => {
-            const isSelected = selectedTala.slug === tala.slug;
-            const mlName = TALA_ML_NAMES[tala.slug];
-            return (
-              <button
-                key={tala.slug}
-                onClick={() => handleTalaChange(tala)}
-                className={`py-2 px-3 sm:py-2.5 sm:px-4 rounded-xl text-left border transition-all active:scale-95 ${
-                  isSelected
-                    ? 'bg-[#C7A45B]/20 border-[#C7A45B] text-[#F4EBDD]'
-                    : 'bg-[#22221D] border-[#3B392F] text-[#BDB4A4] hover:text-[#F4EBDD] hover:border-[#3B392F]/80'
-                }`}
-              >
-                <div className="text-xs sm:text-sm font-semibold">
-                  {lang === 'ml' && mlName ? mlName : tala.canonicalName}
-                </div>
-                <div className="text-[10px] sm:text-[11px] text-[#C7A45B] font-mono mt-0.5">
-                  {tala.angasFormula} ({tala.totalAksharas} {t.aksharas})
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Active Tala Visualizer */}
-      <div className="mt-6 sm:mt-8 bg-[#22221D] p-4 sm:p-6 rounded-2xl border border-[#3B392F]">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3.5 sm:pb-4 border-b border-[#3B392F]/60 gap-2">
-          <div className="flex items-center space-x-2">
-            <Disc3
-              className={`w-5 h-5 shrink-0 ${isPlaying ? 'text-[#C7A45B] animate-spin' : 'text-[#BDB4A4]'}`}
-            />
-            <span className="font-serif font-bold text-base sm:text-lg text-[#F4EBDD]">
-              {lang === 'ml' && TALA_ML_NAMES[selectedTala.slug]
-                ? `${TALA_ML_NAMES[selectedTala.slug]} (${selectedTala.canonicalName})`
-                : selectedTala.canonicalName}
-            </span>
-            <span className="text-xs bg-[#191916] text-[#C7A45B] px-2 py-0.5 rounded font-mono border border-[#3B392F]">
-              {selectedTala.totalAksharas} {lang === 'ml' ? 'അക്ഷരങ്ങൾ' : 'Beats'}
-            </span>
-          </div>
-
-          <div className="text-xs font-mono text-[#BDB4A4]">
-            {lang === 'ml' ? 'അംഗങ്ങൾ: ' : 'Angas: '}
-            <span className="text-[#F4EBDD] font-bold">{selectedTala.angasFormula}</span>
-          </div>
         </div>
 
-        {/* Beat Sequence Cards */}
-        <div className="grid grid-cols-4 sm:grid-cols-8 gap-1.5 sm:gap-3 my-4 sm:my-6">
-          {selectedTala.beatActions.map((action, idx) => {
+        <div className="grid grid-cols-4 sm:grid-cols-8 gap-2.5 sm:gap-3">
+          {selectedTala.beatActions.map((beat, idx) => {
             const isActive = activeBeat === idx;
-            const isClap = action.actionType === 'thattu';
+            const isSamam = idx === 0;
+
+            let cardStyle = 'bg-[#141310] border-[#3B392F]/60 text-[#BDB4A4]';
+            if (isActive) {
+              if (isSamam) {
+                cardStyle = 'bg-gradient-to-br from-[#DFB960] to-[#C7A45B] border-[#F4EBDD] text-[#11110F] font-bold shadow-[0_0_25px_rgba(223,185,96,0.8)] scale-105';
+              } else if (isAccentBeat) {
+                cardStyle = 'bg-[#C7A45B] border-[#F4EBDD] text-[#11110F] font-bold shadow-[0_0_20px_rgba(199,164,91,0.6)] scale-105';
+              } else {
+                cardStyle = 'bg-[#6EA887] border-[#F4EBDD] text-[#11110F] font-bold shadow-[0_0_15px_rgba(110,168,135,0.6)] scale-105';
+              }
+            } else if (isSamam) {
+              cardStyle = 'bg-[#1e1c15] border-[#C7A45B]/40 text-[#E0C98F]';
+            }
+
             return (
               <div
-                key={action.beatIndex}
-                className={`flex flex-col items-center justify-center p-2 sm:p-3 rounded-xl border text-center transition-all ${
-                  isActive
-                    ? isAccentBeat
-                      ? 'bg-[#C7A45B] text-[#11110F] border-[#E0C98F] scale-105 shadow-lg'
-                      : 'bg-[#E0C98F] text-[#11110F] border-[#F4EBDD] scale-102 shadow-md'
-                    : 'bg-[#191916] border-[#3B392F] text-[#F4EBDD]'
-                }`}
+                key={idx}
+                className={`p-3 rounded-xl border text-center transition-all duration-100 flex flex-col justify-between min-h-[75px] ${cardStyle}`}
               >
-                <span className="text-[9px] sm:text-[10px] font-mono uppercase tracking-wider opacity-80">
-                  {getAngaName(action.anga)}
-                </span>
-                <span className="text-lg sm:text-xl font-bold font-serif my-0.5">
-                  {action.beatIndex}
-                </span>
-                <span
-                  className={`text-[9px] sm:text-[10px] font-mono px-1 sm:px-1.5 py-0.5 rounded ${
-                    isActive
-                      ? 'bg-[#11110F]/20 text-[#11110F]'
-                      : isClap
-                      ? 'bg-[#C7A45B]/20 text-[#C7A45B]'
-                      : 'text-[#BDB4A4]'
-                  }`}
-                >
-                  {action.syllable || '—'}
-                </span>
+                <div className="text-[10px] font-mono opacity-80 uppercase">
+                  {beat.anga}
+                </div>
+                <div className="text-base sm:text-lg font-serif font-bold">
+                  {idx + 1}
+                </div>
+                <div className="text-[10px] font-mono font-semibold truncate">
+                  {beat.syllable || beat.actionLabel.split(' ')[0]}
+                </div>
               </div>
             );
           })}
         </div>
-
-        {/* Live Kriya & Gesture Instruction Banner */}
-        <div className="bg-[#191916] p-3.5 sm:p-4 rounded-xl border border-[#3B392F] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-sm">
-          <div>
-            <span className="text-xs font-mono uppercase text-[#BDB4A4] block">
-              {lang === 'ml' ? 'നിലവിലെ കൈക്രിയ (മുദ്ര):' : 'Current Hand Gesture (Kriya):'}
-            </span>
-            <span className="text-[#F4EBDD] font-medium text-sm sm:text-base">
-              {currentAction ? (
-                <div className="flex flex-wrap items-center gap-2 mt-0.5">
-                  <strong className="text-[#C7A45B]">
-                    {getActionLabel(currentAction.actionType, currentAction.actionLabel)}
-                  </strong>
-                  <span className="text-[#3B392F]">·</span>
-                  <span className="text-xs text-[#BDB4A4]">
-                    {lang === 'ml' ? 'അക്ഷര ചൊല്ല്: ' : 'Akshara: '}
-                    <strong className="font-mono text-[#E0C98F]">{currentAction.syllable}</strong>
-                  </span>
-                  {isSolkattuMode && (
-                    <span className="inline-flex items-center space-x-1 bg-[#C7A45B]/20 text-[#E8D7A8] border border-[#C7A45B]/40 px-2 py-0.5 rounded text-xs font-mono font-bold animate-pulse">
-                      <Drum className="w-3 h-3 text-[#C7A45B]" />
-                      <span>
-                        {activeBeat === 0 
-                          ? 'THOM (തോം - ഗുമുക്കി)' 
-                          : isAccentBeat 
-                          ? 'THA / NAM (ത / നം)' 
-                          : 'DHI (ധി)'}
-                      </span>
-                    </span>
-                  )}
-                </div>
-              ) : (
-                lang === 'ml' ? 'താളം തുടങ്ങാൻ "താളം തുടങ്ങുക" അമർത്തുക' : 'Press Start Tala to begin rhythmic tracking'
-              )}
-            </span>
-          </div>
-
-          <div className="text-xs text-[#BDB4A4] sm:text-right max-w-sm leading-relaxed">
-            {lang === 'ml' && talaMl ? talaMl.handMovementsGuideMl : selectedTala.handMovementsGuide}
-          </div>
-        </div>
       </div>
 
-      {/* Tempo Controls & Tap Tempo */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6 mt-5 sm:mt-6 items-center">
-        {/* BPM Slider */}
-        <div className="md:col-span-8 bg-[#22221D] p-4 sm:p-5 rounded-xl border border-[#3B392F]">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-mono uppercase text-[#BDB4A4]">
-              {lang === 'ml' ? 'ലയ വേഗത (ടെമ്പോ)' : 'Tempo (Laya Speed)'}
+      {/* Rhythm Engine Settings & Controls */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-6 relative z-10 text-xs">
+        {/* Tempo & Tap Controls */}
+        <div className="bg-[#141310] p-4 rounded-2xl border border-[#3B392F] space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="font-mono uppercase text-[#C7A45B] font-bold">
+              {lang === 'ml' ? 'കാലപ്രമാണം (Tempo BPM)' : 'Tempo & Tap Control'}
             </span>
-            <div className="flex items-center space-x-2">
-              <span className="text-xl font-bold font-mono text-[#C7A45B]">{bpm}</span>
-              <span className="text-xs text-[#BDB4A4] font-mono">BPM</span>
-            </div>
+            <span className="font-mono text-sm text-[#F4EBDD] font-bold bg-[#1e1c17] px-2.5 py-0.5 rounded border border-[#C7A45B]/30">
+              {bpm} BPM
+            </span>
           </div>
 
           <input
             type="range"
-            min="40"
-            max="180"
-            step="1"
+            min="30"
+            max="240"
             value={bpm}
-            onChange={(e) => handleBpmChange(parseInt(e.target.value))}
+            onChange={(e) => handleBpmChange(parseInt(e.target.value) || 72)}
             className="w-full accent-[#C7A45B] cursor-pointer"
-            aria-label="Adjust Tala BPM"
           />
 
-          {/* Quick Laya Presets */}
-          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mt-3 pt-3 border-t border-[#3B392F]/60 text-xs">
-            <span className="text-[#BDB4A4] font-mono text-[11px] mr-1">
-              {lang === 'ml' ? 'കാലങ്ങൾ:' : 'Carnatic Kalams:'}
-            </span>
+          <div className="flex items-center justify-between gap-2 pt-1">
+            <div className="flex items-center space-x-1.5 font-mono">
+              {[60, 72, 90, 120].map((presetBpm) => (
+                <button
+                  key={presetBpm}
+                  onClick={() => handleBpmChange(presetBpm)}
+                  className={`px-2.5 py-1 rounded-lg border cursor-pointer ${
+                    bpm === presetBpm ? 'bg-[#C7A45B] text-[#11110F] font-bold' : 'bg-[#1e1c17] text-[#BDB4A4] border-[#3B392F]'
+                  }`}
+                >
+                  {presetBpm}
+                </button>
+              ))}
+            </div>
+
             <button
-              onClick={() => handleBpmChange(56)}
-              className={`px-2.5 py-1.5 rounded-lg font-mono text-xs transition-colors min-h-[34px] sm:min-h-0 ${
-                bpm === 56 ? 'bg-[#C7A45B] text-[#11110F]' : 'bg-[#191916] text-[#F4EBDD] hover:text-[#C7A45B]'
-              }`}
+              onClick={handleTapTempo}
+              className="px-3.5 py-1.5 rounded-xl bg-[#22221D] hover:bg-[#2b2923] border border-[#C7A45B]/40 text-[#E0C98F] font-mono cursor-pointer transition-all"
             >
-              {lang === 'ml' ? 'വിളംബ കാലം (56)' : 'Vilamba (56)'}
-            </button>
-            <button
-              onClick={() => handleBpmChange(76)}
-              className={`px-2.5 py-1.5 rounded-lg font-mono text-xs transition-colors min-h-[34px] sm:min-h-0 ${
-                bpm === 76 ? 'bg-[#C7A45B] text-[#11110F]' : 'bg-[#191916] text-[#F4EBDD] hover:text-[#C7A45B]'
-              }`}
-            >
-              {lang === 'ml' ? 'മധ്യമ കാലം (76)' : 'Madhyama (76)'}
-            </button>
-            <button
-              onClick={() => handleBpmChange(112)}
-              className={`px-2.5 py-1.5 rounded-lg font-mono text-xs transition-colors min-h-[34px] sm:min-h-0 ${
-                bpm === 112 ? 'bg-[#C7A45B] text-[#11110F]' : 'bg-[#191916] text-[#F4EBDD] hover:text-[#C7A45B]'
-              }`}
-            >
-              {lang === 'ml' ? 'ദ്രുത കാലം (112)' : 'Durita (112)'}
+              Tap Tempo
             </button>
           </div>
         </div>
 
-        {/* Tap Tempo Button */}
-        <div className="md:col-span-4 bg-[#22221D] p-4 sm:p-5 rounded-xl border border-[#3B392F] flex flex-col items-center justify-center text-center">
-          <button
-            onClick={handleTapTempo}
-            className="w-full py-3 px-4 rounded-xl bg-[#191916] hover:bg-[#2A2A24] border border-[#3B392F] hover:border-[#C7A45B] text-[#F4EBDD] font-medium text-xs sm:text-sm transition-all active:scale-95 min-h-[44px] flex items-center justify-center space-x-1.5"
-          >
-            <span>{lang === 'ml' ? 'വേഗത നിശ്ചയിക്കാൻ ഇവിടെ തട്ടുക' : 'Tap Here to Set Tempo'}</span>
-            <kbd className="hidden sm:inline-block ml-1 px-1.5 py-0.5 text-[10px] font-mono bg-white/10 rounded border border-white/20">T</kbd>
-          </button>
-          <span className="text-[10px] sm:text-[11px] text-[#BDB4A4] mt-2 font-mono leading-tight">
-            {lang === 'ml'
-              ? 'നിങ്ങളുടെ മനസ്സിലെ വേഗത ക്രമീകരിക്കാൻ ഇവിടെ ആവർത്തിച്ചു തട്ടുക'
-              : 'Tap repeatedly to synchronize with your inner pulse'}
+        {/* Accompaniment Options (Solkattu, Nadai, Count-In, Haptics) */}
+        <div className="bg-[#141310] p-4 rounded-2xl border border-[#3B392F] space-y-3">
+          <span className="font-mono uppercase text-[#C7A45B] font-bold block">
+            {lang === 'ml' ? 'ശബ്ദ & സ്പർശ ക്രമീകരണങ്ങൾ' : 'Acoustics & Subdivisions'}
           </span>
+
+          <div className="grid grid-cols-2 gap-2">
+            {/* Solkattu Toggle */}
+            <button
+              onClick={() => {
+                const next = !isSolkattuMode;
+                setIsSolkattuMode(next);
+                audioEngine.setSolkattuMode(next);
+              }}
+              className={`p-2.5 rounded-xl border flex items-center space-x-2 cursor-pointer transition-all ${
+                isSolkattuMode
+                  ? 'bg-[#C7A45B]/20 border-[#C7A45B] text-[#F4EBDD]'
+                  : 'bg-[#181714] border-[#3B392F] text-[#BDB4A4]'
+              }`}
+            >
+              <Drum className="w-4 h-4 text-[#C7A45B]" />
+              <span className="font-mono text-[11px]">{isSolkattuMode ? 'Mridangam: ON' : 'Mridangam: OFF'}</span>
+            </button>
+
+            {/* Count-In Toggle */}
+            <button
+              onClick={() => setCountInEnabled(!countInEnabled)}
+              className={`p-2.5 rounded-xl border flex items-center space-x-2 cursor-pointer transition-all ${
+                countInEnabled
+                  ? 'bg-[#C7A45B]/20 border-[#C7A45B] text-[#F4EBDD]'
+                  : 'bg-[#181714] border-[#3B392F] text-[#BDB4A4]'
+              }`}
+            >
+              <Clock className="w-4 h-4 text-[#C7A45B]" />
+              <span className="font-mono text-[11px]">{countInEnabled ? 'Count-in: 4 Beats' : 'Count-in: OFF'}</span>
+            </button>
+
+            {/* Nadai Selection (Chatusra / Tisra) */}
+            <button
+              onClick={() => {
+                const next = nadai === 'chatusra' ? 'tisra' : 'chatusra';
+                setNadai(next);
+                audioEngine.setNadai(next);
+              }}
+              className="p-2.5 rounded-xl border bg-[#181714] border-[#3B392F] text-[#BDB4A4] hover:text-[#F4EBDD] flex items-center space-x-2 cursor-pointer"
+            >
+              <Disc3 className="w-4 h-4 text-[#C7A45B]" />
+              <span className="font-mono text-[11px]">Nadai: {nadai === 'chatusra' ? 'Chatusra (4)' : 'Tisra (3)'}</span>
+            </button>
+
+            {/* Haptics */}
+            <button
+              onClick={() => {
+                const next = !hapticsEnabled;
+                setHapticsEnabled(next);
+                audioKeepAlive.setHapticsEnabled(next);
+                if (next) audioKeepAlive.triggerSamamHaptic(35);
+              }}
+              className={`p-2.5 rounded-xl border flex items-center space-x-2 cursor-pointer transition-all ${
+                hapticsEnabled
+                  ? 'bg-[#C7A45B]/20 border-[#C7A45B] text-[#F4EBDD]'
+                  : 'bg-[#181714] border-[#3B392F] text-[#BDB4A4]'
+              }`}
+            >
+              <Smartphone className="w-4 h-4 text-[#C7A45B]" />
+              <span className="font-mono text-[11px]">{hapticsEnabled ? 'Haptics: ON' : 'Haptics: OFF'}</span>
+            </button>
+          </div>
         </div>
       </div>
-    </section>
+
+      {/* Bounded Tempo Ramp Module */}
+      <div className="p-4 rounded-2xl bg-[#141310] border border-[#C7A45B]/20 my-5 relative z-10 space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div className="flex items-center space-x-2 text-xs font-mono text-[#E0C98F] font-bold">
+            <TrendingUp className="w-4 h-4 text-[#C7A45B]" />
+            <span>{lang === 'ml' ? 'ഓട്ടോമാറ്റിക് ടെമ്പോ റാംപ് (Gradual Speed Acceleration)' : 'Configurable Tempo Ramp'}</span>
+          </div>
+
+          <button
+            onClick={() => setTempoRampEnabled(!tempoRampEnabled)}
+            className={`px-3 py-1 rounded-lg text-xs font-mono border cursor-pointer transition-all ${
+              tempoRampEnabled
+                ? 'bg-[#6EA887] text-[#11110F] font-bold border-[#6EA887]'
+                : 'bg-[#1e1c17] text-[#BDB4A4] border-[#3B392F]'
+            }`}
+          >
+            {tempoRampEnabled ? 'Tempo Ramp: Active' : 'Tempo Ramp: Disabled'}
+          </button>
+        </div>
+
+        {tempoRampEnabled && (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 text-xs font-mono text-[#BDB4A4]">
+            <div>
+              <label className="block mb-1 text-[11px] uppercase">Target BPM:</label>
+              <input
+                type="number"
+                min="40"
+                max="240"
+                value={targetBpm}
+                onChange={(e) => setTargetBpm(Math.max(40, Math.min(240, parseInt(e.target.value) || 120)))}
+                className="w-full bg-[#1e1c17] border border-[#3B392F] rounded-lg px-2.5 py-1 text-[#F4EBDD]"
+              />
+            </div>
+            <div>
+              <label className="block mb-1 text-[11px] uppercase">Every N Cycles:</label>
+              <input
+                type="number"
+                min="1"
+                max="16"
+                value={rampCycleInterval}
+                onChange={(e) => setRampCycleInterval(Math.max(1, parseInt(e.target.value) || 2))}
+                className="w-full bg-[#1e1c17] border border-[#3B392F] rounded-lg px-2.5 py-1 text-[#F4EBDD]"
+              />
+            </div>
+            <div>
+              <label className="block mb-1 text-[11px] uppercase">Increment BPM (+):</label>
+              <input
+                type="number"
+                min="1"
+                max="20"
+                value={rampBpmIncrement}
+                onChange={(e) => setRampBpmIncrement(Math.max(1, parseInt(e.target.value) || 5))}
+                className="w-full bg-[#1e1c17] border border-[#3B392F] rounded-lg px-2.5 py-1 text-[#F4EBDD]"
+              />
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Curated Reusable Rhythm Practice Drills */}
+      <div className="my-6 relative z-10 space-y-3">
+        <div className="flex items-center space-x-2 text-xs font-mono uppercase text-[#C7A45B] font-bold">
+          <Sparkles className="w-3.5 h-3.5 text-[#DFB960]" />
+          <span>{lang === 'ml' ? 'ക്ലാസിക്കൽ താള സാധക പാഠങ്ങൾ' : 'Curated Rhythm Practice Presets'}</span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {RHYTHM_DRILLS.map((drill) => (
+            <div
+              key={drill.id}
+              className="p-3.5 rounded-xl bg-[#141310] border border-[#C7A45B]/15 hover:border-[#C7A45B]/40 transition-all flex flex-col justify-between space-y-2"
+            >
+              <div>
+                <div className="text-xs font-serif font-bold text-[#F4EBDD] mb-1">
+                  {lang === 'ml' ? drill.titleMl : drill.title}
+                </div>
+                <p className="text-[11px] text-[#BDB4A4] leading-relaxed">
+                  {lang === 'ml' ? drill.descriptionMl : drill.description}
+                </p>
+              </div>
+
+              <div className="flex items-center justify-between pt-2 border-t border-[#3B392F]/40">
+                <span className="text-[10px] font-mono text-[#87947A]">
+                  {drill.startBpm} BPM {drill.rampCycles > 0 ? `→ ${drill.targetBpm} BPM` : ''} · {drill.nadai}
+                </span>
+
+                <button
+                  onClick={() => handleApplyDrill(drill)}
+                  className="px-2.5 py-1 rounded-lg bg-[#C7A45B] hover:bg-[#E0C98F] text-[#11110F] text-[11px] font-mono font-bold cursor-pointer transition-all"
+                >
+                  Load Drill
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Footer / Sadhana Logger Action */}
+      <div className="pt-4 border-t border-[#C7A45B]/15 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-mono relative z-10">
+        <span className="text-[#87947A]">
+          {selectedTala.sources[0]?.title} ({selectedTala.sources[0]?.authorOrCreator})
+        </span>
+
+        <button
+          onClick={handleLogToSadhana}
+          className="px-4 py-2 rounded-xl bg-[#22221D] hover:bg-[#2b2923] border border-[#C7A45B]/40 hover:border-[#C7A45B] text-[#E0C98F] font-mono flex items-center space-x-2 self-start sm:self-auto cursor-pointer transition-all"
+        >
+          <CheckCircle2 className="w-3.5 h-3.5 text-[#6EA887]" />
+          <span>{lang === 'ml' ? 'സാധക ഡയറിയിൽ രേഖപ്പെടുത്തുക' : 'Log to Sadhana Journal'}</span>
+        </button>
+      </div>
+    </div>
   );
 };

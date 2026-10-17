@@ -66,10 +66,24 @@ class Settings(BaseSettings):
             return [origin.strip() for origin in v.split(",") if origin.strip()]
         return v
     
-    # Rate Limiting
+    # Rate Limiting & Trusted Proxies
     RATE_LIMIT_AUTH_PER_MINUTE: int = int(os.getenv("RATE_LIMIT_AUTH_PER_MINUTE", "10"))
     RATE_LIMIT_TUTOR_PER_MINUTE: int = int(os.getenv("RATE_LIMIT_TUTOR_PER_MINUTE", "30"))
     REDIS_URL: Union[str, None] = os.getenv("REDIS_URL", None)
+    TRUSTED_PROXIES: Union[str, List[str]] = ["127.0.0.1", "::1"]
+
+    @field_validator("TRUSTED_PROXIES", mode="after")
+    @classmethod
+    def assemble_trusted_proxies(cls, v: Union[str, List[str]]) -> List[str]:
+        if isinstance(v, str):
+            v = v.strip()
+            if v.startswith("[") and v.endswith("]"):
+                try:
+                    return json.loads(v)
+                except Exception:
+                    pass
+            return [proxy.strip() for proxy in v.split(",") if proxy.strip()]
+        return v
 
     # AI Gateway
     AI_GATEWAY_PROVIDER: str = os.getenv("AI_GATEWAY_PROVIDER", "gemini") # "gemini", "mock", "openai"

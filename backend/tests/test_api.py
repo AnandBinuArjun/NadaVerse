@@ -1,3 +1,4 @@
+import uuid
 import pytest
 from httpx import AsyncClient, ASGITransport
 from app.main import app
@@ -301,3 +302,315 @@ async def test_expanded_corpus_and_glossary():
         # Check glossary in global search
         search_res = (await ac.get("/api/v1/search?q=Niraval")).json()
         assert any(s["content_type"] == "glossary" for s in search_res)
+
+
+@pytest.mark.asyncio
+async def test_curriculum_progress_lifecycle():
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        # 1. Guest progress should be empty
+        guest_res = await ac.get("/api/v1/curriculum/progress")
+        assert guest_res.status_code == 200
+        assert guest_res.json()["completed_lesson_ids"] == []
+
+        # 2. Register learner
+        learner_email = f"curriculum_learner_{uuid.uuid4().hex[:6]}@example.com"
+        reg_res = await ac.post(
+            "/api/v1/auth/register",
+            json={
+                "email": learner_email,
+                "password": "SecurePassword123!",
+                "display_name": "Vidya Learner",
+                "experience_level": "student"
+            }
+        )
+        assert reg_res.status_code == 201
+        token = reg_res.json()["access_token"]
+        headers = {"Authorization": f"Bearer {token}"}
+
+        # 3. Post lesson completion
+        comp_res = await ac.post(
+            "/api/v1/curriculum/progress",
+            headers=headers,
+            json={"lesson_id": "vocal-1", "status": "completed"}
+        )
+        assert comp_res.status_code == 201
+        assert comp_res.json()["lesson_id"] == "vocal-1"
+
+        # 4. Fetch progress
+        prog_res = await ac.get("/api/v1/curriculum/progress", headers=headers)
+        assert prog_res.status_code == 200
+        data = prog_res.json()
+        assert "vocal-1" in data["completed_lesson_ids"]
+        assert data["total_completed"] == 1
+
+
+@pytest.mark.asyncio
+async def test_tala_studio_rhythm_calculations_and_tempo_ramps():
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        talas = (await ac.get("/api/v1/talas")).json()
+        adi_tala = next(t for t in talas if t["slug"] == "adi-tala")
+        rupaka_tala = next(t for t in talas if t["slug"] == "rupaka-tala")
+        khanda_chapu = next(t for t in talas if t["slug"] == "khanda-chapu")
+
+        assert adi_tala["total_aksharas"] == 8
+        assert rupaka_tala["total_aksharas"] == 6
+        assert khanda_chapu["total_aksharas"] == 5
+
+        # Timing validation: 60 BPM -> 1.0 sec per beat
+        bpm_60 = 60
+        adi_cycle_sec_60 = adi_tala["total_aksharas"] * (60.0 / bpm_60)
+        assert adi_cycle_sec_60 == 8.0
+
+        # Timing validation: 120 BPM -> 0.5 sec per beat
+        bpm_120 = 120
+        adi_cycle_sec_120 = adi_tala["total_aksharas"] * (60.0 / bpm_120)
+        assert adi_cycle_sec_120 == 4.0
+
+        # Bounded tempo ramp validation: start 60, target 120, increment 5 every 2 cycles
+        current_bpm = 60
+        target = 120
+        inc = 5
+        interval = 2
+        for cycle in range(1, 26):
+            if cycle > 1 and (cycle - 1) % interval == 0:
+                current_bpm = min(target, current_bpm + inc)
+        assert current_bpm == target
+
+
+@pytest.mark.asyncio
+async def test_explainable_ai_practice_companion_analysis():
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        # 1. Reject without explicit consent
+        reject_res = await ac.post(
+            "/api/v1/audio/analyze-practice",
+            json={
+                "exercise_name": "Mayamalavagowla Sarali Varisai 1",
+                "tonic": "C",
+                "tonic_frequency": 261.63,
+                "duration_seconds": 12.5,
+                "overall_stability_pct": 88.5,
+                "mean_absolute_cent_error": 11.2,
+                "user_consent_granted": False,
+            }
+        )
+        assert reject_res.status_code == 400
+        assert "consent" in reject_res.json()["detail"].lower()
+
+        # 2. Analyze valid recording metrics
+        valid_res = await ac.post(
+            "/api/v1/audio/analyze-practice",
+            json={
+                "exercise_name": "Mayamalavagowla Sarali Varisai 1",
+                "tonic": "C",
+                "tonic_frequency": 261.63,
+                "duration_seconds": 16.0,
+                "overall_stability_pct": 82.0,
+                "mean_absolute_cent_error": 14.5,
+                "tempo_bpm": 60,
+                "user_consent_granted": True,
+                "swara_metrics": [
+                    {"swara": "S", "expected_cents": 0.0, "measured_cents": 2.1, "deviation_cents": 2.1, "stability_pct": 91.0, "status": "accurate"},
+                    {"swara": "R1", "expected_cents": 112.0, "measured_cents": 136.5, "deviation_cents": 24.5, "stability_pct": 74.0, "status": "sharp"},
+                    {"swara": "G3", "expected_cents": 386.0, "measured_cents": 382.0, "deviation_cents": -4.0, "stability_pct": 85.0, "status": "accurate"},
+                    {"swara": "M1", "expected_cents": 498.0, "measured_cents": 499.2, "deviation_cents": 1.2, "stability_pct": 88.0, "status": "accurate"},
+                    {"swara": "P", "expected_cents": 702.0, "measured_cents": 704.1, "deviation_cents": 2.1, "stability_pct": 93.0, "status": "accurate"},
+                ]
+            }
+        )
+        assert valid_res.status_code == 200
+        data = valid_res.json()
+        assert data["overall_score_pct"] > 50.0
+        assert "Exemplary" in data["pitch_accuracy_label"] or "Steady" in data["pitch_accuracy_label"]
+        assert len(data["identified_strengths"]) > 0
+        assert any("R1" in imp for imp in data["targeted_improvements"])
+        assert len(data["recommended_exercises"]) > 0
+        assert "Notice" in data["limitations_notice"]
+
+
+@pytest.mark.asyncio
+async def test_teacher_supported_learning_workflow():
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        # 1. Register Teacher
+        teacher_res = await ac.post(
+            "/api/v1/auth/register",
+            json={
+                "email": f"teacher_{uuid.uuid4().hex[:6]}@example.com",
+                "password": "SecurePassword123!",
+                "display_name": "Guru Vidwan",
+                "experience_level": "practising_musician"
+            }
+        )
+        assert teacher_res.status_code == 201
+        t_token = teacher_res.json()["access_token"]
+        t_headers = {"Authorization": f"Bearer {t_token}"}
+
+        # 2. Register Student
+        student_res = await ac.post(
+            "/api/v1/auth/register",
+            json={
+                "email": f"student_{uuid.uuid4().hex[:6]}@example.com",
+                "password": "SecurePassword123!",
+                "display_name": "Shishya Learner",
+                "experience_level": "student"
+            }
+        )
+        assert student_res.status_code == 201
+        s_token = student_res.json()["access_token"]
+        s_headers = {"Authorization": f"Bearer {s_token}"}
+
+        # 3. Teacher creates a Gurukulam learning group
+        group_res = await ac.post(
+            "/api/v1/teaching/groups",
+            json={"name": "Mohanam & Mayamalavagowla Gurukulam", "description": "Focused on beginner varisais"},
+            headers=t_headers
+        )
+        assert group_res.status_code == 201
+        group_id = group_res.json()["id"]
+
+        # 4. Teacher generates an expiring invitation token
+        inv_res = await ac.post(
+            f"/api/v1/teaching/groups/{group_id}/invitations",
+            json={"valid_days": 5},
+            headers=t_headers
+        )
+        assert inv_res.status_code == 201
+        inv_token = inv_res.json()["token"]
+
+        # 5. Student accepts invitation using token
+        join_res = await ac.post(
+            "/api/v1/teaching/invitations/accept",
+            json={"token": inv_token},
+            headers=s_headers
+        )
+        assert join_res.status_code == 200
+        assert "success" in join_res.json()["status"]
+
+        # 6. Teacher creates an assignment
+        assign_res = await ac.post(
+            f"/api/v1/teaching/groups/{group_id}/assignments",
+            json={
+                "title": "Sarali Varisai 1 in 2nd Speed",
+                "exercise_id": "sarali-1",
+                "target_kalam": 2,
+                "target_bpm": 60,
+                "instructions": "Ensure uniform duration for each akshara."
+            },
+            headers=t_headers
+        )
+        assert assign_res.status_code == 201
+        assign_id = assign_res.json()["id"]
+
+        # 7. Student fetches their assignments
+        my_assigns = (await ac.get("/api/v1/teaching/my-assignments", headers=s_headers)).json()
+        assert any(a["id"] == assign_id for a in my_assigns)
+
+        # 8. Student submits practice notes
+        submit_res = await ac.post(
+            f"/api/v1/teaching/assignments/{assign_id}/submit",
+            json={
+                "notes": "Practiced for 30 minutes with tambura drone at C (1 kattai). S-R-G-M transition was clean.",
+                "measured_cent_error": "12.4",
+                "measured_stability_pct": "84.0"
+            },
+            headers=s_headers
+        )
+        assert submit_res.status_code == 201
+        sub_id = submit_res.json()["id"]
+        assert submit_res.json()["status"] == "submitted"
+
+        # 9. Teacher reviews submissions
+        subs = (await ac.get(f"/api/v1/teaching/assignments/{assign_id}/submissions", headers=t_headers)).json()
+        assert len(subs) >= 1
+        assert subs[0]["id"] == sub_id
+
+        # 10. Teacher provides feedback (transitioning state to 'reviewed')
+        fb_res = await ac.post(
+            f"/api/v1/teaching/submissions/{sub_id}/feedback",
+            json={
+                "feedback_text": "Good pitch steadiness. Pay extra attention to Gandharam sustain before turning to Madhyamam.",
+                "recommended_lessons": "Lesson V-02, Lesson V-04"
+            },
+            headers=t_headers
+        )
+        assert fb_res.status_code == 201
+        assert "Good pitch" in fb_res.json()["feedback_text"]
+
+        # 11. Security check: Student cannot review submissions of other students
+        unauth_review = await ac.post(
+            f"/api/v1/teaching/submissions/{sub_id}/feedback",
+            json={"feedback_text": "Hacker feedback"},
+            headers=s_headers
+        )
+        assert unauth_review.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_heritage_archive_editorial_workflow():
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        # 1. Public discovery returns baseline published records
+        pub_res = await ac.get("/api/v1/heritage")
+        assert pub_res.status_code == 200
+        pub_data = pub_res.json()
+        assert len(pub_data) >= 4
+        assert any("Veena" in e["title"] for e in pub_data)
+        assert all(e["editorial_status"] == "published" for e in pub_data)
+
+        # 2. Filter by category
+        craft_res = await ac.get("/api/v1/heritage?category=instrument_craft")
+        assert craft_res.status_code == 200
+        assert all(e["category"] == "instrument_craft" for e in craft_res.json())
+
+        # 3. Contributor submits new heritage entry
+        new_entry_res = await ac.post(
+            "/api/v1/heritage/submit",
+            json={
+                "title": "Acoustic Physics of the Ghatam Belly Resonance",
+                "category": "instrument_craft",
+                "historical_period": "Modern / Classical",
+                "summary": "Helmholtz resonance principles governing the low-frequency acoustic cavity of the clay pot.",
+                "content": "The Manamadurai Ghatam is fired with specialized iron-rich clay and brass shavings, creating a heavy ceramic sphere with high mechanical stiffness. The fundamental Helmholtz frequency is modulated by the player's stomach aperture against the mouth hole.",
+                "primary_contributor": "Dr. Acoustic Scholar",
+                "source_citations": "Raman, C. V., 'The Indian Musical Drums', Indian Academy of Sciences, 1934.",
+                "licensing_info": "Creative Commons Attribution 4.0 International"
+            }
+        )
+        assert new_entry_res.status_code == 201
+        created_entry = new_entry_res.json()
+        entry_id = created_entry["id"]
+        entry_slug = created_entry["slug"]
+        # Must be pending_review, NOT published
+        assert created_entry["editorial_status"] == "pending_review"
+
+        # 4. Public search should NOT show pending submission
+        public_check = (await ac.get(f"/api/v1/heritage?q=Ghatam+Belly")).json()
+        assert not any(e["id"] == entry_id for e in public_check)
+
+        # Direct access to pending slug should return 404
+        direct_check = await ac.get(f"/api/v1/heritage/{entry_slug}")
+        assert direct_check.status_code == 404
+
+        # 5. Editorial user approves and publishes entry
+        editor_res = await ac.post(
+            "/api/v1/auth/register",
+            json={
+                "email": f"editor_{uuid.uuid4().hex[:6]}@example.com",
+                "password": "SecurePassword123!",
+                "display_name": "Editorial Scholar"
+            }
+        )
+        ed_token = editor_res.json()["access_token"]
+        ed_headers = {"Authorization": f"Bearer {ed_token}"}
+
+        review_res = await ac.post(
+            f"/api/v1/heritage/{entry_id}/review",
+            json={"editorial_status": "published", "reviewer_notes": "Acoustic citation verified against CV Raman paper."},
+            headers=ed_headers
+        )
+        assert review_res.status_code == 200
+        assert review_res.json()["editorial_status"] == "published"
+
+        # 6. Now public discovery must include the newly approved entry
+        now_pub = (await ac.get(f"/api/v1/heritage/{entry_slug}")).json()
+        assert now_pub["title"] == "Acoustic Physics of the Ghatam Belly Resonance"
+
+

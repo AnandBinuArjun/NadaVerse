@@ -534,6 +534,191 @@ class AudioEngine {
     osc.start(time);
     osc.stop(time + 0.07);
   }
+
+  /**
+   * Play a clean, resonant Carnatic swara tone using Just Intonation frequency
+   */
+  auditionNote(frequency: number, durationSec = 0.45): void {
+    if (typeof window === 'undefined' || frequency <= 0) return;
+    const ctx = this.ensureContext();
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const oscHarmonic = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(frequency, now);
+
+    oscHarmonic.type = 'triangle';
+    oscHarmonic.frequency.setValueAtTime(frequency * 2, now);
+
+    gain.gain.setValueAtTime(0.001, now);
+    gain.gain.exponentialRampToValueAtTime(0.35, now + 0.025);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + Math.max(0.1, durationSec));
+
+    osc.connect(gain);
+    oscHarmonic.connect(gain);
+    gain.connect(this.masterGain!);
+
+    osc.start(now);
+    oscHarmonic.start(now);
+    osc.stop(now + durationSec + 0.05);
+    oscHarmonic.stop(now + durationSec + 0.05);
+  }
+
+  /**
+   * Audition authentic acoustic timbre for Carnatic instruments using Web Audio API synthesis
+   */
+  auditionInstrument(slug: string): void {
+    if (typeof window === 'undefined') return;
+    const ctx = this.ensureContext();
+    const now = ctx.currentTime;
+
+    if (slug === 'saraswati-veena') {
+      // 4 Main playing strings: Anumandaram (C3), Mandaram (G3), Madhya Sa (C4), Madhya Pa (G4)
+      const freqs = [130.81, 196.0, 261.63, 392.0];
+      freqs.forEach((f, idx) => {
+        const time = now + idx * 0.28;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(f, time);
+        gain.gain.setValueAtTime(0.001, time);
+        gain.gain.exponentialRampToValueAtTime(0.4, time + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, time + 0.6);
+        osc.connect(gain);
+        gain.connect(this.masterGain!);
+        osc.start(time);
+        osc.stop(time + 0.65);
+      });
+      return;
+    }
+
+    if (slug === 'carnatic-violin') {
+      // Bowed string pairs: Mandra Pa (196 Hz), Madhya Sa (261.63 Hz), Madhya Pa (392 Hz), Tara Sa (523.25 Hz)
+      const freqs = [196.0, 261.63, 392.0, 523.25];
+      freqs.forEach((f, idx) => {
+        const time = now + idx * 0.32;
+        const osc = ctx.createOscillator();
+        const oscHarm = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sawtooth';
+        oscHarm.type = 'sine';
+        osc.frequency.setValueAtTime(f, time);
+        oscHarm.frequency.setValueAtTime(f * 2, time);
+        gain.gain.setValueAtTime(0.001, time);
+        gain.gain.exponentialRampToValueAtTime(0.25, time + 0.06);
+        gain.gain.exponentialRampToValueAtTime(0.001, time + 0.45);
+        osc.connect(gain);
+        oscHarm.connect(gain);
+        gain.connect(this.masterGain!);
+        osc.start(time);
+        oscHarm.start(time);
+        osc.stop(time + 0.5);
+        oscHarm.stop(time + 0.5);
+      });
+      return;
+    }
+
+    if (slug === 'mridangam') {
+      // Rhythmic solkattu pattern: Thom -> Tha -> Dhi -> Mi -> Thom
+      this.synthesizeMridangamStroke(now, 'thom', true, 1.2);
+      this.synthesizeMridangamStroke(now + 0.3, 'tha', false, 0.9);
+      this.synthesizeMridangamStroke(now + 0.6, 'dhi', false, 0.9);
+      this.synthesizeMridangamStroke(now + 0.9, 'mi', false, 0.9);
+      this.synthesizeMridangamStroke(now + 1.2, 'thom', true, 1.3);
+      return;
+    }
+
+    if (slug === 'ghatam') {
+      // High ceramic neck slap + deep belly air resonance
+      const time1 = now;
+      const osc1 = ctx.createOscillator();
+      const gain1 = ctx.createGain();
+      osc1.type = 'triangle';
+      osc1.frequency.setValueAtTime(680, time1);
+      osc1.frequency.exponentialRampToValueAtTime(450, time1 + 0.05);
+      gain1.gain.setValueAtTime(0.5, time1);
+      gain1.gain.exponentialRampToValueAtTime(0.001, time1 + 0.09);
+      osc1.connect(gain1);
+      gain1.connect(this.masterGain!);
+      osc1.start(time1);
+      osc1.stop(time1 + 0.1);
+
+      const time2 = now + 0.35;
+      const osc2 = ctx.createOscillator();
+      const gain2 = ctx.createGain();
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(110, time2);
+      gain2.gain.setValueAtTime(0.65, time2);
+      gain2.gain.exponentialRampToValueAtTime(0.001, time2 + 0.22);
+      osc2.connect(gain2);
+      gain2.connect(this.masterGain!);
+      osc2.start(time2);
+      osc2.stop(time2 + 0.25);
+      return;
+    }
+
+    if (slug === 'kanjira') {
+      // Deep pitch-bending gumki slap (90 Hz -> 150 Hz -> 80 Hz)
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(90, now);
+      osc.frequency.linearRampToValueAtTime(160, now + 0.1);
+      osc.frequency.exponentialRampToValueAtTime(80, now + 0.3);
+      gain.gain.setValueAtTime(0.6, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+      osc.connect(gain);
+      gain.connect(this.masterGain!);
+      osc.start(now);
+      osc.stop(now + 0.38);
+      return;
+    }
+
+    if (slug === 'tambura') {
+      // Cascade drone string arpeggio (Pa, Sa, Sa, Sa)
+      const freqs = [196.0, 261.63, 262.1, 130.81];
+      freqs.forEach((f, idx) => {
+        const time = now + idx * 0.4;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(f, time);
+        gain.gain.setValueAtTime(0.001, time);
+        gain.gain.exponentialRampToValueAtTime(0.35, time + 0.04);
+        gain.gain.exponentialRampToValueAtTime(0.001, time + 0.9);
+        osc.connect(gain);
+        gain.connect(this.masterGain!);
+        osc.start(time);
+        osc.stop(time + 1.0);
+      });
+      return;
+    }
+
+    if (slug === 'carnatic-flute') {
+      // Warm bamboo flute ascending Mohanam melody: S - R2 - G3 - P (261.63, 294.33, 327.03, 392.44 Hz)
+      const notes = [261.63, 294.33, 327.03, 392.44];
+      notes.forEach((f, idx) => {
+        const time = now + idx * 0.35;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(f, time);
+        gain.gain.setValueAtTime(0.001, time);
+        gain.gain.exponentialRampToValueAtTime(0.32, time + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.001, time + 0.4);
+        osc.connect(gain);
+        gain.connect(this.masterGain!);
+        osc.start(time);
+        osc.stop(time + 0.45);
+      });
+      return;
+    }
+
+    // Default fallback single clean note
+    this.auditionNote(261.63, 0.6);
+  }
 }
 
 // Singleton audio engine instance for client use

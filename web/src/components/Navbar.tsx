@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Volume2, VolumeX, Compass, Sparkles, Sliders, BookOpen, User, Menu, X } from 'lucide-react';
+import { Volume2, VolumeX, Compass, Sparkles, Sliders, BookOpen, User, Menu, X, GraduationCap, Landmark } from 'lucide-react';
 import { audioEngine, TONIC_OPTIONS } from '../lib/audioEngine';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -68,9 +68,14 @@ export const Navbar: React.FC<NavbarProps> = ({
               />
             </div>
             <div className="shrink-0 min-w-0">
-              <span className="font-serif tracking-wide text-lg sm:text-2xl font-bold bg-gradient-to-r from-[#F4EBDD] via-[#E8D7A8] to-[#C7A45B] bg-clip-text text-transparent block leading-none whitespace-nowrap">
-                {t.brandName}
-              </span>
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <span className="font-serif tracking-wide text-lg sm:text-2xl font-bold bg-gradient-to-r from-[#F4EBDD] via-[#E8D7A8] to-[#C7A45B] bg-clip-text text-transparent block leading-none whitespace-nowrap">
+                  {t.brandName}
+                </span>
+                <span className="px-1.5 py-0.5 text-[9px] sm:text-[10px] font-mono font-bold uppercase tracking-wider rounded-md bg-[#C7A45B]/15 text-[#E0C98F] border border-[#C7A45B]/35 shadow-sm">
+                  Public Beta
+                </span>
+              </div>
               <span className="text-[9px] sm:text-[10px] tracking-wider uppercase text-[#BDB4A4]/80 font-mono mt-1 block whitespace-nowrap">
                 {lang === 'ml' ? 'സംഗീത സങ്കേതം' : t.brandSubtitle}
               </span>
@@ -128,6 +133,30 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             <Sliders className="w-3.5 h-3.5 text-[#C7A45B]" />
             <span>{t.navPracticeStudio}</span>
+          </button>
+
+          <button
+            onClick={() => handleNavigateSection('teaching')}
+            className={`whitespace-nowrap flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${
+              activeSection === 'teaching'
+                ? 'bg-gradient-to-r from-[#DFB960]/20 to-[#C7A45B]/20 text-[#E0C98F] border border-[#C7A45B]/40 shadow-sm font-semibold'
+                : 'text-[#BDB4A4] hover:text-[#F4EBDD] hover:bg-white/5'
+            }`}
+          >
+            <GraduationCap className="w-3.5 h-3.5 text-[#C7A45B]" />
+            <span>{lang === 'ml' ? 'ഗുരുകുലം' : 'Gurukulam'}</span>
+          </button>
+
+          <button
+            onClick={() => handleNavigateSection('heritage')}
+            className={`whitespace-nowrap flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${
+              activeSection === 'heritage'
+                ? 'bg-gradient-to-r from-[#DFB960]/20 to-[#C7A45B]/20 text-[#E0C98F] border border-[#C7A45B]/40 shadow-sm font-semibold'
+                : 'text-[#BDB4A4] hover:text-[#F4EBDD] hover:bg-white/5'
+            }`}
+          >
+            <Landmark className="w-3.5 h-3.5 text-[#C7A45B]" />
+            <span>{lang === 'ml' ? 'പൈതൃകം' : 'Heritage'}</span>
           </button>
 
           <button
@@ -289,6 +318,34 @@ export const Navbar: React.FC<NavbarProps> = ({
               <div className="flex items-center gap-2">
                 <Sliders className="w-4 h-4 text-[#C7A45B]" />
                 <span>{t.navPracticeStudio}</span>
+              </div>
+            </button>
+
+            <button
+              onClick={() => handleNavigateSection('teaching')}
+              className={`flex items-center justify-between p-3 rounded-xl text-sm font-medium transition-colors ${
+                activeSection === 'teaching'
+                  ? 'bg-[#C7A45B]/15 text-[#E0C98F] border border-[#C7A45B]/30'
+                  : 'text-[#BDB4A4] hover:bg-[#161410]'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <GraduationCap className="w-4 h-4 text-[#C7A45B]" />
+                <span>{lang === 'ml' ? 'ഗുരുകുലം (പഠന കൂട്ടായ്മ)' : 'Gurukulam (Teaching)'}</span>
+              </div>
+            </button>
+
+            <button
+              onClick={() => handleNavigateSection('heritage')}
+              className={`flex items-center justify-between p-3 rounded-xl text-sm font-medium transition-colors ${
+                activeSection === 'heritage'
+                  ? 'bg-[#C7A45B]/15 text-[#E0C98F] border border-[#C7A45B]/30'
+                  : 'text-[#BDB4A4] hover:bg-[#161410]'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Landmark className="w-4 h-4 text-[#C7A45B]" />
+                <span>{lang === 'ml' ? 'പൈതൃക ശേഖരം' : 'Heritage Archive'}</span>
               </div>
             </button>
 

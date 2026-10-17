@@ -74,11 +74,11 @@ async def register(payload: UserRegister, db: AsyncSession = Depends(get_db)):
 
 @router.post("/login", response_model=TokenResponse)
 async def login(payload: UserLogin, db: AsyncSession = Depends(get_db)):
-    stmt = select(User).where(User.email == payload.email, User.deleted_at == None)
+    stmt = select(User).where(User.email == payload.email)
     result = await db.execute(stmt)
     user = result.scalars().first()
 
-    if not user or not verify_password(payload.password, user.hashed_password):
+    if not user or user.deleted_at is not None or not verify_password(payload.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email or password.",
@@ -123,21 +123,39 @@ async def delete_my_account(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
-    """Soft delete user account and anonymize personal information."""
+    """
+    Deactivates user account and permanently purges personal bookmarks,
+    lesson progress, practice logs, and user profile data.
+    """
+    from app.models.entities import PracticeSession
+
+    user_id = current_user.id
+
+    # Purge all user-associated entities
+    await db.execute(delete(Bookmark).where(Bookmark.user_id == user_id))
+    await db.execute(delete(LessonProgress).where(LessonProgress.user_id == user_id))
+    await db.execute(delete(PracticeSession).where(PracticeSession.user_id == user_id))
+    await db.execute(delete(UserProfile).where(UserProfile.user_id == user_id))
+
     current_user.is_active = False
     current_user.deleted_at = datetime.now(timezone.utc)
-    current_user.email = f"deleted_{current_user.id[:8]}@anonymized.nadaverse"
+    current_user.hashed_password = "account_deleted_unusable_hash"
+    current_user.email = f"deleted_{user_id[:8]}@anonymized.nadaverse"
     
     audit = AuditEvent(
-        actor_id=current_user.id,
+        actor_id=user_id,
         action="account_deleted",
         target_type="user",
-        target_id=current_user.id,
-        details="User requested account deletion and data anonymization",
+        target_id=user_id,
+        details="User requested account deletion. Personal data, profile, bookmarks, and practice sessions purged.",
     )
     db.add(audit)
     await db.commit()
-    return {"status": "success", "message": "Account successfully deactivated and scheduled for permanent purge."}
+    return {
+        "status": "success",
+        "message": "Account successfully deactivated. All personal bookmarks, practice logs, and profile records have been permanently purged.",
+        "audit_event_logged": True
+    }
 
 
 # -----------------------------------------------------------------------------

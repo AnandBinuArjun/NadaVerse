@@ -51,6 +51,10 @@ async def get_optional_current_user(
     user_id = decode_access_token(token)
     if not user_id:
         return None
-    query = select(User).where(User.id == user_id, User.is_active == True).options(selectinload(User.profile))
+    query = select(User).where(
+        User.id == user_id,
+        User.is_active == True,
+        User.deleted_at == None
+    ).options(selectinload(User.profile))
     result = await db.execute(query)
     return result.scalars().first()

@@ -6,11 +6,11 @@ practice session persistence, user authentication, and grounded AI tutor orchest
 
 from typing import List, Optional
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, Query, Depends, Request, Response, status
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
@@ -22,6 +22,10 @@ from app.schemas.tutor import TutorMessageRequest, TutorResponse
 from app.api.deps import get_optional_current_user
 from app.api.v1.endpoints.auth import router as auth_router, user_router
 from app.api.v1.endpoints.search import router as search_router
+from app.api.v1.endpoints.curriculum import router as curriculum_router
+from app.api.v1.endpoints.audio_practice import router as audio_router
+from app.api.v1.endpoints.teaching import router as teaching_router
+from app.api.v1.endpoints.heritage import router as heritage_router
 from app.services.ai_gateway import ai_gateway
 from app.data.verified_corpus import (
     VERIFIED_RAGAS_DATA,
@@ -35,9 +39,17 @@ from app.data.verified_corpus import (
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Initialize database tables
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    # Production startup safety validations
+    if settings.APP_ENV == "production":
+        if settings.DEBUG:
+            raise RuntimeError("CRITICAL: DEBUG mode cannot be enabled in production.")
+        if "*" in settings.CORS_ORIGINS:
+            raise RuntimeError("CRITICAL: Wildcard CORS origin is forbidden in production.")
+        # In production, schema migrations are performed out-of-band via 'alembic upgrade head'
+    else:
+        # Development / test database automatic table initialization
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
     yield
     await engine.dispose()
 
@@ -95,6 +107,10 @@ app.add_middleware(CORSMiddleware, **cors_kwargs)
 app.include_router(auth_router, prefix=settings.API_V1_PREFIX)
 app.include_router(user_router, prefix=settings.API_V1_PREFIX)
 app.include_router(search_router, prefix=settings.API_V1_PREFIX)
+app.include_router(curriculum_router, prefix=settings.API_V1_PREFIX)
+app.include_router(audio_router, prefix=settings.API_V1_PREFIX)
+app.include_router(teaching_router, prefix=settings.API_V1_PREFIX)
+app.include_router(heritage_router, prefix=settings.API_V1_PREFIX)
 
 
 @app.get("/api/v1/health", tags=["System"])
@@ -106,6 +122,20 @@ async def health_check():
         "environment": settings.APP_ENV,
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }
+
+
+@app.get("/api/v1/health/liveness", tags=["System"])
+async def health_liveness():
+    return {"status": "alive"}
+
+
+@app.get("/api/v1/health/readiness", tags=["System"])
+async def health_readiness(db: AsyncSession = Depends(get_db)):
+    try:
+        await db.execute(text("SELECT 1"))
+        return {"status": "ready", "database": "healthy"}
+    except Exception:
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Database connectivity unavailable")
 
 
 # -----------------------------------------------------------------------------
@@ -202,6 +232,8 @@ async def create_practice_session(
     now = datetime.now(timezone.utc)
     user_id = current_user.id if current_user else "guest_session"
 
+    ended_at = now + timedelta(seconds=payload.duration_seconds)
+
     session = PracticeSession(
         id=session_id,
         user_id=user_id,
@@ -220,7 +252,7 @@ async def create_practice_session(
         id=session.id,
         user_id=session.user_id,
         started_at=session.started_at,
-        ended_at=session.started_at,
+        ended_at=ended_at,
         duration_seconds=session.duration_seconds,
         focus=session.focus,
         tonic=session.tonic,
@@ -245,7 +277,7 @@ async def list_practice_sessions(
             id=s.id,
             user_id=s.user_id,
             started_at=s.started_at,
-            ended_at=s.started_at,
+            ended_at=s.started_at + timedelta(seconds=s.duration_seconds),
             duration_seconds=s.duration_seconds,
             focus=s.focus,
             tonic=s.tonic,
@@ -272,11 +304,32 @@ async def tutor_chat(payload: TutorMessageRequest):
 
 
 @app.get("/api/v1/tutor/stream", tags=["AI Tutor"])
-async def tutor_stream(query: str = Query(..., description="Query for tutor"), conversation_id: Optional[str] = None):
+async def tutor_stream_get(query: str = Query(..., description="Query for tutor"), conversation_id: Optional[str] = None):
     conv_id = conversation_id or f"conv_{uuid.uuid4().hex[:8]}"
     
     async def sse_event_stream():
         async for chunk in ai_gateway.stream_grounded_response(conv_id, query):
+            data = json.dumps({"chunk": chunk})
+            yield f"data: {data}\n\n"
+        yield "data: [DONE]\n\n"
+
+    return StreamingResponse(
+        sse_event_stream(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        }
+    )
+
+
+@app.post("/api/v1/tutor/stream", tags=["AI Tutor"])
+async def tutor_stream_post(payload: TutorMessageRequest):
+    conv_id = payload.conversation_id or f"conv_{uuid.uuid4().hex[:8]}"
+    
+    async def sse_event_stream():
+        async for chunk in ai_gateway.stream_grounded_response(conv_id, payload.query):
             data = json.dumps({"chunk": chunk})
             yield f"data: {data}\n\n"
         yield "data: [DONE]\n\n"

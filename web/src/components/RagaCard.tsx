@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Volume2, ShieldCheck, BookOpen, Sparkles, Edit3 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Volume2, ShieldCheck, BookOpen, Sparkles, Edit3, Bookmark, BookmarkCheck } from 'lucide-react';
 import { RagaItem, SwaraInfo } from '../types/carnatic';
 import { audioEngine } from '../lib/audioEngine';
 import { useLanguage } from '../context/LanguageContext';
@@ -12,12 +12,81 @@ interface RagaCardProps {
   raga: RagaItem;
   onAskTutor?: (ragaName: string) => void;
   onSuggestCorrection?: (ragaName: string) => void;
+  onSelectRelatedRaga?: (ragaSlug: string) => void;
 }
 
-export const RagaCard: React.FC<RagaCardProps> = ({ raga, onAskTutor, onSuggestCorrection }) => {
+// Standard Carnatic 16 Swarasthana Just Intonation ratios lookup table
+const STANDARD_SWARA_RATIOS: Record<string, number> = {
+  'S': 1.0, 'Sa': 1.0,
+  'R₁': 16 / 15, 'R1': 16 / 15, 'Ri1': 16 / 15,
+  'R₂': 9 / 8, 'R2': 9 / 8, 'Ri2': 9 / 8, 'G₁': 9 / 8, 'G1': 9 / 8, 'Ga1': 9 / 8,
+  'R₃': 6 / 5, 'R3': 6 / 5, 'Ri3': 6 / 5, 'G₂': 6 / 5, 'G2': 6 / 5, 'Ga2': 6 / 5,
+  'G₃': 5 / 4, 'G3': 5 / 4, 'Ga3': 5 / 4,
+  'M₁': 4 / 3, 'M1': 4 / 3, 'Ma1': 4 / 3,
+  'M₂': 45 / 32, 'M2': 45 / 32, 'Ma2': 45 / 32,
+  'P': 3 / 2, 'Pa': 3 / 2,
+  'D₁': 8 / 5, 'D1': 8 / 5, 'Dha1': 8 / 5,
+  'D₂': 27 / 16, 'D2': 27 / 16, 'Dha2': 27 / 16, 'N₁': 27 / 16, 'N1': 27 / 16, 'Ni1': 27 / 16,
+  'D₃': 9 / 5, 'D3': 9 / 5, 'Dha3': 9 / 5, 'N₂': 9 / 5, 'N2': 9 / 5, 'Ni2': 9 / 5,
+  'N₃': 15 / 8, 'N3': 15 / 8, 'Ni3': 15 / 8,
+  'Ṡ': 2.0, 'S˙': 2.0, 'S.': 2.0, 'Sa.': 2.0
+};
+
+// Verified related raga networks
+const RELATED_RAGA_MAPPING: Record<string, string[]> = {
+  'mayamalavagowla': ['Malahari', 'Saveri', 'Bowli', 'Jaganmohini', 'Revagupti'],
+  'shankarabharanam': ['Hamsadhwani', 'Bilahari', 'Mohanam', 'Shuddha Saveri', 'Arabhi'],
+  'kalyani': ['Mohanakalyani', 'Saranga', 'Hamirkalyani', 'Yamunakalyani'],
+  'harikambhoji': ['Khamas', 'Mohanam', 'Sahana', 'Kedaragowla', 'Natakurinji'],
+  'kharaharapriya': ['Abheri', 'Sriranjani', 'Madhyamavati', 'Darbar', 'Kapi'],
+  'thodi': ['Asaveri', 'Ahiri', 'Dhanyasi', 'Punnagavarali'],
+  'natabhairavi': ['Anandabhairavi', 'Hindolam', 'Jaunpuri', 'Saramati'],
+  'chakravakam': ['Bindumalini', 'Malayamarutam', 'Valaji'],
+  'charukesi': ['Tarangini'],
+  'simhendramadhyamam': ['Urmika', 'Seshanada']
+};
+
+export const RagaCard: React.FC<RagaCardProps> = ({
+  raga,
+  onAskTutor,
+  onSuggestCorrection,
+  onSelectRelatedRaga
+}) => {
   const { lang, t } = useLanguage();
   const [activeSwaraSymbol, setActiveSwaraSymbol] = useState<string | null>(null);
   const [playingMode, setPlayingMode] = useState<'arohanam' | 'avarohanam' | 'full' | null>(null);
+  const [isBookmarked, setIsBookmarked] = useState<boolean>(false);
+
+  // Load bookmark status
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('nadaverse_bookmarked_ragas');
+        if (stored) {
+          const arr: string[] = JSON.parse(stored);
+          setIsBookmarked(arr.includes(raga.slug));
+        }
+      } catch {}
+    }
+  }, [raga.slug]);
+
+  const toggleBookmark = () => {
+    if (typeof window === 'undefined') return;
+    try {
+      const stored = localStorage.getItem('nadaverse_bookmarked_ragas');
+      const arr: string[] = stored ? JSON.parse(stored) : [];
+      let updated: string[];
+      if (arr.includes(raga.slug)) {
+        updated = arr.filter((s) => s !== raga.slug);
+        setIsBookmarked(false);
+      } else {
+        updated = [...arr, raga.slug];
+        setIsBookmarked(true);
+      }
+      localStorage.setItem('nadaverse_bookmarked_ragas', JSON.stringify(updated));
+      window.dispatchEvent(new CustomEvent('nadaverse:bookmarks_updated'));
+    } catch {}
+  };
 
   const handlePlaySingleSwara = (swara: SwaraInfo) => {
     setActiveSwaraSymbol(swara.symbol);
@@ -31,23 +100,6 @@ export const RagaCard: React.FC<RagaCardProps> = ({ raga, onAskTutor, onSuggestC
     audioEngine.stopRagaScale();
     setPlayingMode(null);
     setActiveSwaraSymbol(null);
-  };
-
-  // Standard Carnatic 16 Swarasthana Just Intonation ratios lookup table
-  const STANDARD_SWARA_RATIOS: Record<string, number> = {
-    'S': 1.0, 'Sa': 1.0,
-    'R₁': 16 / 15, 'R1': 16 / 15, 'Ri1': 16 / 15,
-    'R₂': 9 / 8, 'R2': 9 / 8, 'Ri2': 9 / 8, 'G₁': 9 / 8, 'G1': 9 / 8, 'Ga1': 9 / 8,
-    'R₃': 6 / 5, 'R3': 6 / 5, 'Ri3': 6 / 5, 'G₂': 6 / 5, 'G2': 6 / 5, 'Ga2': 6 / 5,
-    'G₃': 5 / 4, 'G3': 5 / 4, 'Ga3': 5 / 4,
-    'M₁': 4 / 3, 'M1': 4 / 3, 'Ma1': 4 / 3,
-    'M₂': 45 / 32, 'M2': 45 / 32, 'Ma2': 45 / 32,
-    'P': 3 / 2, 'Pa': 3 / 2,
-    'D₁': 8 / 5, 'D1': 8 / 5, 'Dha1': 8 / 5,
-    'D₂': 27 / 16, 'D2': 27 / 16, 'Dha2': 27 / 16, 'N₁': 27 / 16, 'N1': 27 / 16, 'Ni1': 27 / 16,
-    'D₃': 9 / 5, 'D3': 9 / 5, 'Dha3': 9 / 5, 'N₂': 9 / 5, 'N2': 9 / 5, 'Ni2': 9 / 5,
-    'N₃': 15 / 8, 'N3': 15 / 8, 'Ni3': 15 / 8,
-    'Ṡ': 2.0, 'S˙': 2.0, 'S.': 2.0, 'Sa.': 2.0
   };
 
   // Build swara ratio lookup map from raga's specific swaraDetails + standard ratios
@@ -80,33 +132,35 @@ export const RagaCard: React.FC<RagaCardProps> = ({ raga, onAskTutor, onSuggestC
 
     setPlayingMode(mode);
 
-    // Extract exact swara symbols from notation string
-    const aroSwaras = raga.arohanam
-      ? raga.arohanam.trim().split(/\s+/).filter(Boolean)
-      : raga.swaraDetails.map((s) => s.symbol);
+    // Parse swara sequences
+    const arohanaSymbols = raga.arohanam.split(/\s+/).filter((s) => s.trim().length > 0);
+    const avarohanaSymbols = raga.avarohanam.split(/\s+/).filter((s) => s.trim().length > 0);
 
-    const avaSwaras = raga.avarohanam
-      ? raga.avarohanam.trim().split(/\s+/).filter(Boolean)
-      : [...raga.swaraDetails.map((s) => s.symbol)].reverse();
+    const arohanaNotes = arohanaSymbols.map((sym) => ({
+      symbol: sym,
+      ratio: resolveSwaraRatio(sym)
+    }));
 
-    let swaraSequence: string[] = [];
+    const avarohanaNotes = avarohanaSymbols.map((sym) => ({
+      symbol: sym,
+      ratio: resolveSwaraRatio(sym)
+    }));
+
+    let sequence: { symbol: string; ratio: number }[] = [];
     if (mode === 'arohanam') {
-      swaraSequence = aroSwaras;
+      sequence = arohanaNotes;
     } else if (mode === 'avarohanam') {
-      swaraSequence = avaSwaras;
+      sequence = avarohanaNotes;
     } else {
-      swaraSequence = [...aroSwaras, ...avaSwaras];
+      sequence = [...arohanaNotes, ...avarohanaNotes.slice(1)];
     }
-
-    const ratios = swaraSequence.map((sym) => resolveSwaraRatio(sym));
+    const ratios = sequence.map((n) => n.ratio);
 
     audioEngine.playRagaScale(
       ratios,
-      500, // Exact 500ms intervals as required
-      (stepIndex) => {
-        if (stepIndex < swaraSequence.length) {
-          setActiveSwaraSymbol(swaraSequence[stepIndex]);
-        }
+      500,
+      (idx) => {
+        setActiveSwaraSymbol(sequence[idx]?.symbol || null);
       },
       () => {
         setPlayingMode(null);
@@ -115,12 +169,13 @@ export const RagaCard: React.FC<RagaCardProps> = ({ raga, onAskTutor, onSuggestC
     );
   };
 
-  const malayalamName = RAGA_ML_NAMES[raga.slug];
   const ml = RAGA_ML_DATA[raga.slug];
+  const malayalamName = RAGA_ML_NAMES[raga.slug];
+  const relatedRagas = RELATED_RAGA_MAPPING[raga.slug] || [];
 
   return (
     <div className="nv-glass-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 shadow-xl relative overflow-hidden transition-all duration-300 border border-[#C7A45B]/20 hover:border-[#C7A45B]/50 hover:shadow-[0_15px_40px_-10px_rgba(0,0,0,0.7),0_0_30px_rgba(199,164,91,0.12)]">
-      {/* Header: Title, Melakarta, Review Badge */}
+      {/* Header: Title, Melakarta, Bookmark & Review Badge */}
       <div className="flex flex-col sm:flex-row sm:items-start justify-between pb-4 border-b border-[#3B392F] gap-3">
         <div>
           <div className="flex flex-wrap items-center gap-2 mb-1">
@@ -142,8 +197,21 @@ export const RagaCard: React.FC<RagaCardProps> = ({ raga, onAskTutor, onSuggestC
           </div>
         </div>
 
-        {/* Provenance & Review Badge */}
+        {/* Provenance Badge & Bookmark Button */}
         <div className="flex items-center space-x-2 shrink-0">
+          <button
+            onClick={toggleBookmark}
+            className={`p-2 rounded-xl border transition-all ${
+              isBookmarked
+                ? 'bg-[#C7A45B]/20 border-[#C7A45B] text-[#DFB960]'
+                : 'bg-[#191916] border-[#3B392F] text-[#BDB4A4] hover:text-[#F4EBDD] hover:border-[#C7A45B]/40'
+            }`}
+            title={isBookmarked ? 'Remove from bookmarks' : 'Add to bookmarks'}
+            aria-label={isBookmarked ? 'Remove bookmark' : 'Bookmark raga'}
+          >
+            {isBookmarked ? <BookmarkCheck className="w-4 h-4 fill-current" /> : <Bookmark className="w-4 h-4" />}
+          </button>
+
           <span className="inline-flex items-center space-x-1 text-xs bg-[#22221D] text-[#87947A] border border-[#3B392F] px-2.5 py-1 rounded-full">
             <ShieldCheck className="w-3.5 h-3.5" />
             <span className="font-medium">
@@ -153,51 +221,46 @@ export const RagaCard: React.FC<RagaCardProps> = ({ raga, onAskTutor, onSuggestC
         </div>
       </div>
 
-      {/* Arohanam & Avarohanam Notation */}
-      <div className="my-4 sm:my-5 bg-[#22221D] p-3.5 sm:p-4 rounded-xl border border-[#3B392F]">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-3">
-          <span className="text-xs uppercase font-mono text-[#BDB4A4]">
-            {lang === 'ml' ? 'സ്വര സഞ്ചാര ഘടന (ആരോഹണം / അവരോഹണം)' : 'Scale Structure (Arohanam / Avarohanam)'}
+      {/* Scale Exploration & Audio Demonstration */}
+      <div className="my-4 sm:my-5 bg-[#191916]/80 p-4 sm:p-5 rounded-2xl border border-[#3B392F]/80">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#3B392F]/60 gap-3 mb-4">
+          <span className="text-xs font-mono uppercase tracking-wider text-[#C7A45B] flex items-center space-x-1.5">
+            <Volume2 className="w-3.5 h-3.5" />
+            <span>{lang === 'ml' ? 'രാഗ സ്വര സഞ്ചാരം' : 'Scale Audio Demonstration'}</span>
           </span>
-          
-          <div className="flex flex-wrap items-center gap-1.5 w-full sm:w-auto">
-            {playingMode ? (
-              <button
-                onClick={handleStopScale}
-                className="flex items-center justify-center space-x-1.5 text-xs text-[#E8D7A8] bg-[#C7A45B]/20 hover:bg-[#C7A45B]/30 px-3 py-1.5 rounded-lg border border-[#C7A45B] transition-all animate-pulse w-full sm:w-auto min-h-[36px]"
-                aria-label="Stop playback"
-              >
-                <div className="w-2 h-2 rounded-full bg-[#E0C98F] animate-ping" />
-                <span>{lang === 'ml' ? 'നിർത്തുക (Stop)' : 'Stop Scale'}</span>
-              </button>
-            ) : (
-              <>
-                <button
-                  onClick={() => handlePlayScale('arohanam')}
-                  className="flex items-center justify-center space-x-1 text-[11px] text-[#C7A45B] hover:text-[#E0C98F] font-medium bg-[#191916] hover:bg-[#22221D] px-2.5 py-1.5 rounded-lg border border-[#3B392F] hover:border-[#C7A45B] transition-colors flex-1 sm:flex-none min-h-[34px]"
-                  aria-label={`Listen to ${raga.canonicalName} ascending scale`}
-                >
-                  <Volume2 className="w-3.5 h-3.5" />
-                  <span>{lang === 'ml' ? 'ആരോഹണം' : 'Arohanam'}</span>
-                </button>
-                <button
-                  onClick={() => handlePlayScale('avarohanam')}
-                  className="flex items-center justify-center space-x-1 text-[11px] text-[#C7A45B] hover:text-[#E0C98F] font-medium bg-[#191916] hover:bg-[#22221D] px-2.5 py-1.5 rounded-lg border border-[#3B392F] hover:border-[#C7A45B] transition-colors flex-1 sm:flex-none min-h-[34px]"
-                  aria-label={`Listen to ${raga.canonicalName} descending scale`}
-                >
-                  <Volume2 className="w-3.5 h-3.5" />
-                  <span>{lang === 'ml' ? 'അവരോഹണം' : 'Avarohanam'}</span>
-                </button>
-                <button
-                  onClick={() => handlePlayScale('full')}
-                  className="flex items-center justify-center space-x-1 text-[11px] text-[#E0C98F] hover:text-[#F4EBDD] font-medium bg-[#C7A45B]/15 hover:bg-[#C7A45B]/25 px-2.5 py-1.5 rounded-lg border border-[#C7A45B]/40 hover:border-[#C7A45B] transition-colors flex-1 sm:flex-none min-h-[34px]"
-                  aria-label={`Listen to ${raga.canonicalName} full scale`}
-                >
-                  <Volume2 className="w-3.5 h-3.5 text-[#C7A45B]" />
-                  <span>{lang === 'ml' ? 'പൂർണ്ണ ആരോഹണ-അവരോഹണം' : 'Full Scale'}</span>
-                </button>
-              </>
-            )}
+
+          {/* Scale Playback Controls */}
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => handlePlayScale('arohanam')}
+              className={`px-3 py-1.5 rounded-lg border text-xs font-mono transition-all ${
+                playingMode === 'arohanam'
+                  ? 'bg-[#C7A45B] text-[#11110F] font-bold shadow'
+                  : 'bg-[#22221D] border-[#3B392F] text-[#BDB4A4] hover:text-[#F4EBDD]'
+              }`}
+            >
+              {playingMode === 'arohanam' ? 'Stop' : 'Arohanam'}
+            </button>
+            <button
+              onClick={() => handlePlayScale('avarohanam')}
+              className={`px-3 py-1.5 rounded-lg border text-xs font-mono transition-all ${
+                playingMode === 'avarohanam'
+                  ? 'bg-[#C7A45B] text-[#11110F] font-bold shadow'
+                  : 'bg-[#22221D] border-[#3B392F] text-[#BDB4A4] hover:text-[#F4EBDD]'
+              }`}
+            >
+              {playingMode === 'avarohanam' ? 'Stop' : 'Avarohanam'}
+            </button>
+            <button
+              onClick={() => handlePlayScale('full')}
+              className={`px-3 py-1.5 rounded-lg border text-xs font-mono transition-all ${
+                playingMode === 'full'
+                  ? 'bg-[#DFB960] text-[#11110F] font-bold shadow'
+                  : 'bg-[#C7A45B]/15 border-[#C7A45B]/40 text-[#E0C98F] hover:bg-[#C7A45B]/30'
+              }`}
+            >
+              {playingMode === 'full' ? 'Stop' : 'Full Scale'}
+            </button>
           </div>
         </div>
 
@@ -257,6 +320,25 @@ export const RagaCard: React.FC<RagaCardProps> = ({ raga, onAskTutor, onSuggestC
         </div>
       </div>
 
+      {/* Related Ragas & Sibling Janyas */}
+      {relatedRagas.length > 0 && (
+        <div className="mt-4 pt-3 border-t border-[#3B392F]">
+          <span className="text-[11px] font-mono uppercase text-[#C7A45B] block mb-2">
+            {lang === 'ml' ? 'ബന്ധപ്പെട്ട / ജന്യ രാഗങ്ങൾ:' : 'Related Ragas & Notable Janyas:'}
+          </span>
+          <div className="flex flex-wrap gap-1.5">
+            {relatedRagas.map((rel, idx) => (
+              <span
+                key={idx}
+                className="px-2.5 py-1 rounded-lg bg-[#22221D] border border-[#3B392F] text-xs font-serif text-[#F4EBDD]"
+              >
+                {rel}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Famous Compositions */}
       {raga.famousCompositions && raga.famousCompositions.length > 0 && (
         <div className="mt-4 sm:mt-5 pt-4 border-t border-[#3B392F]">
@@ -314,7 +396,7 @@ export const RagaCard: React.FC<RagaCardProps> = ({ raga, onAskTutor, onSuggestC
               <Sparkles className="w-3.5 h-3.5 shrink-0" />
               <span>
                 {lang === 'ml'
-                  ? `${raga.canonicalName}-നെക്കുറിച്ച് സംഗീത ഗുരുവിനോട് ചോദിക്കുക`
+                  ? `${raga.canonicalName}-നെക്കുറിച്ച് ചോദിക്കുക`
                   : 'Ask AI Tutor about this Raga'}
               </span>
             </button>

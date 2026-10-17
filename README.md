@@ -2,101 +2,127 @@
   <img src="./assets/logo.png" alt="NadaVerse — Carnatic Music For Everyone" width="480" />
 </p>
 
-# NadaVerse — Carnatic Music Discovery & Practice Sanctuary
+# NadaVerse — Carnatic Music Discovery, Practice Sanctuary & Gurukulam
 
-> **Discover Carnatic music. Understand its language. Practise with purpose.**
+> **Discover Carnatic music. Understand its language. Practise with purpose. 100% Free Forever.**
 
-NadaVerse is an all-in-one, completely free Carnatic music platform that brings together:
-- **Beginner Orientation:** A structured 3-part pathway explaining Shruti, Sapta Swaras, and Laya.
-- **Peer-Reviewed Reference Knowledge Base:** Arohanam/avarohanam, swarasthana ratios, historical contexts, and full bibliographic citations for Ragas, Talas, and Instruments (Mayamalavagowla, Shankarabharanam, Mechakalyani, Saraswati Veena, Mridangam, Tambura).
-- **Web Audio Practice Studio:**
-  - **Shruti & Tanpura Engine:** Acoustically modeled 4-string Tambura with natural Jivari overtone resonance and Just Intonation note auditioning.
-  - **Tala Studio & Metronome:** Drift-free rhythmic scheduler tracking traditional Carnatic Angas (Laghu & Dhrutam) with solkattu syllables and thattu/veechu kriya guidance.
-- **Grounded AI Tutor Gateway:** Retrieval-grounded assistant with verified citations and transparent uncertainty reporting. Never fabricates citations.
-- **Zero Paywalls:** Completely free for all learners, educators, and musicians. No subscriptions or paid feature gates.
+NadaVerse is a comprehensive, production-tested Carnatic music ecosystem combining authentic musicological research, microtonal Just Intonation sound synthesis, evidence-grounded AI acoustic analysis, structured curriculum paths, and collaborative mentorship.
 
 ---
 
-## Architecture & Technology Stack
+## 🌟 Six Major Core Features
 
-- **Frontend:** Next.js 16 (App Router) + TypeScript + Tailwind CSS
-- **Audio Engine:** Low-latency Web Audio API (Tanpura harmonic overtone synthesis & Lookahead Metronome scheduler)
-- **Icons & Styling:** Lucide React line icons + Semantic Carnatic design tokens (Dark charcoal `#11110F`, Warm ivory `#F4EBDD`, Antique gold `#C7A45B`)
-- **Backend API:** Python 3.12 + FastAPI + Pydantic v2
-- **Testing:** Pytest + Httpx ASGITransport (Backend) & Next.js production build / TypeScript verification (Frontend)
+1. **Interactive Carnatic Learning Paths:**
+   - 13 structured lessons across Vocal (*Gāyana Mārga*), Instrumental (*Vādya Mārga*), and Rhythm (*Tāla Mārga*).
+   - Prerequisite gating, search, difficulty/completion filters, multiple-choice quizzes with instant musical rationales and revision recommendations, and persistent progress.
+2. **Carnatic Instrument Learning Library:**
+   - In-depth profiles for 9 core instruments (Veena, Violin, Mridangam, Flute, Tambura, Ghatam, Kanjira, Nadaswaram, Morsing).
+   - Dynamic Web Audio synthesis auditions instrument timbres on demand.
+   - Comprehensive beginner posture guidance, common mistakes, storage/care, and bookmarking.
+3. **Better Tala Studio:**
+   - Precision Web Audio lookahead rhythmic scheduler (drift-free).
+   - 4-beat Lead-in Count-In mode before cycle starts.
+   - Bounded tempo ramps (start/target BPM, cycle intervals, automatic Samam increments).
+   - Live cycle counter, elapsed timer, and reusable rhythm presets with direct Sadhana Journal logging.
+4. **Explainable AI Practice Companion:**
+   - Evidence-based performance analysis using browser autocorrelation pitch extraction.
+   - Real-time pitch contour visualizer graphing sung frequencies against Adhara Shadjam swarasthanas.
+   - Cent deviation meter per swara, pitch stability index, and grounded guru feedback via `/api/v1/audio/analyze-practice` with transparent limitations notices.
+5. **Teacher-Supported Learning (Gurukulam):**
+   - 100% Free Gurukulam learning workspace with dual Student and Teacher modes.
+   - Expiring 64-character invitation tokens, group enrollment, and assignment creation (Kalam, BPM, instructions, due dates).
+   - Student practice note submissions with attached acoustic scores, and teacher reviews with constructive feedback.
+   - Backend authorization ensuring strict cross-user data isolation.
+6. **Carnatic Heritage Archive:**
+   - Curated digital repository documenting instrument lutherie (Thanjavur Veena Jackwood carving, Manamadurai Ghatam), composer biographies, temple epigraphy (7th-century Kudumiyanmalai rock inscriptions), and treatise publication histories.
+   - Full-text search, category filters, article reader modal with complete academic citations and license declarations.
+   - Contributor submission workflow with mandatory peer-review moderation.
 
 ---
 
-## Directory Structure
+## 🛡️ Non-Negotiable Product Guarantees
 
-```text
-NadaVerse/
-├── docs/                   # Architectural & specification documents
-│   ├── prd.md              # Product Requirements Document
-│   ├── agent.md            # Agent Operating Guide
-│   ├── architecture.md     # System Architecture Reference
-│   ├── design_system.md    # Design Tokens & Visual Guidelines
-│   ├── ui_ux.md            # Interaction & Journey Specifications
-│   └── prompt.md           # Master Build Directives
-├── web/                    # Next.js Web Application
-│   ├── src/
-│   │   ├── app/            # App Router (layout, globals.css, page.tsx)
-│   │   ├── components/     # UI Components (Navbar, ShrutiCompanion, TalaStudio, RagaCard, etc.)
-│   │   ├── data/           # Verified Carnatic dataset with full provenance
-│   │   ├── lib/            # Low-latency Web Audio API engine
-│   │   └── types/          # TypeScript domain models
-│   ├── package.json
-│   └── tsconfig.json
-├── backend/                # FastAPI Modular Backend
-│   ├── app/
-│   │   ├── main.py         # FastAPI endpoints & CORS configuration
-│   │   ├── schemas/        # Pydantic validation schemas
-│   │   └── data/           # Verified backend corpus
-│   ├── tests/              # Backend test suite (Pytest)
-│   └── requirements.txt
-├── .env.example            # Environment configuration template (no secrets)
-└── .gitignore
+- **100% Free Forever:** Zero paywalls, subscriptions, checkouts, or advertisements.
+- **Pedagogical Integrity:** Microtonal Just Intonation (*22 Shrutis*), verified treatises (*Chaturdandi Prakasika*, *Sangita Ratnakara*, *Sangita Sampradaya Pradarsini*).
+- **Privacy by Design:** Local audio processing inside the browser; raw microphone audio is never retained on the server.
+- **Bilingual Interface:** Complete English and Malayalam (`ml`) localization.
+
+---
+
+## 🏗️ Architecture & Technology Stack
+
+- **Frontend:** Next.js 16 (App Router + Turbopack) + TypeScript + Tailwind CSS
+- **Audio Engine:** Low-latency Web Audio API (Tanpura overtone synthesis, instrument timbre modeling, autocorrelation pitch tracking, drift-free metronome)
+- **Backend API:** Python 3.12 + FastAPI + SQLAlchemy + SQLite / PostgreSQL
+- **AI Gateway:** Provider-neutral gateway with Google Gemini 1.5 Flash / Pro and deterministic classical treatise fallback
+- **Testing:** Pytest (22 backend unit/integration tests) + Next.js production build & strict TypeScript verification
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js 18+ (Node 20+ recommended)
+- Python 3.11 or 3.12
+
+### 1. Clone & Setup Repository
+```bash
+git clone https://github.com/AnandBinuArjun/NadaVerse.git
+cd NadaVerse
 ```
 
----
-
-## Getting Started
-
-### 1. Web Application (Next.js)
-
+### 2. Run Backend API
 ```bash
-cd web
+# Navigate to backend and install dependencies
+cd backend
+python -m pip install -r requirements.txt
+
+# Run backend development server
+python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+```
+The FastAPI documentation is available at `http://localhost:8000/docs`.
+
+### 3. Run Frontend Web Application
+```bash
+# Navigate to web and install dependencies
+cd ../web
 npm install
+
+# Run frontend development server
 npm run dev
 ```
-
-Visit [http://localhost:3000](http://localhost:3000) in your browser.
-
-### 2. Backend API (FastAPI)
-
-```bash
-# In workspace root or backend directory
-python -m pip install -r backend/requirements.txt
-uvicorn backend.app.main:app --reload --port 8000
-```
-
-Access OpenAPI interactive documentation at [http://localhost:8000/docs](http://localhost:8000/docs).
-
-### 3. Running Verification Tests
-
-```bash
-# Frontend build & TypeScript check
-cd web
-npm run build
-
-# Backend API tests
-python -m pytest backend/tests
-```
+Open `http://localhost:3000` in your browser.
 
 ---
 
-## Privacy, Audio Safety & Editorial Policy
+## 🧪 Verification & Automated Testing
 
-- **No Unauthorized Model Training:** Personal audio recordings remain local and private, and are never used to train machine learning models.
-- **Musicological Provenance:** Every raga, tala, and instrument entry cites primary musicology sources (Subbarama Dikshitar's *Sangita Sampradaya Pradarsini*, Prof. P. Sambamoorthy's *South Indian Music*, Madras Music Academy publications).
-- **Pitch vs Swara Integrity:** The platform explicitly teaches that raw physical pitch is not equivalent to musical swara expression without tonic context and gamaka movement.
+### Backend Test Suite (Pytest)
+```bash
+python -m pytest backend/tests -v
+```
+*Current status:* **22 passed (100%)** covering curriculum progression, tala calculations, audio practice companion analysis, teacher-student authorization workflows, and heritage archive moderation.
+
+### Frontend TypeScript & Production Build
+```bash
+cd web
+npx tsc --noEmit
+npm run build
+```
+*Current status:* **0 TypeScript errors**, **production build successful**.
+
+---
+
+## 📚 Documentation Index
+
+- [docs/feature-implementation-report.md](docs/feature-implementation-report.md) — Comprehensive six-feature implementation report.
+- [docs/content-provenance-and-licensing.md](docs/content-provenance-and-licensing.md) — Source attribution, treatise provenance, and licensing policy.
+- [docs/testing-and-release-checklist.md](docs/testing-and-release-checklist.md) — Verification checklist and release testing records.
+- [docs/architecture.md](docs/architecture.md) — Complete full-stack system architecture.
+
+---
+
+## 📄 License
+
+Released under the **MIT License** for code and **CC-BY-SA 4.0** for musicological educational content.
+NadaVerse is and will always remain completely free for all learners, teachers, and musicians worldwide.

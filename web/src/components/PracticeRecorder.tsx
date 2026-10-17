@@ -16,6 +16,7 @@ export const PracticeRecorder: React.FC<PracticeRecorderProps> = ({ onSaveSessio
   const [isPlayingRecorded, setIsPlayingRecorded] = useState(false);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const micStreamRef = useRef<MediaStream | null>(null);
   const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const chunksRef = useRef<BlobPart[]>([]);
   const audioElementRef = useRef<HTMLAudioElement | null>(null);
@@ -24,12 +25,17 @@ export const PracticeRecorder: React.FC<PracticeRecorderProps> = ({ onSaveSessio
     return () => {
       if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
       if (audioUrl) URL.revokeObjectURL(audioUrl);
+      if (micStreamRef.current) {
+        micStreamRef.current.getTracks().forEach((track) => track.stop());
+        micStreamRef.current = null;
+      }
     };
   }, [audioUrl]);
 
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      micStreamRef.current = stream;
       chunksRef.current = [];
       const recorder = new MediaRecorder(stream);
       mediaRecorderRef.current = recorder;
@@ -45,6 +51,7 @@ export const PracticeRecorder: React.FC<PracticeRecorderProps> = ({ onSaveSessio
         const url = URL.createObjectURL(blob);
         setAudioUrl(url);
         stream.getTracks().forEach((track) => track.stop());
+        micStreamRef.current = null;
       };
 
       recorder.start(200);

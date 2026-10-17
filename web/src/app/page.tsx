@@ -18,6 +18,11 @@ import { OnboardingModal, MusicianProfile } from '../components/OnboardingModal'
 import { SwarasthanaVisualizer } from '../components/SwarasthanaVisualizer';
 import { SadhanaTracker } from '../components/SadhanaTracker';
 import { SuggestCorrectionModal } from '../components/SuggestCorrectionModal';
+import { GradedExercises } from '../components/GradedExercises';
+import { LearningCurriculum } from '../components/LearningCurriculum';
+import { ExplainablePracticeCompanion } from '../components/ExplainablePracticeCompanion';
+import { TeacherStudentWorkspace } from '../components/TeacherStudentWorkspace';
+import { HeritageArchive } from '../components/HeritageArchive';
 import { VERIFIED_RAGAS, VERIFIED_INSTRUMENTS, VERIFIED_TALAS, GLOSSARY_TERMS, VERIFIED_COMPOSERS } from '../data/carnaticData';
 import { API_BASE_URL } from '../lib/api';
 import { TONIC_OPTIONS, TonicNote, audioEngine } from '../lib/audioEngine';
@@ -35,13 +40,14 @@ import {
   CheckCircle2,
   Sparkles,
   Keyboard,
-  ShieldCheck,
-  Edit3
+  Edit3,
+  Bookmark,
+  Filter
 } from 'lucide-react';
 
 export default function Home() {
   const { lang, t } = useLanguage();
-  const [activeSection, setActiveSection] = useState<'home' | 'learn' | 'explore' | 'practice'>('home');
+  const [activeSection, setActiveSection] = useState<'home' | 'learn' | 'explore' | 'practice' | 'teaching' | 'heritage'>('home');
   const [exploreTab, setExploreTab] = useState<'ragas' | 'talas' | 'instruments' | 'composers' | 'glossary'>('ragas');
   const [searchQuery, setSearchQuery] = useState('');
   const [isTutorOpen, setIsTutorOpen] = useState(false);
@@ -60,8 +66,17 @@ export default function Home() {
 
   // Practice Session State
   const [sessionFocus, setSessionFocus] = useState('Mayamalavagowla Sarali Varisai 1-4');
+  const [sessionDurationMinutes, setSessionDurationMinutes] = useState(20);
   const [sessionNotes, setSessionNotes] = useState('');
-  const [sessionSavedSuccess, setSessionSavedSuccess] = useState(false);
+  const [sessionSavedStatus, setSessionSavedStatus] = useState<'idle' | 'saved_server' | 'saved_local'>('idle');
+
+  // Raga Explorer Filters & Bookmarks
+  const [ragaFilterMode, setRagaFilterMode] = useState<'all' | 'melakarta' | 'janya' | 'bookmarks' | 'M1' | 'M2'>('all');
+  const [bookmarkedRagaSlugs, setBookmarkedRagaSlugs] = useState<string[]>([]);
+
+  // Instrument Explorer Filters & Bookmarks
+  const [instrumentFilterFamily, setInstrumentFilterFamily] = useState<'all' | 'Chordophone' | 'Aerophone' | 'Membranophone' | 'Idiophone' | 'bookmarks'>('all');
+  const [bookmarkedInstrumentSlugs, setBookmarkedInstrumentSlugs] = useState<string[]>([]);
 
   // Initialize Onboarding and natural Adhara Sa from localStorage
   useEffect(() => {
@@ -102,12 +117,13 @@ export default function Home() {
   };
 
   const handleSavePracticeSession = async () => {
+    const durationMins = Math.max(1, sessionDurationMinutes || 15);
     const payload = {
       focus: sessionFocus || 'Mayamalavagowla Sarali Varisai',
       tonic: activeTonic.name,
       tala_id: 'adi-tala',
       notes: sessionNotes,
-      duration_seconds: 900
+      duration_seconds: durationMins * 60
     };
 
     // Save to local storage for SadhanaTracker instant reactivity
@@ -120,7 +136,7 @@ export default function Home() {
           focus: sessionFocus || 'Mayamalavagowla Sarali Varisai',
           kattai: `${activeTonic.name} (${activeTonic.kattai})`,
           tala: 'Adi Tala (8 aksharas)',
-          durationMinutes: 15,
+          durationMinutes: durationMins,
           notes: sessionNotes
         };
         stored.unshift(newRecord);
@@ -129,37 +145,85 @@ export default function Home() {
       } catch {}
     }
 
+    let synced = false;
     try {
       const token = typeof window !== 'undefined' ? localStorage.getItem('nadaverse_token') : null;
-      await fetch(`${API_BASE_URL}/api/v1/practice/sessions`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {})
-        },
-        body: JSON.stringify(payload)
-      });
+      if (token) {
+        const res = await fetch(`${API_BASE_URL}/api/v1/practice/sessions`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify(payload)
+        });
+        if (res.ok) {
+          synced = true;
+        }
+      }
     } catch {
-      // Local fallback in case backend is offline
+      // Offline fallback
     }
 
-    setSessionSavedSuccess(true);
-    setTimeout(() => setSessionSavedSuccess(false), 3500);
+    setSessionSavedStatus(synced ? 'saved_server' : 'saved_local');
+    setTimeout(() => setSessionSavedStatus('idle'), 4000);
   };
 
-  const filteredRagas = VERIFIED_RAGAS.filter(
-    (r) =>
+  // Sync bookmarks from localStorage & listen for updates
+  // Sync raga & instrument bookmarks from localStorage & listen for updates
+  useEffect(() => {
+    const loadBookmarks = () => {
+      if (typeof window !== 'undefined') {
+        try {
+          const storedRagas = localStorage.getItem('nadaverse_bookmarked_ragas');
+          if (storedRagas) setBookmarkedRagaSlugs(JSON.parse(storedRagas));
+
+          const storedInst = localStorage.getItem('nadaverse_bookmarked_instruments');
+          if (storedInst) setBookmarkedInstrumentSlugs(JSON.parse(storedInst));
+        } catch {}
+      }
+    };
+    loadBookmarks();
+    window.addEventListener('nadaverse:bookmarks_updated', loadBookmarks);
+    window.addEventListener('nadaverse:instrument_bookmarks_updated', loadBookmarks);
+    return () => {
+      window.removeEventListener('nadaverse:bookmarks_updated', loadBookmarks);
+      window.removeEventListener('nadaverse:instrument_bookmarks_updated', loadBookmarks);
+    };
+  }, []);
+
+  const filteredRagas = VERIFIED_RAGAS.filter((r) => {
+    const matchesSearch =
       r.canonicalName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       r.alternateNames.some((n) => n.toLowerCase().includes(searchQuery.toLowerCase())) ||
       (RAGA_ML_NAMES[r.slug] && RAGA_ML_NAMES[r.slug].includes(searchQuery)) ||
-      r.chakra?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+      r.chakra?.toLowerCase().includes(searchQuery.toLowerCase());
 
-  const filteredInstruments = VERIFIED_INSTRUMENTS.filter(
-    (i) =>
+    if (!matchesSearch) return false;
+
+    if (ragaFilterMode === 'melakarta') return r.isMelakarta === true;
+    if (ragaFilterMode === 'janya') return r.isMelakarta === false;
+    if (ragaFilterMode === 'bookmarks') return bookmarkedRagaSlugs.includes(r.slug);
+    if (ragaFilterMode === 'M1') return r.arohanam.includes('M₁') || r.arohanam.includes('M1');
+    if (ragaFilterMode === 'M2') return r.arohanam.includes('M₂') || r.arohanam.includes('M2');
+
+    return true;
+  });
+
+  const filteredInstruments = VERIFIED_INSTRUMENTS.filter((i) => {
+    const matchesSearch =
       i.canonicalName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      i.family.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+      i.family.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      i.materials.some((m) => m.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      i.roleInConcert.toLowerCase().includes(searchQuery.toLowerCase());
+
+    if (!matchesSearch) return false;
+
+    if (instrumentFilterFamily === 'bookmarks') return bookmarkedInstrumentSlugs.includes(i.slug);
+    if (instrumentFilterFamily !== 'all') return i.family === instrumentFilterFamily;
+
+    return true;
+  });
 
   const filteredComposers = VERIFIED_COMPOSERS.filter((c) => {
     const ml = COMPOSER_ML_DATA[c.name];
@@ -222,6 +286,9 @@ export default function Home() {
                   <div className="inline-flex items-center space-x-2.5 text-xs font-mono uppercase tracking-wider text-[#E8D7A8] bg-[#222019]/90 px-3.5 sm:px-4 py-1.5 rounded-full border border-[#C7A45B]/40 shadow-[0_0_15px_rgba(199,164,91,0.15)] max-w-full overflow-hidden">
                     <Music2 className="w-4 h-4 text-[#C7A45B] shrink-0" />
                     <span className="font-semibold truncate">{t.heroBadge}</span>
+                    <span className="px-2 py-0.5 rounded-full bg-[#C7A45B]/20 text-[#E0C98F] border border-[#C7A45B]/35 text-[10px] font-bold tracking-widest shrink-0">
+                      PUBLIC BETA
+                    </span>
                     <div className="hidden sm:flex items-center space-x-1 h-3.5 pl-1.5 border-l border-[#C7A45B]/40 shrink-0">
                       <span className="soundwave-bar" />
                       <span className="soundwave-bar" />
@@ -408,10 +475,13 @@ export default function Home() {
         )}
 
         {/* =========================================================================
-            SECTION: LEARN (BEGINNER ORIENTATION PATH)
+            SECTION: LEARN (BEGINNER ORIENTATION PATH & STRUCTURED CURRICULUM)
         ========================================================================= */}
         {activeSection === 'learn' && (
           <div className="space-y-8">
+            {/* Structured Multi-Pathway Curriculum */}
+            <LearningCurriculum />
+
             <BeginnerPath
               onNavigateToPractice={() => {
                 setActiveSection('practice');
@@ -521,6 +591,38 @@ export default function Home() {
             {/* RAGAS TAB */}
             {exploreTab === 'ragas' && (
               <div className="space-y-6">
+                {/* Raga Category & Bookmark Filters */}
+                <div className="flex flex-wrap items-center gap-2 p-2.5 bg-[#14130f] rounded-2xl border border-[#C7A45B]/20">
+                  <div className="flex items-center space-x-1.5 text-xs font-mono text-[#C7A45B] px-2 py-1">
+                    <Filter className="w-3.5 h-3.5" />
+                    <span>{lang === 'ml' ? 'ഫിൽട്ടറുകൾ:' : 'Filter:'}</span>
+                  </div>
+                  {[
+                    { id: 'all', labelEn: 'All Ragas', labelMl: 'എല്ലാം' },
+                    { id: 'melakarta', labelEn: '72 Melakartas', labelMl: '72 മേളകർത്താക്കൾ' },
+                    { id: 'janya', labelEn: 'Janya Ragas', labelMl: 'ജന്യ രാഗങ്ങൾ' },
+                    { id: 'bookmarks', labelEn: `Bookmarks (${bookmarkedRagaSlugs.length})`, labelMl: `ബുക്ക്‌മാർക്കുകൾ (${bookmarkedRagaSlugs.length})` },
+                    { id: 'M1', labelEn: 'Shuddha Ma (1-36)', labelMl: 'ശുദ്ധ മധ്യമം (1-36)' },
+                    { id: 'M2', labelEn: 'Prati Ma (37-72)', labelMl: 'പ്രതി മധ്യമം (37-72)' }
+                  ].map((filter) => {
+                    const isActive = ragaFilterMode === filter.id;
+                    return (
+                      <button
+                        key={filter.id}
+                        onClick={() => setRagaFilterMode(filter.id as any)}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-mono transition-all flex items-center space-x-1.5 cursor-pointer ${
+                          isActive
+                            ? 'bg-[#C7A45B] text-[#11110F] font-bold shadow-sm'
+                            : 'bg-[#1e1c17] text-[#BDB4A4] hover:text-[#F4EBDD] border border-[#3B392F] hover:border-[#C7A45B]/40'
+                        }`}
+                      >
+                        {filter.id === 'bookmarks' && <Bookmark className="w-3 h-3" />}
+                        <span>{lang === 'ml' ? filter.labelMl : filter.labelEn}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs text-[#BDB4A4] font-mono gap-1">
                   <span>
                     {lang === 'ml'
@@ -557,6 +659,38 @@ export default function Home() {
             {/* INSTRUMENTS TAB */}
             {exploreTab === 'instruments' && (
               <div className="space-y-6">
+                {/* Instrument Family & Bookmark Filters */}
+                <div className="flex flex-wrap items-center gap-2 p-2.5 bg-[#14130f] rounded-2xl border border-[#C7A45B]/20">
+                  <div className="flex items-center space-x-1.5 text-xs font-mono text-[#C7A45B] px-2 py-1">
+                    <Filter className="w-3.5 h-3.5" />
+                    <span>{lang === 'ml' ? 'വാദ്യ വർഗ്ഗങ്ങൾ:' : 'Family:'}</span>
+                  </div>
+                  {[
+                    { id: 'all', labelEn: 'All Instruments', labelMl: 'എല്ലാ വാദ്യങ്ങളും' },
+                    { id: 'Chordophone', labelEn: 'Tata (Strings)', labelMl: 'തത വാദ്യങ്ങൾ (തന്ത്രി)' },
+                    { id: 'Aerophone', labelEn: 'Sushira (Winds)', labelMl: 'സുഷിര വാദ്യങ്ങൾ (സുഷിരം)' },
+                    { id: 'Membranophone', labelEn: 'Avanaddha (Drums)', labelMl: 'അവനദ്ധ വാദ്യങ്ങൾ (തോൽ)' },
+                    { id: 'Idiophone', labelEn: 'Ghana (Percussion)', labelMl: 'ഘന വാദ്യങ്ങൾ (ലോഹം/മണ്ണ്)' },
+                    { id: 'bookmarks', labelEn: `Bookmarks (${bookmarkedInstrumentSlugs.length})`, labelMl: `ബുക്ക്‌മാർക്കുകൾ (${bookmarkedInstrumentSlugs.length})` }
+                  ].map((filter) => {
+                    const isActive = instrumentFilterFamily === filter.id;
+                    return (
+                      <button
+                        key={filter.id}
+                        onClick={() => setInstrumentFilterFamily(filter.id as any)}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-mono transition-all flex items-center space-x-1.5 cursor-pointer ${
+                          isActive
+                            ? 'bg-[#C7A45B] text-[#11110F] font-bold shadow-sm'
+                            : 'bg-[#1e1c17] text-[#BDB4A4] hover:text-[#F4EBDD] border border-[#3B392F] hover:border-[#C7A45B]/40'
+                        }`}
+                      >
+                        {filter.id === 'bookmarks' && <Bookmark className="w-3 h-3" />}
+                        <span>{lang === 'ml' ? filter.labelMl : filter.labelEn}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
                 <div className="flex items-center justify-between text-xs text-[#BDB4A4] font-mono">
                   <span>
                     {lang === 'ml'
@@ -809,8 +943,33 @@ export default function Home() {
             {/* Tala Studio & Accompaniment Loops */}
             <TalaStudio />
 
+            {/* Explainable AI Practice Companion */}
+            <ExplainablePracticeCompanion
+              activeTonic={activeTonic}
+              onNavigateToCurriculum={() => setActiveSection('learn')}
+              onSaveSessionNotes={(notes, seconds) => {
+                setSessionNotes(notes);
+                setSessionDurationMinutes(Math.max(1, Math.round(seconds / 60)));
+                setSessionFocus('AI Practice Companion Evaluation');
+              }}
+            />
+
+            {/* Classical Graded Exercises (Sarali, Jantai, Alankaram) */}
+            <GradedExercises
+              activeTonic={activeTonic}
+              onLogPracticeSession={(focus, mins) => {
+                setSessionFocus(focus);
+                setSessionDurationMinutes(mins);
+              }}
+            />
+
             {/* Private Audio Recorder */}
-            <PracticeRecorder />
+            <PracticeRecorder
+              onSaveSessionNotes={(durationSeconds) => {
+                const mins = Math.max(1, Math.round(durationSeconds / 60));
+                setSessionDurationMinutes(mins);
+              }}
+            />
 
             {/* Sadhana Habit Tracker, Streaks & Export Report */}
             <SadhanaTracker />
@@ -829,17 +988,33 @@ export default function Home() {
               </div>
 
               <div className="space-y-4">
-                <div>
-                  <label className="block text-xs font-mono uppercase text-[#BDB4A4] mb-1.5">
-                    {t.sessionFocus}
-                  </label>
-                  <input
-                    type="text"
-                    value={sessionFocus}
-                    onChange={(e) => setSessionFocus(e.target.value)}
-                    placeholder={lang === 'ml' ? 'ഉദാ: മായാമാളവഗൗള ജണ്ഡ വരിശ 1-4' : 'e.g. Mayamalavagowla Jantai Varisai 1-4'}
-                    className="w-full bg-[#22221D] border border-[#3B392F] rounded-xl px-4 py-2.5 text-xs text-[#F4EBDD] focus:outline-none focus:border-[#C7A45B]"
-                  />
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="sm:col-span-2">
+                    <label className="block text-xs font-mono uppercase text-[#BDB4A4] mb-1.5">
+                      {t.sessionFocus}
+                    </label>
+                    <input
+                      type="text"
+                      value={sessionFocus}
+                      onChange={(e) => setSessionFocus(e.target.value)}
+                      placeholder={lang === 'ml' ? 'ഉദാ: മായാമാളവഗൗള ജണ്ഡ വരിശ 1-4' : 'e.g. Mayamalavagowla Jantai Varisai 1-4'}
+                      className="w-full bg-[#22221D] border border-[#3B392F] rounded-xl px-4 py-2.5 text-xs text-[#F4EBDD] focus:outline-none focus:border-[#C7A45B]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-mono uppercase text-[#BDB4A4] mb-1.5">
+                      {lang === 'ml' ? 'ദൈർഘ്യം (മിനിറ്റ്)' : 'Duration (Minutes)'}
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="360"
+                      value={sessionDurationMinutes}
+                      onChange={(e) => setSessionDurationMinutes(Math.max(1, parseInt(e.target.value) || 1))}
+                      className="w-full bg-[#22221D] border border-[#3B392F] rounded-xl px-4 py-2.5 text-xs text-[#F4EBDD] focus:outline-none focus:border-[#C7A45B]"
+                    />
+                  </div>
                 </div>
 
                 <div>
@@ -860,11 +1035,17 @@ export default function Home() {
                 </div>
 
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2">
-                  <div className="text-xs text-[#87947A]">
-                    {sessionSavedSuccess && (
-                      <span className="flex items-center space-x-1.5 font-medium">
+                  <div className="text-xs">
+                    {sessionSavedStatus === 'saved_server' && (
+                      <span className="flex items-center space-x-1.5 font-medium text-[#6EA887]">
                         <CheckCircle2 className="w-4 h-4 text-[#6EA887]" />
-                        <span>{t.sessionSavedMsg}</span>
+                        <span>{lang === 'ml' ? 'അക്കൗണ്ടിൽ വിജയകരമായി സൂക്ഷിച്ചു.' : 'Practice session synced to your account.'}</span>
+                      </span>
+                    )}
+                    {sessionSavedStatus === 'saved_local' && (
+                      <span className="flex items-center space-x-1.5 font-medium text-[#E0C98F]">
+                        <CheckCircle2 className="w-4 h-4 text-[#C7A45B]" />
+                        <span>{lang === 'ml' ? 'ബ്രൗസറിൽ ലോക്കലായി സൂക്ഷിച്ചു.' : 'Saved locally to device storage.'}</span>
                       </span>
                     )}
                   </div>
@@ -880,6 +1061,24 @@ export default function Home() {
               </div>
             </section>
           </div>
+        )}
+
+        {/* =========================================================================
+            SECTION: TEACHING & GURUKULAM (FEATURE 5)
+        ========================================================================= */}
+        {activeSection === 'teaching' && (
+          <TeacherStudentWorkspace
+            currentUser={currentUser}
+            onOpenAuth={() => setIsAuthOpen(true)}
+            onNavigateToCurriculum={() => setActiveSection('learn')}
+          />
+        )}
+
+        {/* =========================================================================
+            SECTION: CARNATIC HERITAGE ARCHIVE (FEATURE 6)
+        ========================================================================= */}
+        {activeSection === 'heritage' && (
+          <HeritageArchive />
         )}
       </main>
 

@@ -95,3 +95,124 @@ class AuditEvent(Base):
     target_id = Column(String(100), nullable=False)
     timestamp = Column(DateTime(timezone=True), default=utc_now)
     details = Column(Text, nullable=True)
+
+
+# -----------------------------------------------------------------------------
+# Feature 5: Teacher-Supported Learning Models
+# -----------------------------------------------------------------------------
+class LearningGroup(Base):
+    __tablename__ = "learning_groups"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    teacher_id = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"), index=True, nullable=False)
+    name = Column(String(150), nullable=False)
+    description = Column(Text, default="")
+    created_at = Column(DateTime(timezone=True), default=utc_now)
+
+    teacher = relationship("User", foreign_keys=[teacher_id])
+    members = relationship("GroupMember", back_populates="group", cascade="all, delete-orphan")
+    invitations = relationship("GroupInvitation", back_populates="group", cascade="all, delete-orphan")
+    assignments = relationship("Assignment", back_populates="group", cascade="all, delete-orphan")
+
+
+class GroupMember(Base):
+    __tablename__ = "group_members"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    group_id = Column(String(36), ForeignKey("learning_groups.id", ondelete="CASCADE"), index=True, nullable=False)
+    student_id = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"), index=True, nullable=False)
+    status = Column(String(30), default="active")  # active, left, revoked
+    joined_at = Column(DateTime(timezone=True), default=utc_now)
+
+    group = relationship("LearningGroup", back_populates="members")
+    student = relationship("User", foreign_keys=[student_id])
+
+
+class GroupInvitation(Base):
+    __tablename__ = "group_invitations"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    group_id = Column(String(36), ForeignKey("learning_groups.id", ondelete="CASCADE"), index=True, nullable=False)
+    token = Column(String(64), unique=True, index=True, nullable=False)
+    invited_email = Column(String(255), nullable=True)
+    expires_at = Column(DateTime(timezone=True), nullable=False)
+    is_revoked = Column(Boolean, default=False)
+    created_at = Column(DateTime(timezone=True), default=utc_now)
+
+    group = relationship("LearningGroup", back_populates="invitations")
+
+
+class Assignment(Base):
+    __tablename__ = "assignments"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    group_id = Column(String(36), ForeignKey("learning_groups.id", ondelete="CASCADE"), index=True, nullable=False)
+    title = Column(String(200), nullable=False)
+    lesson_id = Column(String(100), nullable=True)
+    exercise_id = Column(String(100), nullable=True)
+    target_kalam = Column(Integer, default=1)
+    target_bpm = Column(Integer, default=60)
+    instructions = Column(Text, default="")
+    status = Column(String(30), default="draft")  # draft, published, archived
+    due_date = Column(DateTime(timezone=True), nullable=True)
+    created_at = Column(DateTime(timezone=True), default=utc_now)
+
+    group = relationship("LearningGroup", back_populates="assignments")
+    submissions = relationship("AssignmentSubmission", back_populates="assignment", cascade="all, delete-orphan")
+
+
+class AssignmentSubmission(Base):
+    __tablename__ = "assignment_submissions"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    assignment_id = Column(String(36), ForeignKey("assignments.id", ondelete="CASCADE"), index=True, nullable=False)
+    student_id = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"), index=True, nullable=False)
+    status = Column(String(30), default="in_progress")  # in_progress, submitted, reviewed, returned_for_revision
+    notes = Column(Text, default="")
+    measured_cent_error = Column(Text, nullable=True)
+    measured_stability_pct = Column(Text, nullable=True)
+    submitted_at = Column(DateTime(timezone=True), nullable=True)
+    created_at = Column(DateTime(timezone=True), default=utc_now)
+
+    assignment = relationship("Assignment", back_populates="submissions")
+    student = relationship("User", foreign_keys=[student_id])
+    feedbacks = relationship("AssignmentFeedback", back_populates="submission", cascade="all, delete-orphan")
+
+
+class AssignmentFeedback(Base):
+    __tablename__ = "assignment_feedback"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    submission_id = Column(String(36), ForeignKey("assignment_submissions.id", ondelete="CASCADE"), index=True, nullable=False)
+    teacher_id = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"), index=True, nullable=False)
+    feedback_text = Column(Text, nullable=False)
+    recommended_lessons = Column(Text, default="")
+    created_at = Column(DateTime(timezone=True), default=utc_now)
+
+    submission = relationship("AssignmentSubmission", back_populates="feedbacks")
+    teacher = relationship("User", foreign_keys=[teacher_id])
+
+
+# -----------------------------------------------------------------------------
+# Feature 6: Carnatic Heritage Archive Models
+# -----------------------------------------------------------------------------
+class HeritageEntry(Base):
+    __tablename__ = "heritage_entries"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    slug = Column(String(120), unique=True, index=True, nullable=False)
+    title = Column(String(200), nullable=False)
+    category = Column(String(50), index=True, nullable=False)  # biography, instrument_craft, regional_tradition, treatise_history
+    historical_period = Column(String(100), default="Historical")
+    summary = Column(Text, nullable=False)
+    content = Column(Text, nullable=False)
+    primary_contributor = Column(String(120), default="NadaVerse Archive Board")
+    source_citations = Column(Text, nullable=False)
+    licensing_info = Column(String(150), default="Public Domain / CC-BY-SA 4.0")
+    editorial_status = Column(String(30), default="draft", index=True)  # draft, pending_review, published, rejected
+    reviewer_notes = Column(Text, nullable=True)
+    submitter_id = Column(String(36), ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    created_at = Column(DateTime(timezone=True), default=utc_now)
+    updated_at = Column(DateTime(timezone=True), default=utc_now)
+
+    submitter = relationship("User", foreign_keys=[submitter_id])

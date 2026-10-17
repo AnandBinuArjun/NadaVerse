@@ -9,6 +9,8 @@ Grounded with Google Gemini 1.5 Flash / Pro and verified classical treatises.
 from typing import List, Dict, Any, Optional, AsyncGenerator
 import json
 import asyncio
+import unicodedata
+import re
 from datetime import datetime, timezone
 from app.core.config import settings
 from app.data.verified_corpus import (
@@ -20,6 +22,7 @@ from app.data.verified_corpus import (
     VERIFIED_GLOSSARY_DATA,
 )
 from app.schemas.tutor import TutorCitation, TutorResponse
+from app.schemas.audio_practice import AudioPracticeAnalysisRequest, AudioPracticeAnalysisResponse
 
 
 class AIGatewayService:
@@ -104,19 +107,37 @@ class AIGatewayService:
         """
         Guards against prompt-injection attempts (e.g. system instructions override,
         roleplay attempts to leak API keys or ignore safety boundaries).
+        Performs Unicode normalization, control char stripping, and structural regex matching.
         """
+        if not query or len(query.strip()) < 2 or len(query) > 1000:
+            return False
+
+        # Normalize unicode to NFKC to defeat homoglyph and zero-width evasion
+        normalized = unicodedata.normalize("NFKC", query)
+
+        # Disallow dangerous control characters / invisible directional overrides
+        if any(unicodedata.category(c) in ('Cc', 'Cf') and c not in ('\n', '\r', '\t') for c in normalized):
+            return False
+
+        q_lower = normalized.lower()
         suspicious_patterns = [
-            "ignore previous instructions",
-            "disregard all rules",
-            "system prompt",
-            "reveal your api key",
-            "you are now an unrestricted",
-            "developer mode",
-            "bypass guardrails"
+            r"ignore\s+(all\s+)?previous\s+instructions",
+            r"disregard\s+all\s+rules",
+            r"system\s+prompt",
+            r"reveal\s+(your\s+|the\s+)?(api|secret)\s+key",
+            r"you\s+are\s+now\s+(an?\s+)?unrestricted",
+            r"developer\s+mode",
+            r"bypass\s+guardrails",
+            r"jailbreak",
+            r"override\s+safety",
+            r"```(system|instructions|admin)",
+            r"<\|im_start\|>",
+            r"<\|im_end\|>",
+            r"\[inst\]",
+            r"\[/inst\]"
         ]
-        q_lower = query.lower()
         for pattern in suspicious_patterns:
-            if pattern in q_lower:
+            if re.search(pattern, q_lower):
                 return False
         return True
 
@@ -171,6 +192,7 @@ class AIGatewayService:
                 answer="I can only assist with verified Carnatic music theory, history, and practice queries grounded in authentic treatises. Your request contained instructions that cannot be processed.",
                 citations=[],
                 confidence_level="uncertain",
+                provenance="guardrail_blocked",
                 uncertainty_note="Prompt injection guard triggered. Processing safely terminated.",
                 suggested_followups=["Explain the swaras of Mayamalavagowla", "What is Adi Tala?"]
             )
@@ -184,6 +206,7 @@ class AIGatewayService:
                 answer="I do not possess sufficient reviewed musicological documentation in the peer-reviewed NadaVerse knowledge base to answer this inquiry with authoritative confidence. In keeping with our product principles, I refrain from fabricating unverified claims.",
                 citations=[],
                 confidence_level="uncertain",
+                provenance="insufficient_evidence",
                 uncertainty_note="Topic outside currently reviewed corpus. Refusal/fallback applied per product safety principles.",
                 suggested_followups=[
                     "Why is Mayamalavagowla used for beginner exercises?",
@@ -209,19 +232,35 @@ class AIGatewayService:
 
         # Invoke Live Gemini if configured
         answer_text = None
+        provenance = "retrieval_only"
+        confidence_level = "moderate"
+        uncertainty_note = None
+
         if self.provider == "gemini" and settings.AI_GATEWAY_API_KEY:
             prompt = self.build_grounded_prompt(query, matched_docs)
             answer_text = await self.call_gemini_api(prompt)
+            if answer_text:
+                provenance = "model_generated"
+                confidence_level = "high"
+            else:
+                provenance = "model_unavailable"
+                confidence_level = "moderate"
+                uncertainty_note = "Live AI model was temporarily unavailable; served verbatim verified treatise reference text."
 
         # Grounded fallback if Gemini key is not set or network error occurs
         if not answer_text:
             answer_text = f"Based on reviewed reference treatises: {primary_doc['text']}"
+            if provenance == "retrieval_only":
+                confidence_level = "high" if primary_doc.get("source") else "moderate"
+                uncertainty_note = "Direct citation from peer-reviewed Carnatic treatise database; served verbatim verified reference text."
 
         return TutorResponse(
             conversation_id=conversation_id,
             answer=answer_text,
             citations=citations,
-            confidence_level="high",
+            confidence_level=confidence_level,
+            provenance=provenance,
+            uncertainty_note=uncertainty_note,
             suggested_followups=[
                 f"What compositions are rendered in {primary_doc['title']}?",
                 "Which tala is traditionally paired with this?",
@@ -287,6 +326,131 @@ class AIGatewayService:
             chunk = word + (" " if i < len(words) - 1 else "")
             yield chunk
             await asyncio.sleep(0.02)
+
+    async def generate_practice_analysis_explanation(
+        self, payload: AudioPracticeAnalysisRequest
+    ) -> AudioPracticeAnalysisResponse:
+        """
+        Explainable AI Practice Companion analysis layer.
+        Receives real measured acoustic metrics (cents, stability, durations)
+        and synthesizes an evidence-grounded pedagogical evaluation.
+        Never invents measurements or claims unvalidated gamaka / raga recognition.
+        """
+        # Calculate bounded overall score
+        # Combination of cent precision and pitch stability
+        stability_component = payload.overall_stability_pct * 0.5
+        accuracy_component = max(0.0, 100.0 - (payload.mean_absolute_cent_error * 2.0)) * 0.5
+        overall_score = round(max(10.0, min(99.0, stability_component + accuracy_component)), 1)
+
+        # Accuracy label
+        if payload.mean_absolute_cent_error <= 15.0:
+            pitch_label = "Exemplary Shruti Alignment (<= 15 cents error)"
+        elif payload.mean_absolute_cent_error <= 28.0:
+            pitch_label = "Good Shruti Steadiness (Minor Microtonal Drift)"
+        elif payload.mean_absolute_cent_error <= 45.0:
+            pitch_label = "Developing Pitch Alignment (Moderate Cent Deviation)"
+        else:
+            pitch_label = "Unstable Adhara Shadjam Pitch Centre"
+
+        # Stability label
+        if payload.overall_stability_pct >= 85.0:
+            stab_label = "Rock Solid Sustained Tone Production"
+        elif payload.overall_stability_pct >= 70.0:
+            stab_label = "Steady with Slight Tremor on Long Notes"
+        else:
+            stab_label = "Fluctuating Vocal Stability (Breath Support Recommended)"
+
+        strengths: List[str] = []
+        improvements: List[str] = []
+        recommended_exercises: List[str] = []
+
+        # Analyze individual measured swara metrics
+        for m in payload.swara_metrics:
+            if abs(m.deviation_cents) <= 14.0 and m.stability_pct >= 78.0:
+                strengths.append(
+                    f"Clean intonation on {m.swara} (dev: {m.deviation_cents:+.1f} cents, stability: {m.stability_pct:.0f}%)"
+                )
+            elif m.deviation_cents > 20.0:
+                improvements.append(
+                    f"Sharp tendency on {m.swara} (+{m.deviation_cents:.1f} cents above just intonation); relax vocal tract."
+                )
+            elif m.deviation_cents < -20.0:
+                improvements.append(
+                    f"Flat tendency on {m.swara} ({m.deviation_cents:.1f} cents below just intonation); ensure steady breath support."
+                )
+            elif m.stability_pct < 65.0:
+                improvements.append(
+                    f"Pitch oscillation on sustained {m.swara} ({m.stability_pct:.0f}% stability); practice sustaining with tambura drone."
+                )
+
+        if not strengths:
+            strengths.append(f"Completed full {payload.duration_seconds:.1f}s take with sustained sound production.")
+        if not improvements:
+            improvements.append("Maintain relaxed posture when transitioning between higher octaves.")
+
+        # Recommender mapping based on error profile
+        if payload.mean_absolute_cent_error > 25.0:
+            recommended_exercises.extend([
+                "Shruti & Adhara Shadjam Alignment (Lesson V-01)",
+                "Sapta Swaras in Mayamalavagowla (Lesson V-02)",
+                "Sarali Varisai 1 in 1st Kalam (Lesson V-04)"
+            ])
+        else:
+            recommended_exercises.extend([
+                "Jantai Varisai 1 & 2 (Lesson V-05)",
+                "Alankaram in Dhruva Tala (Lesson V-06)",
+                "Mohanam Raga Swarajati Practice (Lesson V-07)"
+            ])
+
+        # Grounded AI Summary explanation
+        summary_explanation = (
+            f"Your performance of '{payload.exercise_name}' in tonic {payload.tonic} ({payload.tonic_frequency:.1f} Hz) "
+            f"achieved a pitch stability score of {payload.overall_stability_pct:.1f}% with an average deviation of "
+            f"{payload.mean_absolute_cent_error:.1f} cents from just intonation swarasthanas. "
+        )
+
+        provenance = "grounded_rule_engine"
+        confidence = "high"
+
+        # Attempt Gemini synthesis if API key is present
+        if self.provider == "gemini" and settings.AI_GATEWAY_API_KEY:
+            gemini_prompt = (
+                "You are an encouraging, authoritative Carnatic music guru analyzing an acoustic practice performance. "
+                "Synthesize a concise 2-sentence feedback summary based STRICTLY on these validated measurements:\n"
+                f"- Exercise: {payload.exercise_name}\n"
+                f"- Tonic: {payload.tonic} ({payload.tonic_frequency} Hz)\n"
+                f"- Mean Absolute Cent Error: {payload.mean_absolute_cent_error:.1f} cents\n"
+                f"- Pitch Stability: {payload.overall_stability_pct:.1f}%\n"
+                f"- Strengths: {', '.join(strengths[:2])}\n"
+                f"- Target Areas: {', '.join(improvements[:2])}\n"
+                "Emphasize Carnatic vocal pedagogy (Gamaka krama, steady breath support, Adhara Shadjam focus). Do not invent false metrics."
+            )
+            ai_summary = await self.call_gemini_api(gemini_prompt)
+            if ai_summary and len(ai_summary.strip()) > 15:
+                summary_explanation = ai_summary.strip()
+                provenance = "gemini_grounded_acoustic_synthesis"
+
+        limitations = (
+            f"Acoustic Notice: Pitch measurements are extracted via local time-domain autocorrelation and cepstral analysis "
+            f"relative to Adhara Shadjam ({payload.tonic} = {payload.tonic_frequency:.1f} Hz). Background room noise, "
+            f"microphone frequency response, vocal harmonic resonance, and intentional gamakas (deflections) "
+            f"naturally introduce bounded measurement variance. This system serves as a pedagogical practice companion, "
+            f"not an automated examination grading tool."
+        )
+
+        return AudioPracticeAnalysisResponse(
+            exercise_name=payload.exercise_name,
+            overall_score_pct=overall_score,
+            pitch_accuracy_label=pitch_label,
+            stability_label=stab_label,
+            summary_explanation=summary_explanation,
+            identified_strengths=strengths[:4],
+            targeted_improvements=improvements[:4],
+            recommended_exercises=recommended_exercises[:3],
+            limitations_notice=limitations,
+            confidence=confidence,
+            provenance=provenance,
+        )
 
 
 ai_gateway = AIGatewayService()

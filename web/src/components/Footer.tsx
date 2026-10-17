@@ -30,6 +30,9 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPrivacy, onOpenAttribution
               <span className="font-serif font-bold text-lg tracking-wide bg-gradient-to-r from-[#F4EBDD] to-[#C7A45B] bg-clip-text text-transparent">
                 {t.brandName}
               </span>
+              <span className="px-1.5 py-0.5 text-[9px] font-mono font-bold uppercase tracking-wider rounded bg-[#C7A45B]/15 text-[#E0C98F] border border-[#C7A45B]/30">
+                Public Beta
+              </span>
             </div>
             <p className="leading-relaxed text-[13px] text-[#BDB4A4]/90">
               {t.footerMission}
@@ -175,6 +178,8 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPrivacy, onOpenAttribution
             </button>
             <span>·</span>
             <span>{lang === 'ml' ? 'തികച്ചും സൗജന്യം' : 'Completely Free'}</span>
+            <span>·</span>
+            <span className="font-mono text-[#C7A45B] font-semibold">Public Beta v1.0</span>
           </div>
         </div>
       </div>
