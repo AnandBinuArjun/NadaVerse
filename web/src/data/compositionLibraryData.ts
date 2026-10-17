@@ -610,15 +610,16 @@ export const COMPOSITION_CATALOG: PlayableComposition[] = [
           {
             lineNumber: 2,
             totalAksharas: 8,
-            sahityaLineText: 'Bha - je - - - ham - - - va - ra - nam -',
-            sahityaLineTextMl: 'ഭ - ജേ - - - ഹം - - - വാ - രാ - ണ -',
+            sahityaLineText: 'Bha - je - - - ham - - - Va - ra - na - syam',
+            sahityaLineTextMl: 'ഭ - ജേ - - - ഹം - - - വാ - രാ - ണാ - സ്യം',
             swaras: [
               { id: 'vg-p-8', swara: 'S', octave: 'madhya', ratio: 1.0, durationAksharas: 1, sahitya: 'Bha', sahityaMl: 'ഭ', violin: { string: 3, finger: 0, bowDirection: 'up' } },
               { id: 'vg-p-9', swara: 'R₂', octave: 'madhya', ratio: 9 / 8, durationAksharas: 1, sahitya: 'je', sahityaMl: 'ജേ', violin: { string: 3, finger: 1, bowDirection: 'down' } },
               { id: 'vg-p-10', swara: 'G₃', octave: 'madhya', ratio: 5 / 4, durationAksharas: 2, sahitya: 'ham', sahityaMl: 'ഹം', violin: { string: 3, finger: 2, bowDirection: 'up' } },
-              { id: 'vg-p-11', swara: 'P', octave: 'madhya', ratio: 3 / 2, durationAksharas: 2, sahitya: 'va', sahityaMl: 'വാ', violin: { string: 2, finger: 0, bowDirection: 'down' } },
-              { id: 'vg-p-12', swara: 'N₃', octave: 'madhya', ratio: 15 / 8, durationAksharas: 1, sahitya: 'ra', sahityaMl: 'രാ', violin: { string: 2, finger: 2, bowDirection: 'up' } },
-              { id: 'vg-p-13', swara: 'Ṡ', octave: 'tara', ratio: 2.0, durationAksharas: 1, sahitya: 'nam', sahityaMl: 'സ്യാം', violin: { string: 1, finger: 0, bowDirection: 'down' } }
+              { id: 'vg-p-11', swara: 'P', octave: 'madhya', ratio: 3 / 2, durationAksharas: 1, sahitya: 'Va', sahityaMl: 'വാ', violin: { string: 2, finger: 0, bowDirection: 'down' } },
+              { id: 'vg-p-12', swara: 'P', octave: 'madhya', ratio: 3 / 2, durationAksharas: 1, sahitya: 'ra', sahityaMl: 'രാ', violin: { string: 2, finger: 0, bowDirection: 'up' } },
+              { id: 'vg-p-13', swara: 'N₃', octave: 'madhya', ratio: 15 / 8, durationAksharas: 1, sahitya: 'na', sahityaMl: 'ണാ', violin: { string: 2, finger: 2, bowDirection: 'down' } },
+              { id: 'vg-p-14', swara: 'Ṡ', octave: 'tara', ratio: 2.0, durationAksharas: 1, sahitya: 'syam', sahityaMl: 'സ്യം', violin: { string: 1, finger: 0, bowDirection: 'up' } }
             ]
           }
         ]
@@ -700,16 +701,16 @@ export const COMPOSITION_CATALOG: PlayableComposition[] = [
           {
             lineNumber: 1,
             totalAksharas: 8,
-            sahityaLineText: 'Ra - ghu - vam - - sa - su - dhar - mbu - dhe -',
-            sahityaLineTextMl: 'ര - ഘു - വം - - ശ - സു - ധാം - ബു - ധേ -',
+            sahityaLineText: 'Ra - ghu - vam - - sa - su - dha - mbu - dhe -',
+            sahityaLineTextMl: 'ര - ഘു - വം - - ശ - സു - ധാ - മ്പു - ധേ -',
             swaras: [
               { id: 'rs-p-1', swara: 'S', octave: 'madhya', ratio: 1.0, durationAksharas: 1, sahitya: 'Ra', sahityaMl: 'ര', violin: { string: 3, finger: 0, bowDirection: 'down' } },
               { id: 'rs-p-2', swara: 'R₂', octave: 'madhya', ratio: 9 / 8, durationAksharas: 1, sahitya: 'ghu', sahityaMl: 'ഘു', violin: { string: 3, finger: 1, bowDirection: 'up' } },
               { id: 'rs-p-3', swara: 'M₁', octave: 'madhya', ratio: 4 / 3, durationAksharas: 1, sahitya: 'vam', sahityaMl: 'വം', violin: { string: 3, finger: 3, bowDirection: 'down' } },
               { id: 'rs-p-4', swara: 'D₂', octave: 'madhya', ratio: 5 / 3, durationAksharas: 1, sahitya: 'sa', sahityaMl: 'ശ', violin: { string: 2, finger: 1, bowDirection: 'up' } },
               { id: 'rs-p-5', swara: 'N₃', octave: 'madhya', ratio: 15 / 8, durationAksharas: 1, sahitya: 'su', sahityaMl: 'സു', violin: { string: 2, finger: 2, bowDirection: 'down' } },
-              { id: 'rs-p-6', swara: 'G₃', octave: 'madhya', ratio: 5 / 4, durationAksharas: 1, sahitya: 'dhar', sahityaMl: 'ധാം', violin: { string: 3, finger: 2, bowDirection: 'up' } },
-              { id: 'rs-p-7', swara: 'P', octave: 'madhya', ratio: 3 / 2, durationAksharas: 1, sahitya: 'mbu', sahityaMl: 'ബു', violin: { string: 2, finger: 0, bowDirection: 'down' } },
+              { id: 'rs-p-6', swara: 'G₃', octave: 'madhya', ratio: 5 / 4, durationAksharas: 1, sahitya: 'dha', sahityaMl: 'ധാ', violin: { string: 3, finger: 2, bowDirection: 'up' } },
+              { id: 'rs-p-7', swara: 'P', octave: 'madhya', ratio: 3 / 2, durationAksharas: 1, sahitya: 'mbu', sahityaMl: 'മ്പു', violin: { string: 2, finger: 0, bowDirection: 'down' } },
               { id: 'rs-p-8', swara: 'Ṡ', octave: 'tara', ratio: 2.0, durationAksharas: 1, sahitya: 'dhe', sahityaMl: 'ധേ', violin: { string: 1, finger: 0, bowDirection: 'up' } }
             ]
           },
@@ -906,7 +907,7 @@ export const COMPOSITION_CATALOG: PlayableComposition[] = [
           {
             lineNumber: 2,
             totalAksharas: 8,
-            sahityaLineText: 'ma - ya - ga - na - vi - cha - ka - na -',
+            sahityaLineText: 'ma - ya - ga - na - vi - cha - ksha - na -',
             sahityaLineTextMl: 'മ - യ - ഗാ - ന - വി - ച - ക്ഷണ - -',
             swaras: [
               { id: 'sg-a-8', swara: 'M₁', octave: 'madhya', ratio: 4 / 3, durationAksharas: 1, sahitya: 'ma', sahityaMl: 'മ', violin: { string: 3, finger: 3, bowDirection: 'up' } },
@@ -915,7 +916,7 @@ export const COMPOSITION_CATALOG: PlayableComposition[] = [
               { id: 'sg-a-11', swara: 'Ṡ', octave: 'tara', ratio: 2.0, durationAksharas: 2, sahitya: 'na', sahityaMl: 'ന', violin: { string: 1, finger: 0, bowDirection: 'down' } },
               { id: 'sg-a-12', swara: 'N₂', octave: 'madhya', ratio: 9 / 5, durationAksharas: 1, sahitya: 'vi', sahityaMl: 'വി', violin: { string: 2, finger: 2, bowDirection: 'up' } },
               { id: 'sg-a-13', swara: 'D₁', octave: 'madhya', ratio: 8 / 5, durationAksharas: 1, sahitya: 'cha', sahityaMl: 'ച', violin: { string: 2, finger: 1, bowDirection: 'down' } },
-              { id: 'sg-a-14', swara: 'M₁', octave: 'madhya', ratio: 4 / 3, durationAksharas: 1, sahitya: 'ka', sahityaMl: 'ക്ഷണ', violin: { string: 3, finger: 3, bowDirection: 'up' } }
+              { id: 'sg-a-14', swara: 'M₁', octave: 'madhya', ratio: 4 / 3, durationAksharas: 1, sahitya: 'ksha', sahityaMl: 'ക്ഷണ', violin: { string: 3, finger: 3, bowDirection: 'up' } }
             ]
           }
         ]

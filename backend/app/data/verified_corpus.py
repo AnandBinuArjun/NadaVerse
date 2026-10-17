@@ -2169,6 +2169,76 @@ VERIFIED_COMPOSITIONS_DATA = [
         "tala": "Rupaka",
         "language": "Tamil",
         "summary": "Lively Tamil masterpiece praising Lord Nataraja dancing in the golden hall of Chidambaram."
+    },
+    {
+        "id": "varnam-ninnukori",
+        "slug": "ninnukori-mohanam",
+        "title": "Ninnukori (Tana Varnam)",
+        "composer": "Ramnad Srinivasa Iyengar (Poochi Iyengar)",
+        "raga": "Mohanam",
+        "tala": "Adi",
+        "language": "Telugu",
+        "summary": "The premier concert-opening Tana Varnam in raga Mohanam, celebrated for vocal agility and violin string balance."
+    },
+    {
+        "id": "varnam-jalajaksha",
+        "slug": "jalajaksha-hamsadhwani",
+        "title": "Jalajaksha (Tana Varnam)",
+        "composer": "Manambuchavadi Venkatasubbayyar",
+        "raga": "Hamsadhwani",
+        "tala": "Adi",
+        "language": "Telugu",
+        "summary": "Sparkling Hamsadhwani concert opener cultivating bright Kakali Nishadam resonance and violin bowing precision."
+    },
+    {
+        "id": "varnam-sami-ninne",
+        "slug": "sami-ninne-sreeragam",
+        "title": "Sami Ninne (Tana Varnam)",
+        "composer": "Karur Devudu Iyer",
+        "raga": "Sree",
+        "tala": "Adi",
+        "language": "Telugu",
+        "summary": "The auspicious benchmark varnam in Sree Ragam featuring delicate Gandharam oscillations and vakra avarohana phrasing."
+    },
+    {
+        "id": "kriti-raghuvamsa-sudha",
+        "slug": "raghuvamsa-sudha",
+        "title": "Raghuvamsa Sudha",
+        "composer": "Patnam Subramania Iyer",
+        "raga": "Kathanakuthuhalam",
+        "tala": "Adi",
+        "language": "Sanskrit / Telugu",
+        "summary": "Virtuosic showpiece in Kathanakuthuhalam with signature vakra ascent, immortalized by Lalgudi Jayaraman and K.J. Yesudas."
+    },
+    {
+        "id": "varnam-viriboni",
+        "slug": "viriboni-bhairavi",
+        "title": "Viriboni (Ata Tala Varnam)",
+        "composer": "Pacchimiriam Adiyappa",
+        "raga": "Bhairavi",
+        "tala": "Khanda Ata",
+        "language": "Telugu",
+        "summary": "The supreme 'King of Varnams' set in 14-beat Khanda Jati Ata Tala, encylopedic repository of Bhairavi gamakas."
+    },
+    {
+        "id": "geetham-sri-gananatha",
+        "slug": "sri-gananatha-malahari",
+        "title": "Sri Gananatha (Pillari Geetham)",
+        "composer": "Purandara Dasa",
+        "raga": "Malahari",
+        "tala": "Rupaka",
+        "language": "Sanskrit",
+        "summary": "Foundational Pillari Geetham in Malahari teaching 1-to-1 swara-to-syllable correspondence in Rupaka Tala."
+    },
+    {
+        "id": "swarajathi-rara-venu",
+        "slug": "rara-venu-bilahari",
+        "title": "Rara Venu Gopa Bala",
+        "composer": "Traditional (Codified by Poochi Iyengar)",
+        "raga": "Bilahari",
+        "tala": "Adi",
+        "language": "Telugu",
+        "summary": "Lyrical Swarajathi in raga Bilahari bridging foundational Geetham singing with energetic Varnam tempo."
     }
 ]
 
