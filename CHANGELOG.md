@@ -52,6 +52,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
   - Added lifecycle listeners (`visibilitychange`, `pageshow`, `focus`) with automatic context recovery for `suspended` and WebKit `interrupted` states.
   - Clamped Tala scheduler lookahead on app foregrounding to eliminate drift spikes and main-thread freezes.
   - Awaited context un-suspension before scheduling gain ramps in Tanpura, Tala, and Swara note synthesis.
+- **Visual Kriya Hand Gesture Indicators & Tala Screen-Reader Support (`TalaStudio.tsx`):**
+  - Integrated dynamic visual kriya hand gesture indicators (👏 Thattu palm clap, 👋 Veechu upturned palm wave, ☝️ Finger count tap) across all akshara beat cards in the Tala progression grid.
+  - Implemented polite `aria-live` real-time cycle position announcements and comprehensive `aria-label` descriptors for full screen-reader compliance (WCAG 2.2 AA).
 - **Audio Consent Enforcement:**
   - `ExplainablePracticeCompanion.tsx` initializes consent to `false`. MediaStream and AudioContext instantiation strictly prevented until user opt-in.
   - `backend/app/schemas/audio_practice.py` enforces mandatory `user_consent_granted: bool`.

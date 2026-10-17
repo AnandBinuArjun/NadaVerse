@@ -435,7 +435,14 @@ export const TalaStudio: React.FC = () => {
           </span>
         </div>
 
-        <div className="grid grid-cols-4 sm:grid-cols-8 gap-2.5 sm:gap-3">
+        {/* Screen Reader Live Beat Announcer */}
+        <div className="sr-only" aria-live="polite" aria-atomic="true">
+          {isPlaying && activeBeat >= 0
+            ? `Beat ${activeBeat + 1} of ${selectedTala.totalAksharas}, ${selectedTala.beatActions[activeBeat]?.anga || ''}, ${selectedTala.beatActions[activeBeat]?.actionLabel || ''}`
+            : ''}
+        </div>
+
+        <div className="grid grid-cols-4 sm:grid-cols-8 gap-2.5 sm:gap-3" role="list" aria-label="Tala cycle beats">
           {selectedTala.beatActions.map((beat, idx) => {
             const isActive = activeBeat === idx;
             const isSamam = idx === 0;
@@ -453,19 +460,29 @@ export const TalaStudio: React.FC = () => {
               cardStyle = 'bg-[#1e1c15] border-[#C7A45B]/40 text-[#E0C98F]';
             }
 
+            const kriyaGesture =
+              beat.actionType === 'thattu'
+                ? { symbol: '👏', label: 'Thattu' }
+                : beat.actionType === 'veecheduthal'
+                ? { symbol: '👋', label: 'Veechu' }
+                : { symbol: '☝️', label: 'Finger' };
+
             return (
               <div
                 key={idx}
-                className={`p-3 rounded-xl border text-center transition-all duration-100 flex flex-col justify-between min-h-[75px] ${cardStyle}`}
+                role="listitem"
+                aria-label={`Beat ${idx + 1} of ${selectedTala.totalAksharas}: ${beat.anga}, ${beat.actionLabel}${isActive ? ' (current beat)' : ''}`}
+                className={`p-2.5 sm:p-3 rounded-xl border text-center transition-all duration-100 flex flex-col justify-between min-h-[82px] sm:min-h-[88px] ${cardStyle}`}
               >
-                <div className="text-[10px] font-mono opacity-80 uppercase">
-                  {beat.anga}
+                <div className="flex items-center justify-between text-[10px] font-mono opacity-80 uppercase">
+                  <span>{beat.anga}</span>
+                  <span className="text-xs" title={beat.actionLabel}>{kriyaGesture.symbol}</span>
                 </div>
-                <div className="text-base sm:text-lg font-serif font-bold">
+                <div className="text-base sm:text-lg font-serif font-bold my-0.5">
                   {idx + 1}
                 </div>
                 <div className="text-[10px] font-mono font-semibold truncate">
-                  {beat.syllable || beat.actionLabel.split(' ')[0]}
+                  {beat.syllable || kriyaGesture.label}
                 </div>
               </div>
             );
