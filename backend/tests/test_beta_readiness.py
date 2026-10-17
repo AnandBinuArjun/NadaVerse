@@ -245,11 +245,17 @@ async def test_practice_session_lifecycle_and_duration_accuracy():
     """P0.3: Verify accurate session lifecycle, planned vs actual duration, and no duplicate completions."""
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
         # Register user
-        reg_res = await ac.post("/api/v1/auth/register", json={
-            "email": f"practice_{datetime.datetime.now().timestamp()}@nadaverse.internal",
-            "password": "StrongPassword123!",
-            "display_name": "Sadhana Student",
-        })
+        ts = int(datetime.datetime.now().timestamp() * 1000)
+        reg_res = await ac.post(
+            "/api/v1/auth/register",
+            json={
+                "email": f"practice_{ts}@nadaverse.internal",
+                "password": "StrongPassword123!",
+                "display_name": "Sadhana Student",
+            },
+            headers={"X-Forwarded-For": f"198.51.100.{ts % 240 + 1}"}
+        )
+        assert reg_res.status_code == 201
         token = reg_res.json()["access_token"]
         headers = {"Authorization": f"Bearer {token}"}
 

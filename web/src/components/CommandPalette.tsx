@@ -17,7 +17,8 @@ import {
   Languages,
   Mic,
   ArrowRight,
-  Clock
+  Clock,
+  GitCompare
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import {
@@ -29,11 +30,12 @@ import {
 } from '../data/carnaticData';
 import { CURRICULUM_LESSONS } from '../data/curriculumData';
 import { CURATED_LISTENING_COMPOSITIONS } from '../data/listeningLibraryData';
+import { VERIFIED_COMPOSITIONS } from '../data/compositionLibraryData';
 import { audioEngine } from '../lib/audioEngine';
 
 export interface CommandPaletteAction {
   id: string;
-  category: 'raga' | 'tala' | 'instrument' | 'composer' | 'lesson' | 'listening' | 'glossary' | 'tool';
+  category: 'raga' | 'tala' | 'instrument' | 'composer' | 'lesson' | 'listening' | 'composition' | 'glossary' | 'tool';
   categoryLabelEn: string;
   categoryLabelMl: string;
   title: string;
@@ -48,11 +50,12 @@ export interface CommandPaletteAction {
 interface CommandPaletteProps {
   isOpen: boolean;
   onClose: () => void;
-  onNavigateSection: (section: 'home' | 'learn' | 'explore' | 'practice' | 'teaching' | 'heritage') => void;
-  onSelectExploreTab: (tab: 'ragas' | 'talas' | 'instruments' | 'composers' | 'glossary' | 'library') => void;
+  onNavigateSection: (section: 'home' | 'learn' | 'explore' | 'practice' | 'compositions' | 'violin' | 'teaching' | 'heritage') => void;
+  onSelectExploreTab: (tab: 'ragas' | 'talas' | 'instruments' | 'composers' | 'glossary' | 'library' | 'compositions') => void;
   onOpenTutor: (topic?: string) => void;
   onOpenCalibration: () => void;
   onOpenOfflinePacks: () => void;
+  onOpenRagaComparison?: () => void;
 }
 
 export const CommandPalette: React.FC<CommandPaletteProps> = ({
@@ -63,6 +66,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
   onOpenTutor,
   onOpenCalibration,
   onOpenOfflinePacks,
+  onOpenRagaComparison,
 }) => {
   const { lang, toggleLang } = useLanguage();
   const [query, setQuery] = useState('');
@@ -169,6 +173,21 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         },
       },
       {
+        id: 'tool-violin-studio',
+        category: 'tool',
+        categoryLabelEn: 'Violin',
+        categoryLabelMl: 'വയലിൻ',
+        title: 'Carnatic Violin Practice Studio',
+        titleMl: 'കർണാടക വയലിൻ സാധക കളരി',
+        subtitle: 'Pa-Sa-Pa-Sa tuner, Long-Bow Timer, and Fretless String-Crossing Trainer',
+        subtitleMl: 'പ-സ-പ-സ ശ്രുതി ട്യൂണർ, ലോങ് ബോ ടൈമർ, ഫ്രെറ്റ്‌ലെസ്സ് ഫിംഗറിംഗ് സഹായി',
+        keywords: ['violin', 'carnatic violin', 'bowing', 'string crossing', 'tuner', 'fretless', 'long bow', 'vadhyam'],
+        icon: Music,
+        onSelect: () => {
+          onNavigateSection('violin');
+        },
+      },
+      {
         id: 'tool-curated-listening',
         category: 'tool',
         categoryLabelEn: 'Listening',
@@ -182,6 +201,21 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         onSelect: () => {
           onNavigateSection('explore');
           onSelectExploreTab('library');
+        },
+      },
+      {
+        id: 'tool-compositions-library',
+        category: 'tool',
+        categoryLabelEn: 'Library',
+        categoryLabelMl: 'ലൈബ്രറി',
+        title: 'Playable Carnatic Compositions Library',
+        titleMl: 'കർണ്ണാടക സംഗീത രചനാ ലൈബ്രറി (വർണ്ണങ്ങളും കൃതികളും)',
+        subtitle: 'Playable Varnams, Keerthanams, Geethams, and Violin practice pieces',
+        subtitleMl: 'വർണ്ണങ്ങൾ, കൃതികൾ, ഗീതങ്ങൾ, വയലിൻ പാഠങ്ങൾ എന്നിവ കേൾക്കാനും പഠിക്കാനും',
+        keywords: ['composition', 'varnam', 'keerthanam', 'kriti', 'geetham', 'swarajathi', 'varisai', 'violin piece', 'notation', 'score', 'play'],
+        icon: Music,
+        onSelect: () => {
+          onNavigateSection('compositions');
         },
       },
       {
@@ -212,6 +246,21 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
         icon: Landmark,
         onSelect: () => {
           onOpenOfflinePacks();
+        },
+      },
+      {
+        id: 'tool-raga-comparison',
+        category: 'tool',
+        categoryLabelEn: 'Analysis',
+        categoryLabelMl: 'വിശകലനം',
+        title: 'Compare Ragas Side-by-Side',
+        titleMl: 'രാഗ താരതമ്യ വിശകലനം',
+        subtitle: 'Compare swarasthana intervals, shared swaras, and scale differences',
+        subtitleMl: 'രണ്ട് രാഗങ്ങളുടെ സ്വരസ്ഥാനങ്ങളും പ്രയോഗങ്ങളും താരതമ്യം ചെയ്യുക',
+        keywords: ['compare', 'raga', 'comparison', 'swarasthana', 'scale', 'difference'],
+        icon: GitCompare,
+        onSelect: () => {
+          if (onOpenRagaComparison) onOpenRagaComparison();
         },
       },
       {
@@ -388,8 +437,40 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
       });
     });
 
+    // 9. Playable Carnatic Compositions
+    VERIFIED_COMPOSITIONS.forEach((comp) => {
+      list.push({
+        id: `composition-${comp.slug}`,
+        category: 'composition',
+        categoryLabelEn: 'Composition',
+        categoryLabelMl: 'രചന',
+        title: comp.title,
+        titleMl: comp.titleMl,
+        subtitle: `${comp.ragaName} • ${comp.talaName} • ${comp.composerName}`,
+        subtitleMl: `${comp.ragaMl} • ${comp.talaMl} • ${comp.composerMl}`,
+        keywords: [
+          comp.title,
+          comp.titleMl,
+          comp.slug,
+          comp.ragaName,
+          comp.ragaMl,
+          comp.talaName,
+          comp.composerName,
+          comp.category,
+          'composition',
+          'swara',
+          'varnam',
+          'keerthanam'
+        ],
+        icon: Music,
+        onSelect: () => {
+          onNavigateSection('compositions');
+        },
+      });
+    });
+
     return list;
-  }, [lang, onNavigateSection, onSelectExploreTab, onOpenTutor, onOpenCalibration, onOpenOfflinePacks, toggleLang]);
+  }, [lang, onNavigateSection, onSelectExploreTab, onOpenTutor, onOpenCalibration, onOpenOfflinePacks, onOpenRagaComparison, toggleLang]);
 
   // Filter actions based on query and category chip
   const filteredActions = useMemo(() => {
@@ -493,6 +574,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({
     { id: 'all', labelEn: 'All', labelMl: 'എല്ലാം' },
     { id: 'raga', labelEn: 'Ragas', labelMl: 'രാഗങ്ങൾ' },
     { id: 'tala', labelEn: 'Talas', labelMl: 'താളങ്ങൾ' },
+    { id: 'composition', labelEn: 'Compositions', labelMl: 'രചനകൾ' },
     { id: 'listening', labelEn: 'Listening', labelMl: 'കേൾവി' },
     { id: 'lesson', labelEn: 'Lessons', labelMl: 'പാഠങ്ങൾ' },
     { id: 'tool', labelEn: 'Tools', labelMl: 'സഹായികൾ' },

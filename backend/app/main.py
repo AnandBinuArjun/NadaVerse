@@ -31,6 +31,7 @@ from app.api.v1.endpoints.curriculum import router as curriculum_router
 from app.api.v1.endpoints.audio_practice import router as audio_router
 from app.api.v1.endpoints.teaching import router as teaching_router
 from app.api.v1.endpoints.heritage import router as heritage_router
+from app.api.v1.endpoints.compositions import router as compositions_router
 from app.services.ai_gateway import ai_gateway
 from app.data.verified_corpus import (
     VERIFIED_RAGAS_DATA,
@@ -116,6 +117,7 @@ app.include_router(curriculum_router, prefix=settings.API_V1_PREFIX)
 app.include_router(audio_router, prefix=settings.API_V1_PREFIX)
 app.include_router(teaching_router, prefix=settings.API_V1_PREFIX)
 app.include_router(heritage_router, prefix=settings.API_V1_PREFIX)
+app.include_router(compositions_router, prefix=settings.API_V1_PREFIX)
 
 
 @app.get("/api/v1/health", tags=["System"])

@@ -70,6 +70,11 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Cross-origin boundary: Never cache external third-party requests into the app shell
+  if (url.origin !== self.location.origin) {
+    return;
+  }
+
   // 2. Strict Privacy Guard: Never cache or intercept authenticated requests with credentials or auth headers
   if (
     request.headers.has('authorization') ||
@@ -147,8 +152,8 @@ self.addEventListener('fetch', (event) => {
   const isHtmlNavigation = request.mode === 'navigate' || request.destination === 'document' || (request.headers.get('accept') || '').includes('text/html');
 
   if (isHtmlNavigation) {
-    // Check if the requested pathname is on the explicit public allowlist
-    const isAllowedPublicRoute = PUBLIC_HTML_ALLOWLIST.has(url.pathname);
+    // Check if the requested pathname is on the explicit public allowlist and has no private query strings
+    const isAllowedPublicRoute = url.origin === self.location.origin && PUBLIC_HTML_ALLOWLIST.has(url.pathname) && !url.search;
 
     event.respondWith(
       fetch(request)

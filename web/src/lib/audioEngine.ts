@@ -364,6 +364,14 @@ class AudioEngine {
     return this.isTanpuraPlaying;
   }
 
+  public getCurrentTonicFrequency(): number {
+    return this.currentTonicFreq;
+  }
+
+  public getCurrentTonicName(): string {
+    return this.currentTonicName;
+  }
+
   // ---------------------------------------------------------------------------
   // 2. Play Individual Swara Note & Raga Scale Sequencer
   // ---------------------------------------------------------------------------
@@ -440,6 +448,110 @@ class AudioEngine {
 
   public getIsScalePlaying(): boolean {
     return this.isScalePlaying;
+  }
+
+  public getContext(): AudioContext {
+    return this.ensureContext();
+  }
+
+  /**
+   * High-Precision Audio Clock Note Scheduler with Gamaka Support
+   * Schedules a note at exact startTime using Web Audio API clock,
+   * supporting Jaru glides and Kampita oscillations without timer drift.
+   */
+  public scheduleSwaraNote(
+    startTime: number,
+    ratio: number,
+    durationSeconds: number,
+    gamaka?: {
+      type: string;
+      startRatio?: number;
+      endRatio?: number;
+      oscillationDepthCents?: number;
+      oscillationSpeedHz?: number;
+    }
+  ): { stop: () => void } {
+    const ctx = this.ensureContext();
+    const baseFreq = this.currentTonicFreq * ratio;
+
+    try {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      let lfo: OscillatorNode | null = null;
+      let lfoGain: GainNode | null = null;
+
+      osc.type = 'triangle';
+
+      // Gamaka pitch contour processing
+      if (gamaka && gamaka.type === 'jaru' && gamaka.endRatio) {
+        const startFreq = this.currentTonicFreq * (gamaka.startRatio || ratio);
+        const endFreq = this.currentTonicFreq * gamaka.endRatio;
+        osc.frequency.setValueAtTime(startFreq, startTime);
+        osc.frequency.exponentialRampToValueAtTime(endFreq, startTime + durationSeconds * 0.85);
+      } else if (gamaka && gamaka.type === 'kampita') {
+        osc.frequency.setValueAtTime(baseFreq, startTime);
+        const lfoRate = gamaka.oscillationSpeedHz || 5.5;
+        const depthCents = gamaka.oscillationDepthCents || 35;
+        const depthHz = baseFreq * (Math.pow(2, depthCents / 1200) - 1);
+        lfo = ctx.createOscillator();
+        lfoGain = ctx.createGain();
+        lfo.frequency.setValueAtTime(lfoRate, startTime);
+        lfoGain.gain.setValueAtTime(depthHz, startTime);
+        lfo.connect(lfoGain);
+        lfoGain.connect(osc.frequency);
+        lfo.start(startTime);
+        lfo.stop(startTime + durationSeconds);
+      } else {
+        osc.frequency.setValueAtTime(baseFreq, startTime);
+      }
+
+      // Smooth amplitude envelope
+      const attack = Math.min(0.04, durationSeconds * 0.15);
+      const release = Math.min(0.06, durationSeconds * 0.25);
+      gain.gain.setValueAtTime(0.0001, startTime);
+      gain.gain.exponentialRampToValueAtTime(0.4, startTime + attack);
+      gain.gain.setValueAtTime(0.35, startTime + Math.max(attack, durationSeconds - release));
+      gain.gain.exponentialRampToValueAtTime(0.0001, startTime + durationSeconds);
+
+      osc.connect(gain);
+      gain.connect(this.masterGain!);
+
+      osc.start(startTime);
+      osc.stop(startTime + durationSeconds);
+
+      const handle = {
+        stop: () => {
+          try {
+            osc.stop();
+            osc.disconnect();
+            if (lfo && lfoGain) {
+              lfo.stop();
+              lfo.disconnect();
+              lfoGain.disconnect();
+            }
+          } catch {}
+        }
+      };
+      this.scheduledNoteHandles.push(handle);
+      return handle;
+    } catch (err) {
+      console.debug('Error scheduling swara note:', err);
+      return { stop: () => {} };
+    }
+  }
+
+  private scheduledNoteHandles: { stop: () => void }[] = [];
+
+  /**
+   * Stops all active and scheduled swara notes immediately
+   */
+  public stopAllSwaraNotes(): void {
+    this.scheduledNoteHandles.forEach((h) => {
+      try {
+        h.stop();
+      } catch {}
+    });
+    this.scheduledNoteHandles = [];
   }
 
   // ---------------------------------------------------------------------------

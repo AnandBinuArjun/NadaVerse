@@ -8,6 +8,45 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## [1.0.0-beta] - 2026-10-17
 
 ### Added
+- **Playable Carnatic Composition Library & Interactive Player (`InteractiveCompositionPlayer.tsx` & `CarnaticCompositionLibrary.tsx`):**
+  - **Comprehensive Multi-Category Library:** Searchable, filterable catalog spanning all 6 primary repertoire forms: Tana Varnams (*Ninnukori* in Mohanam), Kritis/Keerthanams (*Vatapi Ganapatim* in Hamsadhwani), Geethams (*Sri Gananatha* Pillari Geetham in Malahari), Swarajathis (*Rara Venu Gopa Bala* in Bilahari), Varisais/Abhyasa Ganam (*Sarali Varisai 1* in Mayamalavagowla), and Carnatic Violin Practice Studies (String-Crossing & Bow Balance).
+  - **Formal Versioned Data Model (`schemaVersion: 1.0.0`):** Structured specification representing microtonal Just Intonation harmonic ratios relative to Adhara Sa, akshara/matra durations mathematically verified against Tala cycle totals, full section breakdown (Pallavi, Anupallavi, Muktayi Swaram, Charanam, etc.), gamaka curves (Jaru glides, Kampita microtonal vibrato), bilingual Sahitya lyrics, and violin finger/bow annotations.
+  - **Drift-Free Audio Hardware Clock Note Scheduler:** Notes are scheduled precisely against `audioContext.currentTime`, avoiding UI timer drift. Includes `stopAllSwaraNotes()` instant cancellation and continuous highlight synchronizer running in a `requestAnimationFrame` loop.
+  - **Interactive Playback & Practice Controls:** Play, pause, resume, restart, tempo slider (36–140 BPM), 3 Kalam speed multipliers (0.5x Slow Practice, 1x 1st Kalam, 2x 2nd Kalam), loop section toggle, section tab navigation, integrated Tanpura drone accompaniment, and full keyboard accessibility (`Space`, `L`, `V`, `ArrowLeft`, `ArrowRight`).
+  - **Carnatic Violin Practice Mode:** Dynamic overlay on notation sheet showing Carnatic string numbers (String 1 = Tara Sa, String 2 = Madhya Pa, String 3 = Madhya Sa, String 4 = Mandra Pa), finger numbers (0 to 3), and traditional bowing glyphs ($\sqcap$ Down-Bow, $\vee$ Up-Bow). Includes optional microphone pitch helper with explicit traditional aesthetic disclaimer.
+  - **Cultural Provenance & 100% Free Status Guarantee:** Every composition references classical treatises (*Sangita Sampradaya Pradarsini*, *Sangita Saramrita*, *Purandara Dasa Kirtana Sangraha*), labeled as verified Public Domain with zero subscriptions, advertisements, or paywalls.
+  - **Backend API & Schema Validation:** Added `GET /api/v1/compositions`, `GET /api/v1/compositions/{slug}`, and `POST /api/v1/compositions/validate` with automated Pytest coverage (`test_compositions_api`).
+  - **System Integration:** First-class navigation tab in desktop/mobile `Navbar`, interactive Home page showcase banner, Explore tab pill, and universal spotlight search indexing in `CommandPalette` (`Ctrl+K`).
+- **Carnatic Violin Practice Studio Slice (`ViolinPracticeStudio.tsx`):**
+  - **Structured 3-Level Learning Curriculum:** 8 comprehensive lessons covering posture and instrument setup (Sukhasana sitting, scroll resting on right foot, relaxed thumb), Pa-Sa-Pa-Sa tuning, long-bow tone production (Uttana/Pratyuttana), string crossings across 3 speeds (Kalams), Sarali/Jantai varisais, introductory gamakas (Kampita, Jaru), and vocal accompaniment listening.
+  - **Pa-Sa-Pa-Sa Tuning Assistant:** Visual tuner featuring real-time cents deviation meter, stability indicator, signal level, green in-tune lock, manual audio drone reference fallback, and peg safety guidelines.
+  - **Long-Bow Timer & Reflection Checklist:** Animated visual progress bar with audio cue beeps, frog/tip tone self-checklist, and direct integration with the personal Sadhana Journal.
+  - **Fretless Fingerboard Trainer:** Interactive visualizer displaying string and swarasthana positions with microtonal disclaimer (rejecting 12-TET frets).
+  - **Integration:** First-class navigation tab in desktop/mobile navbar and Command Palette (`tool-violin-studio`).
+  - **Automated Verification:** `test_violin_curriculum_progress_and_practice` (pytest), Next.js 16.4 production build, ESLint (0 errors, 0 warnings).
+- **Formal Roadmap Deliverables:**
+  - Added `docs/carnatic-feature-gap-matrix.md` with full breakdown of violin, multi-instrument, and cross-Carnatic features.
+  - Added `docs/violin-learning-product-spec.md` with complete pedagogical, acoustic, and technical specifications.
+  - Added `docs/carnatic-content-review-and-rights.md` establishing item-level treatise provenance and DMCA notice/takedown policies.
+- **Raga Exploration & Side-by-Side Comparison Modal (`RagaComparisonModal.tsx`):**
+  - Interactive comparative scale analyzer allowing any two ragas from the verified corpus to be compared side-by-side.
+  - Microtonal Just Intonation swara audiation for both scales using mathematical frequency ratios.
+  - Swara interval matrix automatically computing shared swaras, unique swaras to Raga A, and unique swaras to Raga B.
+  - Prominent musicological disclaimer in English and Malayalam (`ml`): "A raga is an organic melodic entity defined by gamakas, prayogas (characteristic phrases), and traditional lineage—not merely an unadorned mathematical scale."
+  - Direct integration with AI Tutor to query comparative prayogas and historical development.
+  - Launchable from the Global Command Palette (`Ctrl+K` / `⌘K`), individual Raga Cards, and Raga Explorer quick bar.
+- **Student Submission & Feedback Retrieval Endpoint (`teaching.py`):**
+  - Added `@router.get("/assignments/{assignment_id}/my-submission")` allowing enrolled students to view their submitted practice reflections, acoustic scores, and teacher reviews with strict object ownership validation.
+  - Added regression test `test_teacher_supported_learning_workflow` asserting student retrieval of reviewed feedback.
+- **Service Worker Cross-Origin & Query-String Isolation (`web/public/sw.js`):**
+  - Added same-origin check (`url.origin === self.location.origin`) disallowing external third-party requests from entering the application cache.
+  - Enforced zero-query-string rule (`!url.search`) on public HTML allowlist caching, preventing authenticated token or tracking parameter leakages.
+  - Expanded `web/scripts/test-sw-privacy.mjs` to 13 automated invariant tests.
+- **Publication Readiness & Release Documentation Suite:**
+  - Added `docs/publication-readiness-audit.md` detailing findings, severity, evidence, and deployment-only checks.
+  - Added `docs/feature-gap-matrix.md` cataloging all 18 roadmap capabilities across `EXISTS`, `PARTIAL`, `MISSING`, and `NEEDS_VALIDATION`.
+  - Added `docs/release-evidence.md` with commit SHA, command outputs, and database lifecycle notes.
+  - Added `docs/content-rights-ledger.md` with item-level rights and edition evidence.
 - **Curated Listening Library (`CuratedListeningLibrary.tsx` + `listeningLibraryData.ts`):**
   - Structured, evidence-based *Kelvi Gnanam* (കേൾവി ജ്ഞാനം) listening discovery space covering cornerstone forms (Geetham, Swarajathi, Varnam, Krithi, and Thillana).
   - Web Audio API melodic phrase audiation with real-time swara note visualizer synchronized to the user's selected Adhara Sa.

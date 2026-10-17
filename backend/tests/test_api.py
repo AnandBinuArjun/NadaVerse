@@ -535,6 +535,15 @@ async def test_teacher_supported_learning_workflow():
         assert fb_res.status_code == 201
         assert "Good pitch" in fb_res.json()["feedback_text"]
 
+        # 10b. Student fetches their own submission and sees teacher's feedback
+        my_sub_res = await ac.get(f"/api/v1/teaching/assignments/{assign_id}/my-submission", headers=s_headers)
+        assert my_sub_res.status_code == 200
+        my_sub_data = my_sub_res.json()
+        assert my_sub_data["id"] == sub_id
+        assert my_sub_data["status"] == "reviewed"
+        assert my_sub_data["feedback"] is not None
+        assert "Good pitch" in my_sub_data["feedback"]["feedback_text"]
+
         # 11. Security check: Student cannot review submissions of other students
         unauth_review = await ac.post(
             f"/api/v1/teaching/submissions/{sub_id}/feedback",
@@ -612,5 +621,141 @@ async def test_heritage_archive_editorial_workflow():
         # 6. Now public discovery must include the newly approved entry
         now_pub = (await ac.get(f"/api/v1/heritage/{entry_slug}")).json()
         assert now_pub["title"] == "Acoustic Physics of the Ghatam Belly Resonance"
+
+
+@pytest.mark.asyncio
+async def test_violin_curriculum_progress_and_practice():
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        # Register a violin student
+        reg_res = await ac.post(
+            "/api/v1/auth/register",
+            json={
+                "email": f"violinist_{uuid.uuid4().hex[:6]}@example.com",
+                "password": "ViolinPassword123!",
+                "display_name": "Carnatic Violinist"
+            },
+            headers={"X-Forwarded-For": f"198.51.100.{uuid.uuid4().int % 240 + 1}"}
+        )
+        assert reg_res.status_code == 201
+        token = reg_res.json()["access_token"]
+        headers = {"Authorization": f"Bearer {token}"}
+
+        # Record completion of violin posture and open-string lesson
+        p1_res = await ac.post(
+            "/api/v1/curriculum/progress",
+            json={
+                "lesson_id": "carnatic-violin-posture-setup",
+                "status": "completed",
+                "quiz_score": 100
+            },
+            headers=headers
+        )
+        assert p1_res.status_code == 201
+
+        # Record completion of long-bow drill
+        p2_res = await ac.post(
+            "/api/v1/curriculum/progress",
+            json={
+                "lesson_id": "carnatic-violin-long-bow",
+                "status": "completed",
+                "quiz_score": 95
+            },
+            headers=headers
+        )
+        assert p2_res.status_code == 201
+
+        # Check curriculum progress summary
+        prog_res = await ac.get("/api/v1/curriculum/progress", headers=headers)
+        assert prog_res.status_code == 200
+        prog_data = prog_res.json()
+        assert "carnatic-violin-posture-setup" in prog_data["completed_lesson_ids"]
+        assert "carnatic-violin-long-bow" in prog_data["completed_lesson_ids"]
+        assert prog_data["total_completed"] >= 2
+
+        # Log a dedicated violin Sadhana practice session
+        session_res = await ac.post(
+            "/api/v1/practice/sessions",
+            json={
+                "focus": "Carnatic Violin Long-Bow & Pa-Sa-Pa-Sa Open String Tuning",
+                "tonic": "D (2 Kattai)",
+                "tala_id": "adi-tala",
+                "duration_seconds": 1200,
+                "notes": "Focused on drawing bow perpendicular to bridge with relaxed thumb. No bouncing on up-bow changes."
+            },
+            headers=headers
+        )
+        assert session_res.status_code == 201
+        session_data = session_res.json()
+        assert session_data["focus"] == "Carnatic Violin Long-Bow & Pa-Sa-Pa-Sa Open String Tuning"
+        assert session_data["duration_seconds"] == 1200
+
+
+@pytest.mark.asyncio
+async def test_compositions_api():
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        # 1. List compositions
+        res = await ac.get("/api/v1/compositions")
+        assert res.status_code == 200
+        items = res.json()
+        assert len(items) >= 6
+        slugs = {c["slug"] for c in items}
+        assert "ninnukori-mohanam-varnam" in slugs
+        assert "vatapi-ganapatim-hamsadhwani" in slugs
+        assert "sri-gananatha-malahari-geetham" in slugs
+        assert "sarali-varisai-1-mayamalavagowla" in slugs
+        assert "violin-mohanam-string-crossing-study" in slugs
+        assert "rara-venu-gopabala-bilahari" in slugs
+
+        # 2. Filter by category
+        res_varnam = await ac.get("/api/v1/compositions?category=varnam")
+        assert res_varnam.status_code == 200
+        varnams = res_varnam.json()
+        assert all(c["category"] == "varnam" for c in varnams)
+        assert any(c["slug"] == "ninnukori-mohanam-varnam" for c in varnams)
+
+        # 3. Filter by search query
+        res_search = await ac.get("/api/v1/compositions?q=Malahari")
+        assert res_search.status_code == 200
+        results = res_search.json()
+        assert any("malahari" in c["ragaName"].lower() for c in results)
+
+        # 4. Get by slug
+        res_ninnu = await ac.get("/api/v1/compositions/ninnukori-mohanam-varnam")
+        assert res_ninnu.status_code == 200
+        ninnu = res_ninnu.json()
+        assert "Ninnukori" in ninnu["title"]
+        assert "Poochi" in ninnu["composerName"]
+        assert len(ninnu["sections"]) >= 2
+        types = {s["id"] for s in ninnu["sections"]}
+        assert "pallavi" in types
+        assert "muktayi_swaram" in types
+        ms = next(s for s in ninnu["sections"] if s["id"] == "muktayi_swaram")
+        first_event = ms["lines"][0]["swaras"][0]
+        assert first_event["violin"] is not None
+        assert first_event["violin"]["string"] in [1, 2, 3, 4]
+
+        # 5. Get 404 for nonexistent composition
+        res_404 = await ac.get("/api/v1/compositions/non-existent-piece-xyz")
+        assert res_404.status_code == 404
+
+        # 6. Validate valid composition payload
+        val_res = await ac.post("/api/v1/compositions/validate", json=ninnu)
+        assert val_res.status_code == 200
+        val_data = val_res.json()
+        assert val_data["isValid"] is True
+        assert len(val_data["errors"]) == 0
+
+        # 7. Validate invalid composition payload (missing required title)
+        bad_comp = dict(ninnu)
+        del bad_comp["title"]
+
+        val_bad_res = await ac.post("/api/v1/compositions/validate", json=bad_comp)
+        assert val_bad_res.status_code == 200
+        val_bad_data = val_bad_res.json()
+        assert val_bad_data["isValid"] is False
+        assert any("title" in err.lower() for err in val_bad_data["errors"])
+
+
+
 
 

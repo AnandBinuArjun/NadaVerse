@@ -115,7 +115,7 @@ npx tsx scripts/test-pitch.mjs
 cd web
 npx tsx scripts/test-sw-privacy.mjs
 ```
-*Current status:* **11 passed (100%)** testing public allowlist, cookie/auth isolation, and RSC prevention.
+*Current status:* **13 passed (100%)** testing public allowlist, cookie/auth isolation, RSC prevention, cross-origin bypass, and query-string isolation.
 
 ### Frontend TypeScript & Production Build
 ```bash
@@ -130,7 +130,11 @@ npm run build
 
 ## 📚 Documentation Index
 
-- [docs/feature-implementation-report.md](docs/feature-implementation-report.md) — Comprehensive six-feature implementation report.
+- [docs/publication-readiness-audit.md](docs/publication-readiness-audit.md) — Comprehensive source-level release audit and remediation report.
+- [docs/feature-gap-matrix.md](docs/feature-gap-matrix.md) — 18-feature capability status matrix (EXISTS / PARTIAL / MISSING / NEEDS_VALIDATION).
+- [docs/release-evidence.md](docs/release-evidence.md) — Automated test verification outputs, commit SHA, and release evidence.
+- [docs/content-rights-ledger.md](docs/content-rights-ledger.md) — Item-level content rights and primary treatise provenance ledger.
+- [docs/feature-implementation-report.md](docs/feature-implementation-report.md) — Six core features implementation report.
 - [docs/content-provenance-and-licensing.md](docs/content-provenance-and-licensing.md) — Source attribution, treatise provenance, and licensing policy.
 - [docs/testing-and-release-checklist.md](docs/testing-and-release-checklist.md) — Verification checklist and release testing records.
 - [docs/architecture.md](docs/architecture.md) — Complete full-stack system architecture.

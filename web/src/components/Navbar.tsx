@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { Volume2, VolumeX, Compass, Sparkles, Sliders, BookOpen, User, Menu, X, GraduationCap, Landmark, Search } from 'lucide-react';
+import { Volume2, VolumeX, Compass, Sparkles, Sliders, BookOpen, User, Menu, X, GraduationCap, Landmark, Search, Music2, Music } from 'lucide-react';
 import { audioEngine, TONIC_OPTIONS } from '../lib/audioEngine';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -140,6 +140,30 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             <Sliders className="w-3.5 h-3.5 text-[#C7A45B]" />
             <span>{t.navPracticeStudio}</span>
+          </button>
+
+          <button
+            onClick={() => handleNavigateSection('compositions')}
+            className={`whitespace-nowrap flex items-center gap-1 2xl:gap-1.5 px-2 2xl:px-3 py-1 2xl:py-1.5 rounded-full text-[11px] 2xl:text-xs font-medium transition-all duration-200 ${
+              activeSection === 'compositions'
+                ? 'bg-gradient-to-r from-[#DFB960]/20 to-[#C7A45B]/20 text-[#E0C98F] border border-[#C7A45B]/40 shadow-sm font-semibold'
+                : 'text-[#BDB4A4] hover:text-[#F4EBDD] hover:bg-white/5'
+            }`}
+          >
+            <Music className="w-3.5 h-3.5 text-[#C7A45B]" />
+            <span>{lang === 'ml' ? 'രചനകൾ' : 'Compositions'}</span>
+          </button>
+
+          <button
+            onClick={() => handleNavigateSection('violin')}
+            className={`whitespace-nowrap flex items-center gap-1 2xl:gap-1.5 px-2 2xl:px-3 py-1 2xl:py-1.5 rounded-full text-[11px] 2xl:text-xs font-medium transition-all duration-200 ${
+              activeSection === 'violin'
+                ? 'bg-gradient-to-r from-[#DFB960]/20 to-[#C7A45B]/20 text-[#E0C98F] border border-[#C7A45B]/40 shadow-sm font-semibold'
+                : 'text-[#BDB4A4] hover:text-[#F4EBDD] hover:bg-white/5'
+            }`}
+          >
+            <Music2 className="w-3.5 h-3.5 text-[#C7A45B]" />
+            <span>{lang === 'ml' ? 'വയലിൻ' : 'Violin'}</span>
           </button>
 
           <button
@@ -357,6 +381,34 @@ export const Navbar: React.FC<NavbarProps> = ({
               <div className="flex items-center gap-2">
                 <Sliders className="w-4 h-4 text-[#C7A45B]" />
                 <span>{t.navPracticeStudio}</span>
+              </div>
+            </button>
+
+            <button
+              onClick={() => handleNavigateSection('compositions')}
+              className={`flex items-center justify-between p-3 rounded-xl text-sm font-medium transition-colors ${
+                activeSection === 'compositions'
+                  ? 'bg-[#C7A45B]/15 text-[#E0C98F] border border-[#C7A45B]/30'
+                  : 'text-[#BDB4A4] hover:bg-[#161410]'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Music className="w-4 h-4 text-[#C7A45B]" />
+                <span>{lang === 'ml' ? 'രചനാ ലൈബ്രറി' : 'Compositions Library'}</span>
+              </div>
+            </button>
+
+            <button
+              onClick={() => handleNavigateSection('violin')}
+              className={`flex items-center justify-between p-3 rounded-xl text-sm font-medium transition-colors ${
+                activeSection === 'violin'
+                  ? 'bg-[#C7A45B]/15 text-[#E0C98F] border border-[#C7A45B]/30'
+                  : 'text-[#BDB4A4] hover:bg-[#161410]'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <Music2 className="w-4 h-4 text-[#C7A45B]" />
+                <span>{lang === 'ml' ? 'വയലിൻ കളരി' : 'Violin Studio'}</span>
               </div>
             </button>
 

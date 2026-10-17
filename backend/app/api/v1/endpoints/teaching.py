@@ -445,6 +445,57 @@ async def submit_assignment_response(
     )
 
 
+@router.get("/assignments/{assignment_id}/my-submission", response_model=Optional[AssignmentSubmissionOut])
+async def get_my_assignment_submission(
+    assignment_id: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    assignment = await db.get(Assignment, assignment_id)
+    if not assignment:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Assignment not found.")
+
+    stmt = (
+        select(AssignmentSubmission)
+        .options(selectinload(AssignmentSubmission.feedbacks))
+        .where(
+            and_(
+                AssignmentSubmission.assignment_id == assignment_id,
+                AssignmentSubmission.student_id == current_user.id
+            )
+        )
+    )
+    res = await db.execute(stmt)
+    sub = res.scalar_one_or_none()
+    if not sub:
+        return None
+
+    fb_out = None
+    if sub.feedbacks:
+        fb = sub.feedbacks[0]
+        fb_out = AssignmentFeedbackOut(
+            id=fb.id,
+            submission_id=fb.submission_id,
+            teacher_id=fb.teacher_id,
+            feedback_text=fb.feedback_text,
+            recommended_lessons=fb.recommended_lessons or "",
+            created_at=fb.created_at
+        )
+
+    return AssignmentSubmissionOut(
+        id=sub.id,
+        assignment_id=sub.assignment_id,
+        student_id=sub.student_id,
+        status=sub.status,
+        notes=sub.notes,
+        measured_cent_error=sub.measured_cent_error,
+        measured_stability_pct=sub.measured_stability_pct,
+        submitted_at=sub.submitted_at,
+        created_at=sub.created_at,
+        feedback=fb_out
+    )
+
+
 @router.get("/assignments/{assignment_id}/submissions", response_model=List[AssignmentSubmissionOut])
 async def list_assignment_submissions(
     assignment_id: str,

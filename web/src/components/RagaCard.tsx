@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Volume2, ShieldCheck, BookOpen, Sparkles, Edit3, Bookmark, BookmarkCheck } from 'lucide-react';
+import { Volume2, ShieldCheck, BookOpen, Sparkles, Edit3, Bookmark, BookmarkCheck, GitCompare } from 'lucide-react';
 import { RagaItem, SwaraInfo } from '../types/carnatic';
 import { audioEngine } from '../lib/audioEngine';
 import { useLanguage } from '../context/LanguageContext';
@@ -14,6 +14,7 @@ interface RagaCardProps {
   onSuggestCorrection?: (ragaName: string) => void;
   onInspectProvenance?: (raga: RagaItem) => void;
   onSelectRelatedRaga?: (ragaSlug: string) => void;
+  onCompareRaga?: (raga: RagaItem) => void;
 }
 
 // Standard Carnatic 16 Swarasthana Just Intonation ratios lookup table
@@ -52,7 +53,8 @@ export const RagaCard: React.FC<RagaCardProps> = ({
   onAskTutor,
   onSuggestCorrection,
   onInspectProvenance,
-  onSelectRelatedRaga
+  onSelectRelatedRaga,
+  onCompareRaga
 }) => {
   const { lang, t } = useLanguage();
   const [activeSwaraSymbol, setActiveSwaraSymbol] = useState<string | null>(null);
@@ -381,6 +383,17 @@ export const RagaCard: React.FC<RagaCardProps> = ({
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
+          {onCompareRaga && (
+            <button
+              onClick={() => onCompareRaga(raga)}
+              className="flex items-center space-x-1 text-[#E0C98F] hover:text-[#F4EBDD] bg-[#22221D] hover:bg-[#2c2c25] border border-[#3B392F] px-2.5 py-1 rounded-lg transition-colors font-medium text-xs font-mono"
+              title="Compare with another raga side-by-side"
+            >
+              <GitCompare className="w-3.5 h-3.5 shrink-0 text-[#C7A45B]" />
+              <span>{lang === 'ml' ? 'രാഗ താരതമ്യം' : 'Compare'}</span>
+            </button>
+          )}
+
           {onInspectProvenance && (
             <button
               onClick={() => onInspectProvenance(raga)}

@@ -28,9 +28,12 @@ import { DailySadhanaPlanner } from '../components/DailySadhanaPlanner';
 import { PracticePlaylistRunner } from '../components/PracticePlaylistRunner';
 import { AudioCalibrationWizard } from '../components/AudioCalibrationWizard';
 import { SourceProvenanceModal, SourceProvenanceMetadata } from '../components/SourceProvenanceModal';
+import { RagaComparisonModal } from '../components/RagaComparisonModal';
 import { OfflinePackManager } from '../components/OfflinePackManager';
 import { CuratedListeningLibrary } from '../components/CuratedListeningLibrary';
 import { CommandPalette } from '../components/CommandPalette';
+import { ViolinPracticeStudio } from '../components/ViolinPracticeStudio';
+import { CarnaticCompositionLibrary } from '../components/CarnaticCompositionLibrary';
 import { RagaItem } from '../types/carnatic';
 import { VERIFIED_RAGAS, VERIFIED_INSTRUMENTS, VERIFIED_TALAS, GLOSSARY_TERMS, VERIFIED_COMPOSERS } from '../data/carnaticData';
 import { API_BASE_URL } from '../lib/api';
@@ -43,6 +46,7 @@ import {
   Sliders,
   BookOpen,
   Music2,
+  Music,
   ChevronRight,
   Search,
   Save,
@@ -52,13 +56,14 @@ import {
   Edit3,
   Bookmark,
   Filter,
-  Headphones
+  Headphones,
+  GitCompare
 } from 'lucide-react';
 
 export default function Home() {
   const { lang, t } = useLanguage();
-  const [activeSection, setActiveSection] = useState<'home' | 'learn' | 'explore' | 'practice' | 'teaching' | 'heritage'>('home');
-  const [exploreTab, setExploreTab] = useState<'ragas' | 'talas' | 'instruments' | 'composers' | 'glossary' | 'library'>('ragas');
+  const [activeSection, setActiveSection] = useState<'home' | 'learn' | 'explore' | 'practice' | 'compositions' | 'violin' | 'teaching' | 'heritage'>('home');
+  const [exploreTab, setExploreTab] = useState<'ragas' | 'talas' | 'instruments' | 'composers' | 'glossary' | 'library' | 'compositions'>('ragas');
   const [searchQuery, setSearchQuery] = useState('');
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [isTutorOpen, setIsTutorOpen] = useState(false);
@@ -72,6 +77,9 @@ export default function Home() {
   const [isOfflinePacksOpen, setIsOfflinePacksOpen] = useState(false);
   const [isProvenanceModalOpen, setIsProvenanceModalOpen] = useState(false);
   const [provenanceMetadata, setProvenanceMetadata] = useState<SourceProvenanceMetadata | null>(null);
+  const [isRagaComparisonOpen, setIsRagaComparisonOpen] = useState(false);
+  const [comparisonRagaA, setComparisonRagaA] = useState<RagaItem | undefined>(undefined);
+  const [comparisonRagaB, setComparisonRagaB] = useState<RagaItem | undefined>(undefined);
   const [correctionTarget, setCorrectionTarget] = useState<{ name: string; type: 'raga' | 'composer' | 'tala' }>({
     name: 'Mayamalavagowla',
     type: 'raga'
@@ -150,6 +158,16 @@ export default function Home() {
     setIsProvenanceModalOpen(true);
   };
 
+  const handleOpenRagaComparison = (raga?: RagaItem, ragaB?: RagaItem) => {
+    if (raga) {
+      setComparisonRagaA(raga);
+    }
+    if (ragaB) {
+      setComparisonRagaB(ragaB);
+    }
+    setIsRagaComparisonOpen(true);
+  };
+
   const handleStartSadhanaSession = (planTitle: string, plannedMinutes: number, focus: string) => {
     setSessionFocus(focus);
     setSessionDurationMinutes(plannedMinutes);
@@ -157,7 +175,7 @@ export default function Home() {
   };
 
   const handleNavigate = (section: string) => {
-    if (['home', 'learn', 'explore', 'practice', 'teaching', 'heritage'].includes(section)) {
+    if (['home', 'learn', 'explore', 'practice', 'violin', 'teaching', 'heritage'].includes(section)) {
       setActiveSection(section as any);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -468,6 +486,34 @@ export default function Home() {
               </div>
             </section>
 
+            {/* Playable Carnatic Compositions Showcase Banner */}
+            <section className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-amber-950/40 via-slate-900 to-slate-900 border border-amber-500/30 p-6 sm:p-8 shadow-2xl">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div className="space-y-2 max-w-2xl">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 text-amber-300 text-xs font-semibold">
+                    <Music className="w-3.5 h-3.5" />
+                    <span>{lang === 'ml' ? 'പുതിയ ഫീച്ചർ • രചനാ ലൈബ്രറി' : 'New Feature • Playable Composition Library'}</span>
+                  </div>
+                  <h3 className="text-xl sm:text-2xl font-serif font-bold text-white">
+                    {lang === 'ml' ? 'വർണ്ണങ്ങളും കീർത്തനങ്ങളും കേൾക്കാനും പഠിക്കാനും' : 'Playable Varnams, Keerthanams & Violin Studies'}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                    {lang === 'ml'
+                      ? 'താംബുര ശ്രുതി, തത്സമയ സ്വര ഹൈലൈറ്റിംഗ്, താള ക്രിയകൾ, വേഗത മാറ്റം (0.5x, 1x, 2x), വയലിൻ വിരൽ-വില്ല് കുറിപ്പുകൾ എന്നിവയോടെ.'
+                      : 'Practise Ninnukori Varnam, Vatapi Ganapatim, Pillari Geethams, and Violin studies with synchronized swara notation, pure Just Intonation ratios, and Kalam speeds.'}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setActiveSection('compositions')}
+                  className="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-extrabold text-xs shadow-lg shadow-amber-500/20 transition-all flex items-center justify-center gap-2 whitespace-nowrap self-start md:self-auto"
+                >
+                  <Music className="w-4 h-4" />
+                  <span>{lang === 'ml' ? 'ലൈബ്രറി തുറക്കുക' : 'Open Compositions'}</span>
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </section>
+
             {/* Featured Sample Content: Mayamalavagowla Vertical Slice */}
             <section className="space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-2 border-b border-[#C7A45B]/20">
@@ -635,6 +681,17 @@ export default function Home() {
                   <Headphones className="w-3.5 h-3.5 text-[#C7A45B]" />
                   <span>{lang === 'ml' ? 'കേൾവി ജ്ഞാനം (ശ്രവണം)' : 'Listening Library'}</span>
                 </button>
+                <button
+                  onClick={() => setExploreTab('compositions')}
+                  className={`flex items-center gap-1.5 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-xs font-mono font-medium transition-all ${
+                    exploreTab === 'compositions'
+                      ? 'nv-gold-btn font-bold shadow-md shadow-[#C7A45B]/20'
+                      : 'bg-[#0d0c0a]/60 hover:bg-[#1e1c17] text-[#BDB4A4] hover:text-[#F4EBDD] border border-[#C7A45B]/15 hover:border-[#C7A45B]/30'
+                  }`}
+                >
+                  <Music className="w-3.5 h-3.5 text-[#C7A45B]" />
+                  <span>{lang === 'ml' ? 'രചനകൾ (വർണ്ണങ്ങൾ & കൃതികൾ)' : 'Playable Compositions'}</span>
+                </button>
               </div>
 
               {/* Search Bar */}
@@ -683,6 +740,16 @@ export default function Home() {
                       </button>
                     );
                   })}
+
+                  {/* Quick Launch Raga Comparison Modal */}
+                  <button
+                    onClick={() => handleOpenRagaComparison()}
+                    className="px-3.5 py-1.5 rounded-xl text-xs font-mono transition-all flex items-center space-x-1.5 cursor-pointer bg-[#22221D] hover:bg-[#2c2c25] text-[#E0C98F] border border-[#C7A45B]/40 hover:border-[#C7A45B] shadow-sm ml-auto"
+                    title="Compare two ragas side-by-side"
+                  >
+                    <GitCompare className="w-3.5 h-3.5 text-[#C7A45B]" />
+                    <span>{lang === 'ml' ? 'രാഗ താരതമ്യം' : 'Compare Ragas'}</span>
+                  </button>
                 </div>
 
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs text-[#BDB4A4] font-mono gap-1">
@@ -706,6 +773,7 @@ export default function Home() {
                       onAskTutor={handleOpenTutorWithTopic}
                       onSuggestCorrection={(name) => handleOpenSuggestCorrection(name, 'raga')}
                       onInspectProvenance={handleOpenProvenanceForRaga}
+                      onCompareRaga={handleOpenRagaComparison}
                     />
                   ))}
                 </div>
@@ -954,7 +1022,19 @@ export default function Home() {
                 }}
               />
             )}
+
+            {/* PLAYABLE CARNATIC COMPOSITIONS TAB */}
+            {exploreTab === 'compositions' && (
+              <CarnaticCompositionLibrary />
+            )}
           </div>
+        )}
+
+        {/* =========================================================================
+            SECTION: PLAYABLE COMPOSITIONS LIBRARY (STANDALONE SECTION)
+        ========================================================================= */}
+        {activeSection === 'compositions' && (
+          <CarnaticCompositionLibrary />
         )}
 
         {/* =========================================================================
@@ -1190,6 +1270,41 @@ export default function Home() {
         )}
 
         {/* =========================================================================
+            SECTION: CARNATIC VIOLIN PRACTICE STUDIO (P1 ROADMAP SLICE)
+        ========================================================================= */}
+        {activeSection === 'violin' && (
+          <ViolinPracticeStudio
+            activeTonic={activeTonic}
+            onTonicChange={(t) => {
+              setActiveTonic(t);
+              audioEngine.setTonic(t.name);
+            }}
+            onLogToJournal={(focus, mins, notes) => {
+              setSessionFocus(focus);
+              setSessionDurationMinutes(mins);
+              setSessionNotes(notes);
+              if (typeof window !== 'undefined') {
+                try {
+                  const stored = JSON.parse(localStorage.getItem('nadaverse_sadhana_sessions') || '[]');
+                  const newRecord = {
+                    id: `s-${Date.now()}`,
+                    date: new Date().toISOString(),
+                    focus: focus,
+                    kattai: `${activeTonic.name} (${activeTonic.kattai})`,
+                    tala: 'Adi Tala (8 aksharas)',
+                    duration_minutes: mins,
+                    notes: notes,
+                    timestamp: Date.now()
+                  };
+                  localStorage.setItem('nadaverse_sadhana_sessions', JSON.stringify([newRecord, ...stored]));
+                  setSessionSavedStatus('saved_local');
+                } catch {}
+              }
+            }}
+          />
+        )}
+
+        {/* =========================================================================
             SECTION: TEACHING & GURUKULAM (FEATURE 5)
         ========================================================================= */}
         {activeSection === 'teaching' && (
@@ -1288,6 +1403,18 @@ export default function Home() {
         onClose={() => setIsProvenanceModalOpen(false)}
       />
 
+      {/* Raga Comparison & Scale Analysis Modal (P2 Roadmap Feature) */}
+      <RagaComparisonModal
+        isOpen={isRagaComparisonOpen}
+        onClose={() => setIsRagaComparisonOpen(false)}
+        initialRagaA={comparisonRagaA}
+        initialRagaB={comparisonRagaB}
+        onAskTutor={(topic) => {
+          setTutorTopic(topic);
+          setIsTutorOpen(true);
+        }}
+      />
+
       {/* Global Command Palette Spotlight Search (Ctrl+K / ⌘K) */}
       <CommandPalette
         isOpen={isCommandPaletteOpen}
@@ -1306,6 +1433,7 @@ export default function Home() {
         }}
         onOpenCalibration={() => setIsCalibrationOpen(true)}
         onOpenOfflinePacks={() => setIsOfflinePacksOpen(true)}
+        onOpenRagaComparison={() => handleOpenRagaComparison()}
       />
 
       {/* Footer */}

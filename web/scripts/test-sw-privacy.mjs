@@ -57,6 +57,12 @@ assertCheck('private Cache-Control is never cached', swContent.includes("cacheCo
 // Invariant 7: Offline fallback only for public routes
 assertCheck('Offline navigation restricted to allowlist', swContent.includes("if (isAllowedPublicRoute)"));
 
+// Invariant 8: Same-origin boundary enforcement
+assertCheck('Cross-origin requests strictly bypass cache', swContent.includes("url.origin !== self.location.origin"));
+
+// Invariant 9: Query string leakage protection
+assertCheck('Query strings strictly excluded from HTML allowlist cache', swContent.includes("!url.search"));
+
 console.log(`\nResults: ${testsPassed} passed, ${testsFailed} failed.`);
 
 if (testsFailed > 0) {
