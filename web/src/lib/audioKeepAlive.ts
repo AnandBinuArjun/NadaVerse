@@ -18,11 +18,20 @@ class AudioKeepAliveManager {
 
   constructor() {
     if (typeof window !== 'undefined') {
-      document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible' && this.activeKeepAliveCount > 0) {
+      const handleForeground = () => {
+        if (this.activeKeepAliveCount > 0) {
           this.requestWakeLock();
+          this.startSilentAudio();
+        }
+      };
+
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+          handleForeground();
         }
       });
+      window.addEventListener('pageshow', handleForeground);
+      window.addEventListener('focus', handleForeground);
     }
   }
 

@@ -55,6 +55,7 @@ export const TONIC_OPTIONS: TonicNote[] = [
 class AudioEngine {
   private ctx: AudioContext | null = null;
   private masterGain: GainNode | null = null;
+  private isUnlocked = false;
 
   // Tanpura state
   private tanpuraGain: GainNode | null = null;
@@ -82,16 +83,113 @@ class AudioEngine {
   private beatActionsList: { isAccent: boolean; syllable?: string }[] = [];
   private solkattuMode = false;
 
+  constructor() {
+    if (typeof window !== 'undefined') {
+      // 1. One-time gesture listener to unlock Web Audio hardware on first touch/click
+      const unlockEvents = ['touchstart', 'touchend', 'pointerdown', 'mousedown', 'keydown'];
+      const onUserInteraction = () => {
+        this.unlockAudio();
+        unlockEvents.forEach((ev) => window.removeEventListener(ev, onUserInteraction, true));
+      };
+      unlockEvents.forEach((ev) => window.addEventListener(ev, onUserInteraction, { capture: true, passive: true }));
+
+      // 2. Foreground & BFCache restoration (prevents audio freeze when switching apps or locking screen)
+      const onForegroundResume = async () => {
+        if (document.visibilityState === 'visible') {
+          await this.recoverAudioContext();
+        }
+      };
+
+      document.addEventListener('visibilitychange', onForegroundResume);
+      window.addEventListener('pageshow', onForegroundResume);
+      window.addEventListener('focus', onForegroundResume);
+    }
+  }
+
+  /**
+   * Unlocks the mobile audio hardware bus using a 1-sample silent buffer on first user touch.
+   * Crucial for iOS Safari and Chrome Android autoplay policies.
+   */
+  public async unlockAudio(): Promise<boolean> {
+    if (typeof window === 'undefined') return false;
+    try {
+      const ctx = this.ensureContext();
+      const state = ctx.state as string;
+      if (state === 'suspended' || state === 'interrupted') {
+        await ctx.resume();
+      }
+      const buffer = ctx.createBuffer(1, 1, 22050);
+      const source = ctx.createBufferSource();
+      source.buffer = buffer;
+      source.connect(ctx.destination);
+      source.start(0);
+      this.isUnlocked = true;
+      return true;
+    } catch (err) {
+      console.debug('Web Audio hardware unlock deferred:', err);
+      return false;
+    }
+  }
+
+  /**
+   * Recovers AudioContext if the mobile browser suspended or interrupted it during backgrounding.
+   */
+  public async recoverAudioContext(): Promise<void> {
+    if (!this.ctx) return;
+    const state = this.ctx.state as string;
+    if (state === 'suspended' || state === 'interrupted') {
+      try {
+        await this.ctx.resume();
+      } catch {
+        this.recreateContext();
+      }
+    } else if (state === 'closed') {
+      this.recreateContext();
+    }
+
+    // Re-engage Tanpura if it was actively playing before tab suspension
+    if (this.isTanpuraPlaying) {
+      this.restartTanpura();
+    }
+  }
+
+  /**
+   * Recreates the AudioContext if closed or unrecoverable.
+   */
+  public recreateContext(): AudioContext {
+    if (this.ctx) {
+      try {
+        this.ctx.close().catch(() => {});
+      } catch {}
+      this.ctx = null;
+      this.masterGain = null;
+    }
+    return this.ensureContext();
+  }
+
   private ensureContext(): AudioContext {
-    if (!this.ctx) {
+    if (typeof window === 'undefined') {
+      throw new Error('AudioContext unavailable in server environment');
+    }
+    if (!this.ctx || this.ctx.state === 'closed') {
       const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       this.ctx = new AudioCtx();
       this.masterGain = this.ctx.createGain();
       this.masterGain.gain.setValueAtTime(0.8, this.ctx.currentTime);
       this.masterGain.connect(this.ctx.destination);
+
+      // Listen for browser interruptions (phone calls, iOS backgrounding)
+      this.ctx.onstatechange = () => {
+        const s = this.ctx ? (this.ctx.state as string) : 'closed';
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('nadaverse:audiocontext_state', { detail: { state: s } }));
+        }
+      };
     }
-    if (this.ctx.state === 'suspended') {
-      this.ctx.resume();
+
+    const state = this.ctx.state as string;
+    if (state === 'suspended' || state === 'interrupted') {
+      this.ctx.resume().catch(() => {});
     }
     return this.ctx;
   }
@@ -100,7 +198,7 @@ class AudioEngine {
   // 1. Shruti / Tanpura Synthesis (Pa, Ma, Ni Shruti Modes)
   // ---------------------------------------------------------------------------
 
-  public startTanpura(tonicFreq = 261.63, volume = 0.7, tuning: ShrutiTuning = 'pa'): void {
+  public async startTanpura(tonicFreq = 261.63, volume = 0.7, tuning: ShrutiTuning = 'pa'): Promise<void> {
     const ctx = this.ensureContext();
     this.stopTanpura();
 
@@ -108,9 +206,19 @@ class AudioEngine {
     this.currentVolume = volume;
     this.currentShrutiTuning = tuning;
 
+    const state = ctx.state as string;
+    if (state === 'suspended' || state === 'interrupted') {
+      try {
+        await ctx.resume();
+      } catch (err) {
+        console.debug('startTanpura resume error:', err);
+      }
+    }
+
+    const now = ctx.currentTime;
     this.tanpuraGain = ctx.createGain();
-    this.tanpuraGain.gain.setValueAtTime(0.001, ctx.currentTime);
-    this.tanpuraGain.gain.exponentialRampToValueAtTime(Math.max(0.01, volume), ctx.currentTime + 1.2);
+    this.tanpuraGain.gain.setValueAtTime(0.001, now);
+    this.tanpuraGain.gain.exponentialRampToValueAtTime(Math.max(0.01, volume), now + 1.2);
     this.tanpuraGain.connect(this.masterGain!);
 
     // String 1 depends on Shruti tuning:
@@ -143,19 +251,31 @@ class AudioEngine {
         const oscGain = sc.gain * falloff * 0.35;
 
         osc.type = hIdx === 0 ? 'sine' : 'triangle';
-        osc.frequency.setValueAtTime(sc.freq * h, ctx.currentTime);
+        osc.frequency.setValueAtTime(sc.freq * h, now);
 
-        g.gain.setValueAtTime(oscGain, ctx.currentTime);
+        g.gain.setValueAtTime(oscGain, now);
         osc.connect(g);
         g.connect(this.tanpuraGain!);
 
-        osc.start();
+        osc.start(now);
         this.tanpuraOscillators.push({ osc, gain: g });
       });
     });
 
     this.isTanpuraPlaying = true;
     audioKeepAlive.enableKeepAlive();
+  }
+
+  private restartTanpura(): void {
+    if (!this.isTanpuraPlaying) return;
+    this.tanpuraOscillators.forEach(({ osc }) => {
+      try {
+        osc.stop();
+        osc.disconnect();
+      } catch {}
+    });
+    this.tanpuraOscillators = [];
+    this.startTanpura(this.currentTonicFreq, this.currentVolume, this.currentShrutiTuning);
   }
 
   public setShrutiTuning(tuning: ShrutiTuning): void {
@@ -252,22 +372,37 @@ class AudioEngine {
     const ctx = this.ensureContext();
     const freq = this.currentTonicFreq * ratio;
 
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
+    const doPlay = () => {
+      try {
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
 
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, now);
 
-    // Warm, bell-like decay emulating veena / flute note
-    gain.gain.setValueAtTime(0.0001, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.45, ctx.currentTime + 0.04);
-    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + durationSeconds);
+        // Warm, bell-like decay emulating veena / flute note
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.exponentialRampToValueAtTime(0.45, now + 0.04);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + durationSeconds);
 
-    osc.connect(gain);
-    gain.connect(this.masterGain!);
+        osc.connect(gain);
+        gain.connect(this.masterGain!);
 
-    osc.start();
-    osc.stop(ctx.currentTime + durationSeconds);
+        osc.start(now);
+        osc.stop(now + durationSeconds);
+      } catch (err) {
+        console.debug('Error in playSwaraNote, recreating context:', err);
+        this.recreateContext();
+      }
+    };
+
+    const state = ctx.state as string;
+    if (state === 'suspended' || state === 'interrupted') {
+      ctx.resume().then(doPlay).catch(doPlay);
+    } else {
+      doPlay();
+    }
   }
 
   public playRagaScale(
@@ -311,14 +446,23 @@ class AudioEngine {
   // 3. High-Precision Tala Metronome & Mridangam Solkattu Scheduler
   // ---------------------------------------------------------------------------
 
-  public startTala(
+  public async startTala(
     bpm: number,
     totalAksharas: number,
     beatActions: { isAccent: boolean; syllable?: string }[],
     onBeat: (beatIndex: number, isAccent: boolean) => void
-  ): void {
+  ): Promise<void> {
     const ctx = this.ensureContext();
     this.stopTala();
+
+    const state = ctx.state as string;
+    if (state === 'suspended' || state === 'interrupted') {
+      try {
+        await ctx.resume();
+      } catch (err) {
+        console.debug('startTala resume error:', err);
+      }
+    }
 
     this.talaBpm = bpm;
     this.totalBeats = totalAksharas;
@@ -381,6 +525,11 @@ class AudioEngine {
 
   private scheduler = (): void => {
     if (!this.isTalaPlaying || !this.ctx) return;
+
+    // Prevent scheduling loop spike when returning to foreground
+    if (this.nextBeatTime < this.ctx.currentTime) {
+      this.nextBeatTime = this.ctx.currentTime + 0.02;
+    }
 
     while (this.nextBeatTime < this.ctx.currentTime + this.scheduleAheadSec) {
       this.scheduleBeat(this.currentBeat, this.nextBeatTime);

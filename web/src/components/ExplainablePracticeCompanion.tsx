@@ -184,7 +184,8 @@ export const ExplainablePracticeCompanion: React.FC<Props> = ({
 
       const audioCtx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
       audioCtxRef.current = audioCtx;
-      if (audioCtx.state === 'suspended') {
+      const state = audioCtx.state as string;
+      if (state === 'suspended' || state === 'interrupted') {
         await audioCtx.resume();
       }
 

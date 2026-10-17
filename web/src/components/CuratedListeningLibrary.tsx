@@ -60,8 +60,9 @@ export const CuratedListeningLibrary: React.FC<CuratedListeningLibraryProps> = (
     setActiveNoteIndex(null);
   };
 
-  const playOpeningPhrase = (comp: ListeningComposition) => {
+  const playOpeningPhrase = async (comp: ListeningComposition) => {
     stopPhrasePlayback();
+    await audioEngine.unlockAudio();
     setActivePlayingId(comp.id);
     setActiveNoteIndex(0);
 

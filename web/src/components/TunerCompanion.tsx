@@ -216,6 +216,11 @@ export const TunerCompanion: React.FC<TunerCompanionProps> = ({
       const ctx = new AudioCtx();
       audioCtxRef.current = ctx;
 
+      const state = ctx.state as string;
+      if (state === 'suspended' || state === 'interrupted') {
+        await ctx.resume();
+      }
+
       const source = ctx.createMediaStreamSource(stream);
       const analyser = ctx.createAnalyser();
       analyser.fftSize = 2048;

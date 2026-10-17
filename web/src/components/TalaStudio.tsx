@@ -151,7 +151,7 @@ export const TalaStudio: React.FC = () => {
     audioEngine.setTalaBpm(clamped);
   }, []);
 
-  const startActualMetronome = useCallback(() => {
+  const startActualMetronome = useCallback(async () => {
     const beatActions = selectedTala.beatActions.map((b) => ({
       isAccent: b.actionType === 'thattu',
       syllable: b.syllable
@@ -164,6 +164,7 @@ export const TalaStudio: React.FC = () => {
     cycleCountRef.current = 0;
     setCycleCount(0);
 
+    await audioEngine.unlockAudio();
     audioEngine.startTala(bpm, selectedTala.totalAksharas, beatActions, (beatIdx, isAccent) => {
       setActiveBeat(beatIdx);
       setIsAccentBeat(isAccent);

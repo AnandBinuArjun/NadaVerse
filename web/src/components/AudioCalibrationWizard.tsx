@@ -88,6 +88,11 @@ export const AudioCalibrationWizard: React.FC<AudioCalibrationWizardProps> = ({
       const ctx = new AudioContextClass();
       audioCtxRef.current = ctx;
 
+      const state = ctx.state as string;
+      if (state === 'suspended' || state === 'interrupted') {
+        await ctx.resume();
+      }
+
       const source = ctx.createMediaStreamSource(stream);
       const analyser = ctx.createAnalyser();
       analyser.fftSize = 1024;
@@ -144,6 +149,11 @@ export const AudioCalibrationWizard: React.FC<AudioCalibrationWizardProps> = ({
       const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
       const ctx = audioCtxRef.current || new AudioContextClass();
       audioCtxRef.current = ctx;
+
+      const state = ctx.state as string;
+      if (state === 'suspended' || state === 'interrupted') {
+        ctx.resume().catch(() => {});
+      }
 
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();

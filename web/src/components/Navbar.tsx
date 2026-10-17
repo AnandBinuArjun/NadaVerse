@@ -28,12 +28,13 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [selectedTonic, setSelectedTonic] = useState(TONIC_OPTIONS[0]); // C
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const toggleDrone = () => {
+  const toggleDrone = async () => {
     if (isDroneOn) {
       audioEngine.stopTanpura();
       setIsDroneOn(false);
     } else {
-      audioEngine.startTanpura(selectedTonic.frequency, 0.7);
+      await audioEngine.unlockAudio();
+      await audioEngine.startTanpura(selectedTonic.frequency, 0.7);
       setIsDroneOn(true);
     }
   };

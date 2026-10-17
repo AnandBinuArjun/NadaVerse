@@ -39,12 +39,13 @@ export const ShrutiCompanion: React.FC = () => {
   const [volume, setVolume] = useState(0.75);
   const [activeSwara, setActiveSwara] = useState<string | null>(null);
 
-  const togglePlayback = React.useCallback(() => {
+  const togglePlayback = React.useCallback(async () => {
     if (isPlaying) {
       audioEngine.stopTanpura();
       setIsPlaying(false);
     } else {
-      audioEngine.startTanpura(selectedTonic.frequency, volume, shrutiTuning);
+      await audioEngine.unlockAudio();
+      await audioEngine.startTanpura(selectedTonic.frequency, volume, shrutiTuning);
       setIsPlaying(true);
     }
   }, [isPlaying, selectedTonic.frequency, volume, shrutiTuning]);

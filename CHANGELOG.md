@@ -46,7 +46,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - **Single Head Alembic Migration:**
   - Codified migration revision `95d82f7c0a11` covering all 6 feature tables (`learning_groups`, `group_members`, `group_invitations`, `assignments`, `assignment_submissions`, `assignment_feedback`, `heritage_entries`, `content_corrections`) and session lifecycle columns.
 
-### Changed
+- **Mobile Browser Audio Resilience & Lifecycle Auto-Recovery (`audioEngine.ts` & `audioKeepAlive.ts`):**
+  - Resolved mobile browser audio silence occurring when returning to un-refreshed tabs on iOS Safari and Android Chrome.
+  - Implemented global one-time hardware bus touch unlocker playing an inaudible 1-sample buffer on first user gesture.
+  - Added lifecycle listeners (`visibilitychange`, `pageshow`, `focus`) with automatic context recovery for `suspended` and WebKit `interrupted` states.
+  - Clamped Tala scheduler lookahead on app foregrounding to eliminate drift spikes and main-thread freezes.
+  - Awaited context un-suspension before scheduling gain ramps in Tanpura, Tala, and Swara note synthesis.
 - **Audio Consent Enforcement:**
   - `ExplainablePracticeCompanion.tsx` initializes consent to `false`. MediaStream and AudioContext instantiation strictly prevented until user opt-in.
   - `backend/app/schemas/audio_practice.py` enforces mandatory `user_consent_granted: bool`.
