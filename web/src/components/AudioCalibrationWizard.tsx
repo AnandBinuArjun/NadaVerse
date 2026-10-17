@@ -203,7 +203,7 @@ export const AudioCalibrationWizard: React.FC<AudioCalibrationWizardProps> = ({
   const selectedTonicObj = TONIC_OPTIONS.find((t) => t.note === selectedTonic) || TONIC_OPTIONS[0];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/80 backdrop-blur-md">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-stone-950/85 backdrop-blur-md">
       <div className="bg-stone-900 border border-amber-900/40 rounded-2xl p-6 max-w-xl w-full shadow-2xl space-y-6">
         {/* Wizard Header */}
         <div className="flex items-center justify-between pb-4 border-b border-stone-800">

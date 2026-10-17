@@ -395,7 +395,7 @@ export const PracticePlaylistRunner: React.FC = () => {
 
       {/* Import Modal */}
       {isImportModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/80 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-stone-950/80 backdrop-blur-sm">
           <div className="bg-stone-900 border border-stone-800 rounded-2xl p-6 max-w-lg w-full space-y-4 shadow-2xl">
             <h3 className="text-lg font-bold text-amber-100">Import Playlist JSON</h3>
             <p className="text-xs text-stone-400">

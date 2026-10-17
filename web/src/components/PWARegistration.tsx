@@ -40,7 +40,7 @@ export const PWARegistration: React.FC = () => {
     <div
       role="status"
       aria-live="polite"
-      className="fixed bottom-4 left-4 z-50 bg-[#161410] border border-[#C7A45B]/60 text-[#F4EBDD] px-4 py-2.5 rounded-2xl shadow-2xl flex items-center space-x-2.5 text-xs backdrop-blur-md animate-fade-in font-mono"
+      className="fixed bottom-4 left-4 z-40 bg-[#161410] border border-[#C7A45B]/60 text-[#F4EBDD] px-4 py-2.5 rounded-2xl shadow-2xl flex items-center space-x-2.5 text-xs backdrop-blur-md animate-fade-in font-mono"
     >
       <WifiOff className="w-4 h-4 text-[#C7A45B] animate-pulse" />
       <span>Offline Mode active: Tanpura, Tala & Ragas running 100% locally</span>

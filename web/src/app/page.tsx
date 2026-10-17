@@ -487,17 +487,17 @@ export default function Home() {
             </section>
 
             {/* Playable Carnatic Compositions Showcase Banner */}
-            <section className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-amber-950/40 via-slate-900 to-slate-900 border border-amber-500/30 p-6 sm:p-8 shadow-2xl">
+            <section className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#2a1d0f]/60 via-[#191916] to-[#14120e] border border-[#C7A45B]/30 p-6 sm:p-8 shadow-2xl">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div className="space-y-2 max-w-2xl">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 text-amber-300 text-xs font-semibold">
-                    <Music className="w-3.5 h-3.5" />
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#C7A45B]/15 text-[#E0C98F] border border-[#C7A45B]/30 text-xs font-mono font-semibold">
+                    <Music className="w-3.5 h-3.5 text-[#C7A45B]" />
                     <span>{lang === 'ml' ? 'പുതിയ ഫീച്ചർ • രചനാ ലൈബ്രറി' : 'New Feature • Playable Composition Library'}</span>
                   </div>
-                  <h3 className="text-xl sm:text-2xl font-serif font-bold text-white">
+                  <h3 className="text-xl sm:text-2xl font-serif font-bold text-[#F4EBDD]">
                     {lang === 'ml' ? 'വർണ്ണങ്ങളും കീർത്തനങ്ങളും കേൾക്കാനും പഠിക്കാനും' : 'Playable Varnams, Keerthanams & Violin Studies'}
                   </h3>
-                  <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                  <p className="text-xs sm:text-sm text-[#BDB4A4] leading-relaxed">
                     {lang === 'ml'
                       ? 'താംബുര ശ്രുതി, തത്സമയ സ്വര ഹൈലൈറ്റിംഗ്, താള ക്രിയകൾ, വേഗത മാറ്റം (0.5x, 1x, 2x), വയലിൻ വിരൽ-വില്ല് കുറിപ്പുകൾ എന്നിവയോടെ.'
                       : 'Practise Ninnukori Varnam, Vatapi Ganapatim, Pillari Geethams, and Violin studies with synchronized swara notation, pure Just Intonation ratios, and Kalam speeds.'}
@@ -505,9 +505,9 @@ export default function Home() {
                 </div>
                 <button
                   onClick={() => setActiveSection('compositions')}
-                  className="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-extrabold text-xs shadow-lg shadow-amber-500/20 transition-all flex items-center justify-center gap-2 whitespace-nowrap self-start md:self-auto"
+                  className="px-6 py-3.5 rounded-2xl nv-gold-btn text-[#11110F] font-bold text-xs shadow-lg shadow-[#C7A45B]/20 transition-all flex items-center justify-center gap-2 whitespace-nowrap self-start md:self-auto cursor-pointer"
                 >
-                  <Music className="w-4 h-4" />
+                  <Music className="w-4 h-4 text-[#11110F]" />
                   <span>{lang === 'ml' ? 'ലൈബ്രറി തുറക്കുക' : 'Open Compositions'}</span>
                   <ChevronRight className="w-4 h-4" />
                 </button>

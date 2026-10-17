@@ -347,11 +347,11 @@ export function InteractiveCompositionPlayer({
   const activeSwara = activeLine?.swaras[currentSwaraIndex];
 
   return (
-    <div className="w-full max-w-5xl mx-auto space-y-6">
+    <div className="w-full space-y-6">
       {/* Top Header & Breadcrumb */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#161410] border border-[#C7A45B]/30 rounded-2xl p-6 shadow-2xl backdrop-blur-xl">
         <div>
-          <div className="flex items-center gap-2 mb-2">
+          <div className="flex flex-wrap items-center gap-2 mb-2">
             {onBackToLibrary && (
               <button
                 onClick={onBackToLibrary}
@@ -454,14 +454,17 @@ export function InteractiveCompositionPlayer({
           </div>
 
           {/* Notation Sheet Viewport */}
-          <div className="bg-[#14120E] border border-[#3B392F] rounded-2xl p-6 shadow-xl relative overflow-hidden">
-            <div className="absolute top-3 right-4 flex items-center gap-2">
-              <span className="text-[11px] font-mono text-[#BDB4A4] bg-[#1c1a14] px-2.5 py-1 rounded-md border border-[#3B392F]">
+          <div className="bg-[#14120E] border border-[#3B392F] rounded-2xl p-4 sm:p-6 shadow-xl relative overflow-hidden">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 mb-4 border-b border-[#3B392F]/60">
+              <span className="text-xs font-mono font-bold text-[#E0C98F] uppercase tracking-wider">
+                {isMl ? activeSection?.nameMl : activeSection?.name}
+              </span>
+              <span className="text-[11px] font-mono text-[#BDB4A4] bg-[#1c1a14] px-2.5 py-1 rounded-md border border-[#3B392F] w-fit">
                 {isMl ? 'താള ആവർത്തനം' : 'Tala'}: {composition.talaTotalAksharas} {isMl ? 'അക്ഷരങ്ങൾ' : 'Aksharas'}
               </span>
             </div>
 
-            <div className="space-y-6 pt-2">
+            <div className="space-y-6">
               {activeSection?.lines.map((line, lIdx) => {
                 const isLineActive = isPlaying && currentLineIndex === lIdx;
                 return (
@@ -474,12 +477,15 @@ export function InteractiveCompositionPlayer({
                     }`}
                   >
                     {/* Line Header & Sahitya text */}
-                    <div className="flex items-center justify-between text-xs text-[#8A7F6D] mb-3 border-b border-[#3B392F]/70 pb-1.5">
-                      <span className="font-mono text-[#E0C98F]">
+                    <div className="flex items-center justify-between gap-3 text-xs text-[#8A7F6D] mb-3 border-b border-[#3B392F]/70 pb-1.5 min-w-0">
+                      <span className="font-mono text-[#E0C98F] shrink-0">
                         {isMl ? `വരി ${line.lineNumber}` : `Line ${line.lineNumber}`}
                       </span>
                       {line.sahityaLineText && (
-                        <span className="font-serif italic text-[#F4EBDD] tracking-wide text-xs">
+                        <span
+                          className="font-serif italic text-[#F4EBDD] tracking-wide text-xs truncate min-w-0 text-right"
+                          title={isMl && line.sahityaLineTextMl ? line.sahityaLineTextMl : line.sahityaLineText}
+                        >
                           {isMl && line.sahityaLineTextMl ? line.sahityaLineTextMl : line.sahityaLineText}
                         </span>
                       )}
@@ -492,14 +498,14 @@ export function InteractiveCompositionPlayer({
                         return (
                           <div
                             key={sw.id}
-                            className={`flex flex-col items-center justify-center p-2 rounded-xl transition-all border text-center relative ${
+                            className={`flex flex-col items-center justify-center p-2 rounded-xl transition-all border text-center relative min-w-0 overflow-hidden ${
                               isNoteActive
                                 ? 'bg-[#C7A45B] text-[#11110F] font-bold border-[#E0C98F] scale-105 shadow-lg shadow-[#C7A45B]/30'
                                 : 'bg-[#1c1a14] text-[#F4EBDD] border-[#3B392F] hover:border-[#C7A45B]/40'
                             }`}
                           >
                             {/* Swara Sign */}
-                            <span className="text-base font-serif font-extrabold tracking-wider">
+                            <span className="text-base font-serif font-extrabold tracking-wider truncate w-full">
                               {sw.swara}
                             </span>
 
@@ -515,9 +521,10 @@ export function InteractiveCompositionPlayer({
                             {/* Sahitya / Syllable */}
                             {sw.sahitya && (
                               <span
-                                className={`text-[11px] font-medium mt-0.5 ${
+                                className={`text-[11px] font-medium mt-0.5 truncate w-full px-1 ${
                                   isNoteActive ? 'text-[#11110F] font-semibold' : 'text-[#E0C98F]'
                                 }`}
+                                title={isMl && sw.sahityaMl ? sw.sahityaMl : sw.sahitya}
                               >
                                 {isMl && sw.sahityaMl ? sw.sahityaMl : sw.sahitya}
                               </span>

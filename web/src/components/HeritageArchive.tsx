@@ -343,7 +343,7 @@ export const HeritageArchive: React.FC = () => {
 
       {/* Reader Modal */}
       {selectedEntry && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
           <div className="bg-[#14130f] border border-[#C7A45B]/30 rounded-3xl max-w-2xl w-full max-h-[85vh] overflow-y-auto p-6 sm:p-8 text-[#F4EBDD] shadow-2xl">
             <div className="flex items-center justify-between pb-4 border-b border-[#3B392F]">
               <span className="text-xs uppercase font-mono px-2.5 py-0.5 rounded bg-[#C7A45B]/10 text-[#C7A45B] border border-[#C7A45B]/20">
@@ -387,7 +387,7 @@ export const HeritageArchive: React.FC = () => {
 
       {/* Contributor Submit Modal */}
       {isSubmitOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
           <div className="bg-[#14130f] border border-[#C7A45B]/30 rounded-3xl max-w-xl w-full max-h-[90vh] overflow-y-auto p-6 text-[#F4EBDD] shadow-2xl">
             <div className="flex items-center justify-between pb-4 border-b border-[#3B392F]">
               <h3 className="text-lg font-bold font-serif text-[#F4EBDD] flex items-center gap-2">
