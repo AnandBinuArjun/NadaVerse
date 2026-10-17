@@ -11,9 +11,6 @@ import {
   Clock,
   TrendingUp,
   Sparkles,
-  Settings2,
-  RotateCcw,
-  Volume2,
   CheckCircle2
 } from 'lucide-react';
 import { audioEngine } from '../lib/audioEngine';
@@ -569,6 +566,23 @@ export const TalaStudio: React.FC = () => {
             >
               <Disc3 className="w-4 h-4 text-[#C7A45B]" />
               <span className="font-mono text-[11px]">Nadai: {nadai === 'chatusra' ? 'Chatusra (4)' : 'Tisra (3)'}</span>
+            </button>
+
+            {/* Subdivisions Loop Toggle */}
+            <button
+              onClick={() => {
+                const next = !isNadaiLoopEnabled;
+                setIsNadaiLoopEnabled(next);
+                audioEngine.setNadaiLoopsEnabled(next);
+              }}
+              className={`p-2.5 rounded-xl border flex items-center space-x-2 cursor-pointer transition-all ${
+                isNadaiLoopEnabled
+                  ? 'bg-[#C7A45B]/20 border-[#C7A45B] text-[#F4EBDD]'
+                  : 'bg-[#181714] border-[#3B392F] text-[#BDB4A4]'
+              }`}
+            >
+              <Activity className="w-4 h-4 text-[#C7A45B]" />
+              <span className="font-mono text-[11px]">{isNadaiLoopEnabled ? 'Subdivisions: ON' : 'Subdivisions: OFF'}</span>
             </button>
 
             {/* Haptics */}

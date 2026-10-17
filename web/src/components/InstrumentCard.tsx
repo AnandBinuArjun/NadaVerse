@@ -289,19 +289,31 @@ export const InstrumentCard: React.FC<InstrumentCardProps> = ({
           </span>
         </div>
 
-        {onAskTutor && (
-          <button
-            onClick={() => onAskTutor(instrument.canonicalName)}
-            className="flex items-center space-x-1.5 text-[#C7A45B] hover:text-[#E0C98F] font-medium transition-colors w-full sm:w-auto text-left sm:text-right py-1 cursor-pointer"
-          >
-            <Sparkles className="w-3.5 h-3.5 shrink-0" />
-            <span>
-              {lang === 'ml'
-                ? `${malayalamName || instrument.canonicalName}-നെക്കുറിച്ച് ട്യൂട്ടറോട് ചോദിക്കുക`
-                : `Ask AI Tutor about ${instrument.canonicalName}`}
-            </span>
-          </button>
-        )}
+        <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+          {onNavigateToPathway && (
+            <button
+              onClick={() => onNavigateToPathway('veena')}
+              className="flex items-center space-x-1.5 text-[#87947A] hover:text-[#C7A45B] font-medium transition-colors py-1 cursor-pointer"
+            >
+              <BookOpen className="w-3.5 h-3.5 shrink-0" />
+              <span>{lang === 'ml' ? 'അഭ്യസന പാത' : 'Learning Pathway'}</span>
+            </button>
+          )}
+
+          {onAskTutor && (
+            <button
+              onClick={() => onAskTutor(instrument.canonicalName)}
+              className="flex items-center space-x-1.5 text-[#C7A45B] hover:text-[#E0C98F] font-medium transition-colors py-1 cursor-pointer"
+            >
+              <Sparkles className="w-3.5 h-3.5 shrink-0" />
+              <span>
+                {lang === 'ml'
+                  ? `${malayalamName || instrument.canonicalName}-നെക്കുറിച്ച് ട്യൂട്ടറോട് ചോദിക്കുക`
+                  : `Ask AI Tutor about ${instrument.canonicalName}`}
+              </span>
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { Volume2, VolumeX, Compass, Sparkles, Sliders, BookOpen, User, Menu, X, GraduationCap, Landmark } from 'lucide-react';
 import { audioEngine, TONIC_OPTIONS } from '../lib/audioEngine';
 import { useLanguage } from '../context/LanguageContext';
@@ -52,7 +53,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <header className="sticky top-0 z-50 bg-[#0d0c0a]/90 backdrop-blur-2xl border-b border-[#C7A45B]/20 shadow-xl shadow-black/50 transition-all duration-300">
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-2 sm:gap-3">
+      <div className="max-w-[1440px] mx-auto px-3 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-2 sm:gap-4">
         {/* Brand */}
         <div className="flex items-center shrink-0 min-w-0">
           <button
@@ -61,9 +62,12 @@ export const Navbar: React.FC<NavbarProps> = ({
             aria-label="NadaVerse Home"
           >
             <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-full overflow-hidden border-2 border-[#C7A45B]/70 bg-[#161410] flex items-center justify-center shadow-[0_0_20px_rgba(199,164,91,0.25)] group-hover:border-[#C7A45B] group-hover:shadow-[0_0_30px_rgba(199,164,91,0.5)] group-hover:scale-105 transition-all duration-300 shrink-0">
-              <img
+              <Image
                 src="/logo.png"
                 alt="NadaVerse Emblem"
+                width={44}
+                height={44}
+                priority
                 className="w-full h-full object-cover scale-110"
               />
             </div>
@@ -85,12 +89,12 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Primary Desktop Navigation Links */}
         <nav
-          className="hidden xl:flex items-center gap-1 bg-[#14120e]/80 p-1.5 rounded-full border border-[#C7A45B]/25 backdrop-blur-xl shadow-inner shrink-0"
+          className="hidden xl:flex items-center gap-0.5 2xl:gap-1 bg-[#14120e]/80 p-1 2xl:p-1.5 rounded-full border border-[#C7A45B]/25 backdrop-blur-xl shadow-inner shrink-0"
           aria-label="Main Navigation"
         >
           <button
             onClick={() => handleNavigateSection('home')}
-            className={`whitespace-nowrap px-4 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${
+            className={`whitespace-nowrap px-3 2xl:px-4 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${
               activeSection === 'home'
                 ? 'bg-gradient-to-r from-[#DFB960]/20 to-[#C7A45B]/20 text-[#E0C98F] border border-[#C7A45B]/40 shadow-sm font-semibold'
                 : 'text-[#BDB4A4] hover:text-[#F4EBDD] hover:bg-white/5'
@@ -101,7 +105,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           <button
             onClick={() => handleNavigateSection('learn')}
-            className={`whitespace-nowrap flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${
+            className={`whitespace-nowrap flex items-center gap-1.5 px-2.5 2xl:px-3.5 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${
               activeSection === 'learn'
                 ? 'bg-gradient-to-r from-[#DFB960]/20 to-[#C7A45B]/20 text-[#E0C98F] border border-[#C7A45B]/40 shadow-sm font-semibold'
                 : 'text-[#BDB4A4] hover:text-[#F4EBDD] hover:bg-white/5'
@@ -113,7 +117,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           <button
             onClick={() => handleNavigateSection('explore')}
-            className={`whitespace-nowrap flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${
+            className={`whitespace-nowrap flex items-center gap-1.5 px-2.5 2xl:px-3.5 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${
               activeSection === 'explore'
                 ? 'bg-gradient-to-r from-[#DFB960]/20 to-[#C7A45B]/20 text-[#E0C98F] border border-[#C7A45B]/40 shadow-sm font-semibold'
                 : 'text-[#BDB4A4] hover:text-[#F4EBDD] hover:bg-white/5'
@@ -125,7 +129,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           <button
             onClick={() => handleNavigateSection('practice')}
-            className={`whitespace-nowrap flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${
+            className={`whitespace-nowrap flex items-center gap-1.5 px-2.5 2xl:px-3.5 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${
               activeSection === 'practice'
                 ? 'bg-gradient-to-r from-[#DFB960]/20 to-[#C7A45B]/20 text-[#E0C98F] border border-[#C7A45B]/40 shadow-sm font-semibold'
                 : 'text-[#BDB4A4] hover:text-[#F4EBDD] hover:bg-white/5'
@@ -137,7 +141,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           <button
             onClick={() => handleNavigateSection('teaching')}
-            className={`whitespace-nowrap flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${
+            className={`whitespace-nowrap flex items-center gap-1.5 px-2.5 2xl:px-3.5 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${
               activeSection === 'teaching'
                 ? 'bg-gradient-to-r from-[#DFB960]/20 to-[#C7A45B]/20 text-[#E0C98F] border border-[#C7A45B]/40 shadow-sm font-semibold'
                 : 'text-[#BDB4A4] hover:text-[#F4EBDD] hover:bg-white/5'
@@ -149,7 +153,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           <button
             onClick={() => handleNavigateSection('heritage')}
-            className={`whitespace-nowrap flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${
+            className={`whitespace-nowrap flex items-center gap-1.5 px-2.5 2xl:px-3.5 py-1.5 rounded-full text-xs font-medium transition-all duration-200 ${
               activeSection === 'heritage'
                 ? 'bg-gradient-to-r from-[#DFB960]/20 to-[#C7A45B]/20 text-[#E0C98F] border border-[#C7A45B]/40 shadow-sm font-semibold'
                 : 'text-[#BDB4A4] hover:text-[#F4EBDD] hover:bg-white/5'
@@ -161,7 +165,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           <button
             onClick={onOpenTutor}
-            className="whitespace-nowrap flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-medium text-[#E0C98F] hover:bg-[#C7A45B]/15 hover:border-[#C7A45B]/40 transition-all border border-transparent"
+            className="whitespace-nowrap flex items-center gap-1.5 px-2.5 2xl:px-3.5 py-1.5 rounded-full text-xs font-medium text-[#E0C98F] hover:bg-[#C7A45B]/15 hover:border-[#C7A45B]/40 transition-all border border-transparent"
             aria-label="Open Grounded AI Music Tutor"
           >
             <Sparkles className="w-3.5 h-3.5 text-[#C7A45B]" />
@@ -170,13 +174,13 @@ export const Navbar: React.FC<NavbarProps> = ({
         </nav>
 
         {/* Right Utility Cluster */}
-        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
           {/* Quick Tanpura Drone Capsule */}
-          <div className="hidden sm:flex items-center bg-[#14120e]/80 border border-[#C7A45B]/25 rounded-full p-1 text-xs backdrop-blur-md shadow-sm shrink-0">
+          <div className="hidden sm:flex items-center bg-[#14120e]/80 border border-[#C7A45B]/25 rounded-full p-0.5 sm:p-1 text-xs backdrop-blur-md shadow-sm shrink-0">
             <select
               value={selectedTonic.name}
               onChange={handleTonicChange}
-              className="bg-transparent text-[#E0C98F] rounded-full pl-2.5 pr-1 py-1 text-xs font-mono font-bold focus:outline-none cursor-pointer"
+              className="bg-transparent text-[#E0C98F] rounded-full pl-2 sm:pl-2.5 pr-1 py-1 text-xs font-mono font-bold focus:outline-none cursor-pointer"
               aria-label="Select global tonic pitch"
             >
               {TONIC_OPTIONS.map((tOpt) => (
@@ -188,7 +192,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             <button
               onClick={toggleDrone}
-              className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 ${
+              className={`flex items-center gap-1.5 px-2.5 2xl:px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 ${
                 isDroneOn
                   ? 'bg-gradient-to-r from-[#DFB960] to-[#C7A45B] text-[#11110F] shadow-[0_0_15px_rgba(199,164,91,0.5)] animate-pulse'
                   : 'bg-[#222019] text-[#BDB4A4] hover:text-[#F4EBDD] hover:bg-[#2a2820]'
@@ -199,12 +203,12 @@ export const Navbar: React.FC<NavbarProps> = ({
               {isDroneOn ? (
                 <>
                   <Volume2 className="w-3.5 h-3.5 fill-current" />
-                  <span className="hidden md:inline">{t.droneActive}</span>
+                  <span className="hidden 2xl:inline">{t.droneActive}</span>
                 </>
               ) : (
                 <>
                   <VolumeX className="w-3.5 h-3.5" />
-                  <span className="hidden md:inline">{t.playShruti}</span>
+                  <span className="hidden 2xl:inline">{t.playShruti}</span>
                 </>
               )}
             </button>
@@ -243,7 +247,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {onOpenAuth && (
             <button
               onClick={onOpenAuth}
-              className="flex items-center gap-1.5 p-2 sm:px-3.5 sm:py-1.5 rounded-full bg-[#14120e]/80 hover:bg-[#222019] border border-[#C7A45B]/30 hover:border-[#C7A45B]/60 text-xs text-[#F4EBDD] font-medium transition-all shadow-sm shrink-0 whitespace-nowrap"
+              className="flex items-center gap-1.5 p-2 sm:px-3 sm:py-1.5 rounded-full bg-[#14120e]/80 hover:bg-[#222019] border border-[#C7A45B]/30 hover:border-[#C7A45B]/60 text-xs text-[#F4EBDD] font-medium transition-all shadow-sm shrink-0 whitespace-nowrap"
               aria-label="User account and preferences"
             >
               <User className="w-3.5 h-3.5 text-[#C7A45B]" />

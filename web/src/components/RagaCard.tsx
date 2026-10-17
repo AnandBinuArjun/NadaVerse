@@ -328,12 +328,14 @@ export const RagaCard: React.FC<RagaCardProps> = ({
           </span>
           <div className="flex flex-wrap gap-1.5">
             {relatedRagas.map((rel, idx) => (
-              <span
+              <button
                 key={idx}
-                className="px-2.5 py-1 rounded-lg bg-[#22221D] border border-[#3B392F] text-xs font-serif text-[#F4EBDD]"
+                type="button"
+                onClick={() => onSelectRelatedRaga && onSelectRelatedRaga(rel)}
+                className="px-2.5 py-1 rounded-lg bg-[#22221D] hover:bg-[#2e2d27] border border-[#3B392F] hover:border-[#C7A45B]/50 text-xs font-serif text-[#F4EBDD] transition-all cursor-pointer"
               >
                 {rel}
-              </span>
+              </button>
             ))}
           </div>
         </div>

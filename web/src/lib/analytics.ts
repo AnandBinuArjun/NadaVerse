@@ -88,7 +88,7 @@ class AnalyticsService {
     this.track({
       action: 'raga_view',
       category: 'knowledge',
-      label: ragaName,
+      label: melakartaNumber ? `${ragaName} (#${melakartaNumber})` : ragaName,
       raga: ragaName,
     });
   }

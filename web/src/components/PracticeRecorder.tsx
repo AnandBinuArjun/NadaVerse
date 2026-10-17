@@ -9,7 +9,7 @@ interface PracticeRecorderProps {
 }
 
 export const PracticeRecorder: React.FC<PracticeRecorderProps> = ({ onSaveSessionNotes }) => {
-  const { lang, t } = useLanguage();
+  const { lang } = useLanguage();
   const [isRecording, setIsRecording] = useState(false);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);

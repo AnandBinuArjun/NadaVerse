@@ -235,16 +235,26 @@ export const TunerCompanion: React.FC<TunerCompanionProps> = ({
     }
   };
 
+  const isListeningRef = useRef(isListening);
+  const startListeningRef = useRef(startListening);
+  const stopListeningRef = useRef(stopListening);
+
+  useEffect(() => {
+    isListeningRef.current = isListening;
+    startListeningRef.current = startListening;
+    stopListeningRef.current = stopListening;
+  });
+
   useEffect(() => {
     const unsub = practiceShortcuts.subscribe('toggle_tuner', () => {
-      if (isListening) {
-        stopListening();
+      if (isListeningRef.current) {
+        stopListeningRef.current();
       } else {
-        startListening();
+        startListeningRef.current();
       }
     });
     return () => unsub();
-  }, [isListening, stopListening, startListening]);
+  }, []);
 
   return (
     <div className="nv-glass-panel rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 shadow-2xl relative overflow-hidden">

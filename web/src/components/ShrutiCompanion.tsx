@@ -32,14 +32,14 @@ const COMMON_SWARAS: SwaraButton[] = [
 ];
 
 export const ShrutiCompanion: React.FC = () => {
-  const { lang, t } = useLanguage();
+  const { lang } = useLanguage();
   const [selectedTonic, setSelectedTonic] = useState<TonicNote>(TONIC_OPTIONS[0]);
   const [shrutiTuning, setShrutiTuning] = useState<ShrutiTuning>('pa');
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(0.75);
   const [activeSwara, setActiveSwara] = useState<string | null>(null);
 
-  const togglePlayback = () => {
+  const togglePlayback = React.useCallback(() => {
     if (isPlaying) {
       audioEngine.stopTanpura();
       setIsPlaying(false);
@@ -47,14 +47,14 @@ export const ShrutiCompanion: React.FC = () => {
       audioEngine.startTanpura(selectedTonic.frequency, volume, shrutiTuning);
       setIsPlaying(true);
     }
-  };
+  }, [isPlaying, selectedTonic.frequency, volume, shrutiTuning]);
 
   useEffect(() => {
     const unsub = practiceShortcuts.subscribe('toggle_tanpura', () => {
       togglePlayback();
     });
     return unsub;
-  }, [isPlaying, selectedTonic, volume, shrutiTuning]);
+  }, [togglePlayback]);
 
   const handleTonicSelect = (note: TonicNote) => {
     setSelectedTonic(note);

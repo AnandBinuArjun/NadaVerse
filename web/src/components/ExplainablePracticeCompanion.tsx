@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Mic,
   Square,
@@ -13,8 +13,7 @@ import {
   BookOpen,
   Info,
   CheckCircle2,
-  TrendingUp,
-  Volume2
+  TrendingUp
 } from 'lucide-react';
 import { TONIC_OPTIONS, TonicNote } from '../lib/audioEngine';
 import { CARNATIC_EXERCISES, ExerciseItem } from '../data/carnaticExercises';
@@ -115,7 +114,18 @@ export const ExplainablePracticeCompanion: React.FC<Props> = ({
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      stopRecordingSession();
+      if (animFrameIdRef.current) {
+        cancelAnimationFrame(animFrameIdRef.current);
+      }
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+      }
+      if (micStreamRef.current) {
+        micStreamRef.current.getTracks().forEach((t) => t.stop());
+      }
+      if (audioCtxRef.current) {
+        audioCtxRef.current.close().catch(() => {});
+      }
     };
   }, []);
 

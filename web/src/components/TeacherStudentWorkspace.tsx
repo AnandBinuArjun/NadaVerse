@@ -1,21 +1,15 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   GraduationCap,
   Users,
   BookOpen,
-  Send,
   Plus,
   Key,
   CheckCircle2,
-  Clock,
-  MessageSquare,
   AlertCircle,
-  Copy,
-  ChevronRight,
-  ShieldCheck,
-  Award
+  Sparkles
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -42,22 +36,49 @@ interface Assignment {
   created_at: string;
 }
 
-interface Submission {
-  id: string;
-  assignment_id: string;
-  student_id: string;
-  status: string;
-  notes: string;
-  measured_cent_error?: string;
-  measured_stability_pct?: string;
-  submitted_at?: string;
-  feedback?: {
-    id: string;
-    feedback_text: string;
-    recommended_lessons: string;
-    created_at: string;
-  };
-}
+const DEMO_GROUPS: LearningGroup[] = [
+  {
+    id: 'group-demo-1',
+    teacher_id: 'teacher-demo',
+    name: 'Mayamalavagowla Foundation Cohort',
+    description: 'Fundamental Sarali, Jantai, and Dhatu Varisai practice with Gamaka calibration',
+    member_count: 14,
+    assignment_count: 2
+  },
+  {
+    id: 'group-demo-2',
+    teacher_id: 'teacher-demo',
+    name: 'Alankaram & Saptatala Speed Studio',
+    description: 'Developing firm laya grasp across Dhruva, Matya, Rupaka, and Triputa talas in 3 kalams',
+    member_count: 8,
+    assignment_count: 1
+  }
+];
+
+const DEMO_ASSIGNMENTS: Assignment[] = [
+  {
+    id: 'assign-demo-1',
+    group_id: 'group-demo-1',
+    title: 'Sarali Varisai 1 to 4 with Steady Microtonal Sa',
+    target_kalam: 1,
+    target_bpm: 60,
+    instructions: 'Focus on full vocal resonance (Akaaram). Ensure Sa matches the Adhara Shadjam within 15 cents.',
+    status: 'assigned',
+    due_date: '2026-10-25T00:00:00Z',
+    created_at: '2026-10-15T00:00:00Z'
+  },
+  {
+    id: 'assign-demo-2',
+    group_id: 'group-demo-1',
+    title: 'Jantai Varisai 1 (Double Swara Stress) in 2nd Kalam',
+    target_kalam: 2,
+    target_bpm: 72,
+    instructions: 'Apply crisp sphurita gamaka on the second swara of each pair (S-S, R-R, G-G) without dragging.',
+    status: 'assigned',
+    due_date: '2026-10-28T00:00:00Z',
+    created_at: '2026-10-16T00:00:00Z'
+  }
+];
 
 interface Props {
   currentUser?: { email: string; displayName: string } | null;
@@ -67,16 +88,14 @@ interface Props {
 
 export const TeacherStudentWorkspace: React.FC<Props> = ({
   currentUser,
-  onOpenAuth,
-  onNavigateToCurriculum,
+  onOpenAuth
 }) => {
   const { lang } = useLanguage();
   const [roleTab, setRoleTab] = useState<'student' | 'teacher'>('student');
+  const [isDemoMode, setIsDemoMode] = useState<boolean>(false);
   const [enrolledGroups, setEnrolledGroups] = useState<LearningGroup[]>([]);
   const [teachingGroups, setTeachingGroups] = useState<LearningGroup[]>([]);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
-  const [submissionsMap, setSubmissionsMap] = useState<Record<string, Submission[]>>({});
-  const [isLoading, setIsLoading] = useState(false);
   const [errorNotice, setErrorNotice] = useState<string | null>(null);
   const [successNotice, setSuccessNotice] = useState<string | null>(null);
 
@@ -90,7 +109,7 @@ export const TeacherStudentWorkspace: React.FC<Props> = ({
   // Create assignment form
   const [activeGroupId, setActiveGroupId] = useState<string>('');
   const [assignTitle, setAssignTitle] = useState('');
-  const [assignExercise, setAssignExercise] = useState('sarali-1');
+  const [assignExercise, setAssignExercise] = useState('sarali_varisai_1');
   const [assignKalam, setAssignKalam] = useState(1);
   const [assignBpm, setAssignBpm] = useState(60);
   const [assignInstructions, setAssignInstructions] = useState('');
@@ -100,11 +119,6 @@ export const TeacherStudentWorkspace: React.FC<Props> = ({
   const [submissionNotes, setSubmissionNotes] = useState('');
   const [submissionCentError, setSubmissionCentError] = useState('');
   const [submissionStability, setSubmissionStability] = useState('');
-
-  // Teacher feedback form
-  const [reviewingSubId, setReviewingSubId] = useState<string | null>(null);
-  const [feedbackText, setFeedbackText] = useState('');
-  const [recommendedLessons, setRecommendedLessons] = useState('');
 
   // Generated invitation token display
   const [generatedInvite, setGeneratedInvite] = useState<{ groupId: string; token: string } | null>(null);
@@ -119,9 +133,16 @@ export const TeacherStudentWorkspace: React.FC<Props> = ({
     return headers;
   };
 
-  const loadData = async () => {
-    if (!currentUser) return;
-    setIsLoading(true);
+  const loadData = useCallback(async () => {
+    if (!currentUser) {
+      if (isDemoMode) {
+        setEnrolledGroups(DEMO_GROUPS);
+        setTeachingGroups(DEMO_GROUPS);
+        setAssignments(DEMO_ASSIGNMENTS);
+        if (!activeGroupId) setActiveGroupId(DEMO_GROUPS[0].id);
+      }
+      return;
+    }
     setErrorNotice(null);
     try {
       // Enrolled groups
@@ -147,14 +168,12 @@ export const TeacherStudentWorkspace: React.FC<Props> = ({
       }
     } catch {
       setErrorNotice('Could not load Gurukulam records.');
-    } finally {
-      setIsLoading(false);
     }
-  };
+  }, [currentUser, isDemoMode, activeGroupId]);
 
   useEffect(() => {
     loadData();
-  }, [currentUser]);
+  }, [loadData]);
 
   // Handle Join via Token
   const handleJoinGroup = async (e: React.FormEvent) => {
@@ -276,47 +295,7 @@ export const TeacherStudentWorkspace: React.FC<Props> = ({
     }
   };
 
-  // Handle Load Submissions for Teacher
-  const handleLoadSubmissions = async (assignmentId: string) => {
-    try {
-      const res = await fetch(`/api/v1/teaching/assignments/${assignmentId}/submissions`, {
-        headers: makeHeaders(false),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setSubmissionsMap((prev) => ({ ...prev, [assignmentId]: data }));
-      }
-    } catch {
-      setErrorNotice('Could not load student submissions.');
-    }
-  };
-
-  // Handle Teacher Send Feedback
-  const handleSendFeedback = async (subId: string, assignmentId: string) => {
-    if (!feedbackText.trim()) return;
-    setErrorNotice(null);
-    try {
-      const res = await fetch(`/api/v1/teaching/submissions/${subId}/feedback`, {
-        method: 'POST',
-        headers: makeHeaders(true),
-        body: JSON.stringify({
-          feedback_text: feedbackText,
-          recommended_lessons: recommendedLessons,
-        }),
-      });
-      if (res.ok) {
-        setReviewingSubId(null);
-        setFeedbackText('');
-        setRecommendedLessons('');
-        setSuccessNotice('Feedback sent to student!');
-        handleLoadSubmissions(assignmentId);
-      }
-    } catch {
-      setErrorNotice('Failed to submit teacher feedback.');
-    }
-  };
-
-  if (!currentUser) {
+  if (!currentUser && !isDemoMode) {
     return (
       <div className="bg-[#14130f] border border-[#C7A45B]/20 rounded-3xl p-8 text-center shadow-xl">
         <div className="w-14 h-14 mx-auto rounded-2xl bg-[#C7A45B]/10 border border-[#C7A45B]/25 flex items-center justify-center text-[#C7A45B] mb-4">
@@ -330,12 +309,21 @@ export const TeacherStudentWorkspace: React.FC<Props> = ({
             ? 'സൗജന്യ അദ്ധ്യാപക-ശിഷ്യ ബന്ധം. അഭ്യാസങ്ങൾ ഏൽപ്പിക്കുക, സാധക പുരോഗതി വിലയിരുത്തുക, ഗുരു നിർദ്ദേശങ്ങൾ സ്വീകരിക്കുക.'
             : 'Structured, 100% free teacher and student mentorship. Form learning groups, assign graded exercises, submit practice reflections, and receive personalized feedback.'}
         </p>
-        <div className="mt-6">
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+          {onOpenAuth && (
+            <button
+              onClick={onOpenAuth}
+              className="px-6 py-2.5 rounded-xl bg-[#C7A45B] hover:bg-[#E0C98F] text-[#11110F] font-bold text-xs uppercase tracking-wider transition-colors shadow-lg shadow-[#C7A45B]/20 cursor-pointer"
+            >
+              {lang === 'ml' ? 'ലോഗിൻ / സൈൻ അപ്പ്' : 'Sign In or Create Free Account'}
+            </button>
+          )}
           <button
-            onClick={onOpenAuth}
-            className="px-6 py-2.5 rounded-xl bg-[#C7A45B] hover:bg-[#E0C98F] text-[#11110F] font-bold text-xs uppercase tracking-wider transition-colors shadow-lg shadow-[#C7A45B]/20"
+            onClick={() => setIsDemoMode(true)}
+            className="px-5 py-2.5 rounded-xl border border-[#C7A45B]/40 hover:border-[#C7A45B] bg-[#1e1c17] hover:bg-[#282620] text-[#E0C98F] text-xs font-semibold transition-all cursor-pointer flex items-center gap-2"
           >
-            {lang === 'ml' ? 'ലോഗിൻ / സൈൻ അപ്പ്' : 'Sign In or Create Free Account'}
+            <Sparkles className="w-3.5 h-3.5 text-[#C7A45B]" />
+            <span>{lang === 'ml' ? 'ഡെമോ പരീക്ഷിക്കുക' : 'Explore Interactive Demo'}</span>
           </button>
         </div>
       </div>
@@ -344,6 +332,28 @@ export const TeacherStudentWorkspace: React.FC<Props> = ({
 
   return (
     <div className="bg-[#14130f] border border-[#C7A45B]/20 rounded-3xl p-6 sm:p-8 shadow-xl text-[#F4EBDD]">
+      {/* Demo Mode Notice */}
+      {isDemoMode && !currentUser && (
+        <div className="mb-6 p-3.5 bg-[#C7A45B]/15 border border-[#C7A45B]/30 rounded-2xl flex flex-wrap items-center justify-between gap-2 text-xs text-[#E0C98F]">
+          <span className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-[#C7A45B] shrink-0" />
+            <span>
+              {lang === 'ml'
+                ? 'ഗുരുകുലം മാതൃകാ പ്രദർശനം (Demo Preview). യഥാർത്ഥ ക്ലാസുകൾക്കായി അക്കൗണ്ട് ആരംഭിക്കുക.'
+                : 'Interactive Gurukulam Demo Preview. Sign in to save real student-teacher cohorts.'}
+            </span>
+          </span>
+          {onOpenAuth && (
+            <button
+              onClick={onOpenAuth}
+              className="px-3.5 py-1.5 bg-[#C7A45B] hover:bg-[#E0C98F] text-[#11110F] font-bold rounded-lg text-xs"
+            >
+              {lang === 'ml' ? 'സൈൻ ഇൻ' : 'Sign In'}
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-[#3B392F]">
         <div>
@@ -639,7 +649,22 @@ export const TeacherStudentWorkspace: React.FC<Props> = ({
                   onChange={(e) => setAssignTitle(e.target.value)}
                   className="w-full bg-[#191916] border border-[#3B392F] rounded-xl px-3 py-2 text-xs text-[#F4EBDD]"
                 />
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label className="text-[11px] text-slate-400 block mb-1">Curriculum Exercise</label>
+                    <select
+                      value={assignExercise}
+                      onChange={(e) => setAssignExercise(e.target.value)}
+                      className="w-full bg-[#191916] border border-[#3B392F] rounded-xl px-3 py-2 text-xs text-[#F4EBDD]"
+                    >
+                      <option value="sarali_varisai_1">Sarali Varisai 1</option>
+                      <option value="sarali_varisai_2">Sarali Varisai 2</option>
+                      <option value="jantai_varisai_1">Jantai Varisai 1</option>
+                      <option value="dhatu_varisai_1">Dhatu Varisai 1</option>
+                      <option value="alankaram_dhruva">Dhruva Tala Alankaram</option>
+                      <option value="varnam_ninnukori">Varnam: Ninnukori (Mohanam)</option>
+                    </select>
+                  </div>
                   <div>
                     <label className="text-[11px] text-slate-400 block mb-1">Target Speed (Kalam)</label>
                     <select

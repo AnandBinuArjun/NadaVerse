@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
 import { ShrutiCompanion } from '../components/ShrutiCompanion';
@@ -340,9 +341,12 @@ export default function Home() {
                   <div className="relative group w-full max-w-[220px] sm:max-w-[300px] lg:max-w-[340px] xl:max-w-[380px]">
                     <div className="absolute -inset-4 bg-gradient-to-r from-[#C7A45B]/30 via-[#E8D7A8]/20 to-[#C7A45B]/30 rounded-full blur-2xl opacity-75 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" />
                     <div className="relative rounded-2xl sm:rounded-3xl p-2.5 sm:p-3 bg-gradient-to-b from-[#C7A45B]/30 to-[#191916]/80 border border-[#C7A45B]/40 shadow-2xl backdrop-blur-sm">
-                      <img
+                      <Image
                         src="/logo.png"
                         alt="NadaVerse Carnatic Music Emblem"
+                        width={380}
+                        height={380}
+                        priority
                         className="w-full h-auto rounded-xl sm:rounded-2xl drop-shadow-[0_15px_35px_rgba(0,0,0,0.8)] transition-transform duration-500 group-hover:scale-[1.02]"
                       />
                     </div>

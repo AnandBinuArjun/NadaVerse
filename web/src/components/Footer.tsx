@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { ShieldCheck } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -21,9 +22,11 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPrivacy, onOpenAttribution
           <div className="space-y-3.5 md:col-span-1">
             <div className="flex items-center space-x-3 text-[#F4EBDD]">
               <div className="w-9 h-9 rounded-full overflow-hidden border border-[#C7A45B]/70 bg-[#161410] flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(199,164,91,0.25)]">
-                <img
+                <Image
                   src="/logo.png"
                   alt="NadaVerse Emblem"
+                  width={36}
+                  height={36}
                   className="w-full h-full object-cover scale-110"
                 />
               </div>
