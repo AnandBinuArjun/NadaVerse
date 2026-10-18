@@ -9,6 +9,13 @@ updates:
     labels:
       - "dependencies"
       - "javascript"
+    groups:
+      react:
+        patterns:
+          - "react"
+          - "react-dom"
+          - "@types/react"
+          - "@types/react-dom"
     ignore:
       - dependency-name: "typescript"
         update-types: ["version-update:semver-major"]
