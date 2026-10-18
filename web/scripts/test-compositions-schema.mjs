@@ -4,8 +4,16 @@
  * frequency ratio validity, and rights provenance.
  */
 
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { COMPOSITION_CATALOG } from '../src/data/compositionLibraryData.ts';
 import { validateComposition } from '../src/lib/compositionValidator.ts';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const rightsDocPath = path.resolve(__dirname, '../../docs/content-rights-review.md');
+const rightsDoc = fs.existsSync(rightsDocPath) ? fs.readFileSync(rightsDocPath, 'utf8') : '';
 
 console.log('--- NadaVerse Composition Schema & Rhythmic Integrity Verification ---');
 
@@ -39,7 +47,8 @@ for (const comp of COMPOSITION_CATALOG) {
   assert(report.isValid, `"${comp.title}" (${comp.slug}) is valid schema v1.0.0 (Errors: ${report.errors.join(', ')})`);
   assert(report.totalNotes > 0, `"${comp.title}" has ${report.totalNotes} notes`);
   assert(report.sectionCount > 0, `"${comp.title}" has ${report.sectionCount} sections`);
-  assert(comp.rights.status === 'public_domain', `"${comp.title}" is explicitly verified public domain`);
+  const hasRightsLedgerEntry = rightsDoc.includes(`**${comp.id}**`);
+  assert(comp.rights.status === 'public_domain' && hasRightsLedgerEntry, `"${comp.title}" is explicitly verified public domain with matching rights ledger entry`);
   assert(comp.sources && comp.sources.length > 0, `"${comp.title}" cites authoritative source treatise`);
 }
 
