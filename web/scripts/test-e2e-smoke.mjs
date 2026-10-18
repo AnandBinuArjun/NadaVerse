@@ -167,9 +167,10 @@ if (fs.existsSync(mainAppPath)) {
 
 if (fs.existsSync(footerPath)) {
   const footerSrc = fs.readFileSync(footerPath, 'utf8');
+  const hasBuyMeACoffee = /href=["']https:\/\/buymeacoffee\.com\/anandbinuarjun["']/.test(footerSrc);
+  const hasNoOpener = /rel=["'][^"']*noopener\s+noreferrer[^"']*["']/.test(footerSrc);
   check('Footer provides non-commercial voluntary Buy Me a Coffee link without tracking cookies',
-    footerSrc.includes('https://buymeacoffee.com/anandbinuarjun') &&
-    footerSrc.includes('rel="noopener noreferrer"')
+    hasBuyMeACoffee && hasNoOpener
   );
 }
 
