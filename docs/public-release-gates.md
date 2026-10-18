@@ -1,6 +1,6 @@
 # NadaVerse — Public Release Gates & Readiness Matrix
 
-**Release Candidate:** `a1a391fd91a73654d2ca56e0edd8b30aa7f7f17c` (`a1a391f`)  
+**Release Candidate:** `1f3ba078583e81a34fd96a96ee5b5e64f4fc7ae4` (`1f3ba07`)  
 **Target Release:** Public Beta (1.0.0-beta)  
 **Evaluation Date:** 18 October 2026  
 **Status Taxonomy:**
@@ -18,7 +18,7 @@
 
 | Gate ID | Gate Name | Responsible Owner | Verification Evidence & Acceptance Criteria | Current Status |
 |---|---|---|---|---|
-| **P0-01** | Release Evidence Reconciliation | Release Lead | All release documents and `docs/release-evidence.json` point to candidate SHA `a1a391f`. All 156 automated test/invariant checks pass with zero errors. | **`PASS_IN_CI` (CLOSED)** |
+| **P0-01** | Release Evidence Reconciliation | Release Lead | All release documents and `docs/release-evidence.json` point to candidate SHA `1f3ba07`. All 156 automated test/invariant checks pass with zero errors. | **`PASS_IN_CI` (CLOSED)** |
 | **P0-02** | Live Deployment Validation | Ops / Infra Lead | Production HTTPS, SSL certificate, CORS allowlist, disabled debug mode, least-privileged PostgreSQL, secure JWT secrets, `/api/v1/meta/deployment` verification. | **`GATED_LIVE_HOST` (OPEN)** |
 | **P0-03** | Object-Level Authorization & RBAC | AppSec Lead | Strict RBAC (`student`, `teacher`, `editor`, `admin`). Two-user IDOR isolation verified across assignments, submissions, classes, and practice logs (`backend/tests/test_privacy_and_export.py`). Editor-only governance for heritage archive. | **`PASS_IN_CI` (CLOSED)** |
 | **P0-04** | Privacy, Export & Deletion Lifecycle | Privacy Engineer | Zero raw audio upload. User data export via `GET /api/v1/me/export`. Cascading account deletion via `DELETE /api/v1/me`. Service worker isolation for auth/cookies/RSC. | **`PASS_IN_CI` (CLOSED)** |
@@ -58,7 +58,7 @@
 
 ## 4. Release Decision Protocol
 
-A controlled public beta is **APPROVED** on candidate commit `a1a391f` under the following conditions:
+A controlled public beta is **APPROVED** on candidate commit `1f3ba07` under the following conditions:
 1. Operational checks (TLS, CORS allowlist, database credentials) are validated on the live hosting provider (`P0-02`).
 2. The beta limitation banner and AI disclaimers remain visible across all learning and practice pages.
 3. Any reported security vulnerability or rights inquiry is addressed within the established 48-hour SLA.

@@ -2,7 +2,7 @@
 
 **Document Version:** 1.1.0  
 **Audit Date:** 18 October 2026  
-**Candidate Release Commit:** `a1a391fd91a73654d2ca56e0edd8b30aa7f7f17c` (`a1a391f`)  
+**Candidate Release Commit:** `1f3ba078583e81a34fd96a96ee5b5e64f4fc7ae4` (`1f3ba07`)  
 **Evaluation Standard:** Source-level inspection, automated test execution, and user experience verification.  
 **Classification Values:**  
 - `EXISTS`: Fully implemented end-to-end, tested, and active in the user interface and backend.  

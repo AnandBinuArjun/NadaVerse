@@ -2,7 +2,7 @@
 
 **Repository:** [https://github.com/AnandBinuArjun/NadaVerse](https://github.com/AnandBinuArjun/NadaVerse)  
 **Branch Inspected:** `main`  
-**Commit Evaluated:** `a1a391fd91a73654d2ca56e0edd8b30aa7f7f17c` (`a1a391f`) (clean checkout)  
+**Commit Evaluated:** `1f3ba078583e81a34fd96a96ee5b5e64f4fc7ae4` (`1f3ba07`) (clean checkout)  
 **Audit Date:** 18 October 2026  
 **Auditor:** Senior Full-Stack Security, Accessibility & Musicology Engineering Lead (Antigravity)  
 **Overall Verdict:** **Conditional Go for Public Beta** — Core functionality verified; strict security, privacy, and data-isolation boundaries enforced; automated test evidence validated. Operational deployment configurations (secrets, reverse proxy topology, SSL, production PostgreSQL) must be independently validated in the live hosting environment prior to unconstrained promotion.
@@ -35,7 +35,7 @@ This audit evaluates the codebase against the P0, P1, and P2 criteria set forth 
 
 ### 3.1 Release Claim Verification (Clean Execution)
 - **Status:** **VERIFIED (Canonical Counts Reconciled)**
-- **Findings:** Documentation previously contained inconsistent test counts (30, 31, 32, 33). A clean execution of the release commit `a1a391f` established canonical results across 156 automated invariant checks:
+- **Findings:** Documentation previously contained inconsistent test counts (30, 31, 32, 33). A clean execution of the release commit `1f3ba07` established canonical results across 156 automated invariant checks:
   - **Backend Tests:** 36 passed (100%) via `python -m pytest backend/tests -v` (in `test_api.py`, `test_beta_readiness.py`, and `test_privacy_and_export.py`, clean 0 warnings via `pytest.ini`).
   - **Composition Schema & Rhythmic Integrity Tests:** 60 passed (100%) via `npx tsx scripts/test-compositions-schema.mjs` verifying all 10 cataloged pieces across 6 cornerstone forms, akshara duration sums, section structures, and primary treatise citations.
   - **Synthetic Pitch Tests:** 10 passed (100%) across 8 swarasthanas, silence gating, and noise rejection via `npx tsx scripts/test-pitch.mjs`.

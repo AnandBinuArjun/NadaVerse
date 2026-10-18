@@ -1,11 +1,11 @@
 {
   "application": "NadaVerse Carnatic Platform",
   "product_guarantee": "100% Free Forever — Zero paywalls, subscriptions, checkouts, or advertisements.",
-  "commit_sha": "a1a391fd91a73654d2ca56e0edd8b30aa7f7f17c",
-  "short_sha": "a1a391f",
+  "commit_sha": "1f3ba078583e81a34fd96a96ee5b5e64f4fc7ae4",
+  "short_sha": "1f3ba07",
   "branch": "main",
   "working_tree_clean": true,
-  "generated_at": "2026-10-18T15:09:03.700Z",
+  "generated_at": "2026-10-18T15:13:46.521Z",
   "environment": {
     "node_version": "v21.7.2",
     "python_version": "Python 3.12.1",
@@ -30,7 +30,7 @@
       "command": "python -m pytest backend/tests -v",
       "passed": true,
       "exit_code": 0,
-      "duration_seconds": 67.12
+      "duration_seconds": 26.69
     },
     {
       "id": "composition-schema",
@@ -38,7 +38,7 @@
       "command": "npx tsx scripts/test-compositions-schema.mjs",
       "passed": true,
       "exit_code": 0,
-      "duration_seconds": 2.37
+      "duration_seconds": 2.34
     },
     {
       "id": "pitch-diagnostics",
@@ -46,7 +46,7 @@
       "command": "npx tsx scripts/test-pitch.mjs",
       "passed": true,
       "exit_code": 0,
-      "duration_seconds": 2.44
+      "duration_seconds": 2.45
     },
     {
       "id": "pitch-benchmark",
@@ -54,7 +54,7 @@
       "command": "npx tsx scripts/test-pitch-benchmark.mjs",
       "passed": true,
       "exit_code": 0,
-      "duration_seconds": 2.65
+      "duration_seconds": 2.46
     },
     {
       "id": "sw-privacy",
@@ -62,7 +62,7 @@
       "command": "npx tsx scripts/test-sw-privacy.mjs",
       "passed": true,
       "exit_code": 0,
-      "duration_seconds": 2.4
+      "duration_seconds": 2.39
     },
     {
       "id": "e2e-smoke",
@@ -70,7 +70,7 @@
       "command": "node scripts/test-e2e-smoke.mjs",
       "passed": true,
       "exit_code": 0,
-      "duration_seconds": 0.13
+      "duration_seconds": 0.09
     },
     {
       "id": "tsc-typecheck",
@@ -78,7 +78,7 @@
       "command": "npx tsc --noEmit",
       "passed": true,
       "exit_code": 0,
-      "duration_seconds": 3.8
+      "duration_seconds": 3.6
     },
     {
       "id": "eslint-quality",
@@ -86,7 +86,7 @@
       "command": "npm run lint",
       "passed": true,
       "exit_code": 0,
-      "duration_seconds": 14.86
+      "duration_seconds": 13.56
     },
     {
       "id": "alembic-heads",
@@ -94,7 +94,7 @@
       "command": "python -m alembic heads",
       "passed": true,
       "exit_code": 0,
-      "duration_seconds": 0.85
+      "duration_seconds": 0.81
     }
   ]
 }
