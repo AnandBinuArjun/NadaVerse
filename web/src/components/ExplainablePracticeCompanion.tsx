@@ -433,7 +433,7 @@ export const ExplainablePracticeCompanion: React.FC<Props> = ({
     ctx.clearRect(0, 0, width, height);
 
     // Background grid
-    ctx.fillStyle = '#0f172a'; // slate-900
+    ctx.fillStyle = '#11110F'; // warm obsidian surface
     ctx.fillRect(0, 0, width, height);
 
     // Horizontal pitch grid lines (swarasthanas from 0 to 1200 cents)
@@ -444,7 +444,7 @@ export const ExplainablePracticeCompanion: React.FC<Props> = ({
         const y = height - (def.expectedCents / 1250) * (height - 30) - 15;
 
         // Line
-        ctx.strokeStyle = '#334155'; // slate-700
+        ctx.strokeStyle = '#2A2922'; // subtle gold-tinted grid border
         ctx.lineWidth = 1;
         ctx.setLineDash([3, 4]);
         ctx.beginPath();
@@ -454,14 +454,14 @@ export const ExplainablePracticeCompanion: React.FC<Props> = ({
 
         // Label
         ctx.setLineDash([]);
-        ctx.fillStyle = '#94a3b8'; // slate-400
+        ctx.fillStyle = '#C7A45B'; // temple gold
         ctx.font = '10px Inter, sans-serif';
         ctx.fillText(swaraKey, 10, y + 3);
       }
     });
 
     if (pitchFrames.length === 0) {
-      ctx.fillStyle = '#64748b';
+      ctx.fillStyle = '#BDB4A4'; // muted sand
       ctx.font = '12px Inter, sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText(
@@ -475,7 +475,7 @@ export const ExplainablePracticeCompanion: React.FC<Props> = ({
 
     // Plot recorded contour
     const maxTime = Math.max(5, pitchFrames[pitchFrames.length - 1].timeSec);
-    ctx.strokeStyle = '#f59e0b'; // amber-500
+    ctx.strokeStyle = '#E0C98F'; // luminous warm gold contour line
     ctx.lineWidth = 2.5;
     ctx.beginPath();
 
@@ -501,22 +501,22 @@ export const ExplainablePracticeCompanion: React.FC<Props> = ({
   };
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl text-slate-100">
+    <div className="nv-glass-card rounded-2xl sm:rounded-3xl p-6 lg:p-8 shadow-xl relative overflow-hidden transition-all duration-300 border border-[#C7A45B]/20 hover:border-[#C7A45B]/50 hover:shadow-[0_15px_40px_-10px_rgba(0,0,0,0.7),0_0_30px_rgba(199,164,91,0.12)] text-[#F4EBDD]">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-800">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-[#3B392F]/80">
         <div>
           <div className="flex items-center gap-2">
-            <span className="p-2 bg-amber-500/10 text-amber-400 rounded-lg border border-amber-500/20">
+            <span className="p-2 bg-[#C7A45B]/15 text-[#E0C98F] rounded-lg border border-[#C7A45B]/30">
               <Sparkles className="w-5 h-5" />
             </span>
-            <h2 className="text-xl font-bold tracking-tight text-white">
+            <h2 className="text-xl sm:text-2xl font-serif font-bold tracking-tight text-[#F4EBDD]">
               {lang === 'ml' ? 'AI അഭ്യാസ സഹായി' : 'Explainable AI Practice Companion'}
             </h2>
-            <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-medium">
+            <span className="text-xs px-2.5 py-0.5 rounded-full bg-[#87947A]/15 border border-[#87947A]/40 text-[#87947A] font-medium font-mono">
               100% Free
             </span>
           </div>
-          <p className="text-xs text-slate-400 mt-1 max-w-2xl">
+          <p className="text-xs text-[#BDB4A4] mt-1.5 max-w-2xl leading-relaxed">
             {lang === 'ml'
               ? 'തത്സമയ ശ്രുതി താരതമ്യം, പിച്ച് സ്ഥിരത, ശാസ്ത്രീയ അപഗ്രഥനം.'
               : 'Grounded acoustic pitch contour analysis with evidence-based feedback. Compares your performance against classical swarasthanas.'}
@@ -524,21 +524,21 @@ export const ExplainablePracticeCompanion: React.FC<Props> = ({
         </div>
 
         {/* Tonic Display */}
-        <div className="flex items-center gap-3 bg-slate-950/60 border border-slate-800 px-4 py-2 rounded-xl text-sm">
-          <span className="text-slate-400">Adhara Shadjam:</span>
-          <span className="font-semibold text-amber-400">{activeTonic.name}</span>
-          <span className="text-xs text-slate-400 font-mono">({activeTonic.frequency} Hz)</span>
+        <div className="flex items-center gap-3 bg-[#161410] border border-[#3B392F] px-4 py-2 rounded-xl text-sm">
+          <span className="text-[#BDB4A4]">Adhara Shadjam:</span>
+          <span className="font-semibold text-[#E0C98F]">{activeTonic.name}</span>
+          <span className="text-xs text-[#BDB4A4]/80 font-mono">({activeTonic.frequency} Hz)</span>
         </div>
       </div>
 
       {/* Exercise Selection & Privacy Notice */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
         <div className="md:col-span-2 space-y-2">
-          <label className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+          <label className="text-xs font-mono font-bold uppercase tracking-wider text-[#C7A45B]">
             {lang === 'ml' ? 'അഭ്യാസ പാഠം തിരഞ്ഞെടുക്കുക' : 'Select Target Exercise'}
           </label>
           <select
-            className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+            className="w-full bg-[#161410] border border-[#3B392F] rounded-xl px-4 py-2.5 text-sm font-medium text-[#F4EBDD] focus:outline-none focus:border-[#C7A45B] focus:ring-1 focus:ring-[#C7A45B]/50 transition-colors"
             value={selectedExercise.id}
             onChange={(e) => {
               const ex = CARNATIC_EXERCISES.find((x) => x.id === e.target.value);
@@ -559,8 +559,8 @@ export const ExplainablePracticeCompanion: React.FC<Props> = ({
         </div>
 
         {/* Consent Checkbox */}
-        <div className="bg-slate-950/60 border border-slate-800 rounded-xl p-3.5 flex flex-col justify-center">
-          <label className="flex items-start gap-2.5 cursor-pointer text-xs text-slate-300">
+        <div className="bg-[#161410] border border-[#3B392F] rounded-xl p-3.5 flex flex-col justify-center">
+          <label className="flex items-start gap-2.5 cursor-pointer text-xs text-[#F4EBDD]">
             <input
               type="checkbox"
               checked={consentGranted}
@@ -568,13 +568,13 @@ export const ExplainablePracticeCompanion: React.FC<Props> = ({
                 setConsentGranted(e.target.checked);
                 if (e.target.checked) setErrorNotice(null);
               }}
-              className="mt-0.5 rounded border-slate-700 text-amber-500 focus:ring-amber-500/50"
+              className="mt-0.5 rounded border-[#3B392F] bg-[#22221D] text-[#C7A45B] focus:ring-[#C7A45B]/50"
             />
             <div>
-              <span className="font-medium text-slate-200 flex items-center gap-1">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> Explicit Audio Opt-In Consent
+              <span className="font-medium text-[#F4EBDD] flex items-center gap-1">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#87947A]" /> Explicit Audio Opt-In Consent
               </span>
-              <span className="text-slate-400 block mt-0.5 text-[11px] leading-relaxed">
+              <span className="text-[#BDB4A4] block mt-1 text-[11px] leading-relaxed">
                 Microphone audio is processed entirely locally within your browser's Web Audio memory. Raw audio waveforms are never streamed, stored, or uploaded. Only computed mathematical pitch summaries (cents deviation from Adhara Sa, stability percentage, and duration) are transmitted to request guidance. You may stop or withdraw access at any time.
               </span>
             </div>
@@ -583,36 +583,36 @@ export const ExplainablePracticeCompanion: React.FC<Props> = ({
       </div>
 
       {/* Synthetic Diagnostic Test Runner */}
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 p-3 bg-slate-950/50 border border-slate-800 rounded-xl">
-        <div className="text-xs text-slate-400">
-          <span className="font-semibold text-slate-300">Audio Lab Diagnostic:</span> Test pitch estimator accuracy against synthetic known frequencies without microphone access.
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 p-3.5 bg-[#161410] border border-[#3B392F] rounded-xl">
+        <div className="text-xs text-[#BDB4A4]">
+          <span className="font-semibold text-[#F4EBDD]">Audio Lab Diagnostic:</span> Test pitch estimator accuracy against synthetic known frequencies without microphone access.
         </div>
         <button
           type="button"
           onClick={runSyntheticDiagnostic}
-          className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-300 text-xs font-medium border border-slate-700 transition-colors"
+          className="px-3.5 py-1.5 rounded-lg bg-[#22221D] hover:bg-[#2A2922] text-[#E0C98F] hover:text-[#F4EBDD] text-xs font-mono font-medium border border-[#3B392F] hover:border-[#C7A45B]/50 transition-all"
         >
           Run Synthetic Audio Diagnostic
         </button>
       </div>
 
       {diagnosticResults && (
-        <div className="mt-3 p-4 bg-slate-950/90 border border-slate-800 rounded-xl text-xs space-y-2">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-            <span className="font-bold text-slate-200 flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Synthetic Reference Signal Diagnostic Results
+        <div className="mt-3 p-4 bg-[#161410] border border-[#3B392F] rounded-xl text-xs space-y-2">
+          <div className="flex items-center justify-between border-b border-[#3B392F] pb-2">
+            <span className="font-bold text-[#F4EBDD] flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-[#87947A]" /> Synthetic Reference Signal Diagnostic Results
             </span>
-            <span className={`px-2 py-0.5 rounded font-mono text-[11px] ${diagnosticResults.allPassed ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}`}>
+            <span className={`px-2 py-0.5 rounded font-mono text-[11px] ${diagnosticResults.allPassed ? 'bg-[#87947A]/15 text-[#87947A] border border-[#87947A]/40' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}`}>
               {diagnosticResults.allPassed ? '100% Passed (Error < 0.2 cents)' : 'Variations Detected'}
             </span>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 font-mono text-[11px]">
             {diagnosticResults.results.map((r, idx) => (
-              <div key={idx} className="bg-slate-900/80 p-2 rounded border border-slate-800/80">
-                <div className="text-amber-400 font-bold truncate">{r.note}</div>
-                <div className="text-slate-400 text-[10px]">Target: {r.targetHz} Hz</div>
-                <div className="text-slate-300 text-[10px]">Detected: {r.detectedHz} Hz</div>
-                <div className="text-emerald-400 text-[10px]">Cent err: {r.centError}c</div>
+              <div key={idx} className="bg-[#191916] p-2 rounded border border-[#3B392F]">
+                <div className="text-[#E0C98F] font-bold truncate">{r.note}</div>
+                <div className="text-[#BDB4A4] text-[10px]">Target: {r.targetHz} Hz</div>
+                <div className="text-[#F4EBDD] text-[10px]">Detected: {r.detectedHz} Hz</div>
+                <div className="text-[#87947A] text-[10px]">Cent err: {r.centError}c</div>
               </div>
             ))}
           </div>
@@ -620,16 +620,16 @@ export const ExplainablePracticeCompanion: React.FC<Props> = ({
       )}
 
       {/* Reference Swaras Display */}
-      <div className="mt-4 p-3 bg-slate-950/40 border border-slate-800/80 rounded-xl">
-        <span className="text-xs text-slate-400 font-medium">Target Swara Sequence:</span>
+      <div className="mt-4 p-3.5 bg-[#161410] border border-[#3B392F] rounded-xl">
+        <span className="text-xs text-[#C7A45B] font-mono font-bold uppercase tracking-wider">Target Swara Sequence:</span>
         <div className="flex flex-wrap gap-2 mt-2">
           {selectedExercise.swarasAscending.map((swara, idx) => (
             <span
               key={idx}
-              className="px-2.5 py-1 bg-slate-800 border border-slate-700/60 rounded-lg text-xs font-mono font-bold text-amber-300"
+              className="px-2.5 py-1 bg-[#22221D] border border-[#3B392F] hover:border-[#C7A45B]/50 rounded-lg text-xs font-mono font-bold text-[#E0C98F]"
             >
               {swara}
-              <span className="ml-1 text-[10px] text-slate-400 font-normal">
+              <span className="ml-1 text-[10px] text-[#BDB4A4] font-normal">
                 {SWARA_CENT_MAP[swara]?.expectedCents || 0}c
               </span>
             </span>
@@ -638,20 +638,20 @@ export const ExplainablePracticeCompanion: React.FC<Props> = ({
       </div>
 
       {/* Recording & Pitch Visualizer Canvas */}
-      <div className="mt-6 bg-slate-950 border border-slate-800 rounded-xl p-4">
+      <div className="mt-6 bg-[#161410] border border-[#3B392F] rounded-2xl p-4 sm:p-5">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <Activity className="w-4 h-4 text-amber-400" />
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-300">
+            <Activity className="w-4 h-4 text-[#C7A45B]" />
+            <span className="text-xs font-mono font-semibold uppercase tracking-wider text-[#F4EBDD]">
               Pitch Contour Visualizer (Cents from Sa)
             </span>
           </div>
 
           {/* Live pitch readout */}
           {isRecording && currentHz && (
-            <div className="flex items-center gap-3 text-xs font-mono bg-slate-900 border border-amber-500/30 px-3 py-1 rounded-lg text-amber-400">
+            <div className="flex items-center gap-3 text-xs font-mono bg-[#191916] border border-[#C7A45B]/40 px-3 py-1 rounded-lg text-[#E0C98F]">
               <span>{currentHz} Hz</span>
-              <span className="text-slate-400">•</span>
+              <span className="text-[#BDB4A4]">•</span>
               <span>{currentCents} cents</span>
             </div>
           )}
@@ -661,16 +661,16 @@ export const ExplainablePracticeCompanion: React.FC<Props> = ({
           ref={canvasRef}
           width={700}
           height={200}
-          className="w-full h-48 rounded-lg bg-slate-950 border border-slate-800/80"
+          className="w-full h-48 rounded-xl bg-[#11110F] border border-[#3B392F]"
         />
 
         {/* Recording Controls */}
-        <div className="flex flex-wrap items-center justify-between gap-4 mt-4 pt-3 border-t border-slate-800">
+        <div className="flex flex-wrap items-center justify-between gap-4 mt-4 pt-3 border-t border-[#3B392F]">
           <div className="flex items-center gap-3">
             {!isRecording ? (
               <button
                 onClick={startRecordingSession}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-sm transition-colors shadow-lg shadow-amber-500/20"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#C7A45B] hover:bg-[#E0C98F] text-[#11110F] font-bold text-sm transition-all shadow-md shadow-[#C7A45B]/20"
               >
                 <Mic className="w-4 h-4" /> Start Exercise Recording
               </button>
@@ -684,13 +684,13 @@ export const ExplainablePracticeCompanion: React.FC<Props> = ({
             )}
 
             {isAnalyzing && (
-              <div className="flex items-center gap-2 text-xs text-amber-400 font-medium">
+              <div className="flex items-center gap-2 text-xs text-[#E0C98F] font-medium font-mono">
                 <RefreshCw className="w-4 h-4 animate-spin" /> Synthesizing acoustic evaluation...
               </div>
             )}
           </div>
 
-          <div className="text-xs text-slate-400">
+          <div className="text-xs text-[#BDB4A4]">
             {isRecording
               ? 'Sing clearly into microphone. Hold each swara steadily.'
               : 'Record at least 3-5 seconds of sustained swaras for full analysis.'}
@@ -700,7 +700,7 @@ export const ExplainablePracticeCompanion: React.FC<Props> = ({
 
       {/* Error Alert */}
       {errorNotice && (
-        <div className="mt-4 p-3.5 bg-rose-500/10 border border-rose-500/20 text-rose-300 rounded-xl text-xs flex items-center gap-2">
+        <div className="mt-4 p-3.5 bg-rose-500/10 border border-rose-500/30 text-rose-300 rounded-xl text-xs flex items-center gap-2">
           <AlertTriangle className="w-4 h-4 flex-shrink-0" />
           <span>{errorNotice}</span>
         </div>
@@ -708,55 +708,55 @@ export const ExplainablePracticeCompanion: React.FC<Props> = ({
 
       {/* Analysis Report Card */}
       {report && (
-        <div className="mt-8 space-y-6 pt-6 border-t border-slate-800">
+        <div className="mt-8 space-y-6 pt-6 border-t border-[#3B392F]">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-bold text-white flex items-center gap-2">
-              <Award className="w-5 h-5 text-amber-400" /> Performance Analysis Report
+            <h3 className="text-lg font-serif font-bold text-[#F4EBDD] flex items-center gap-2">
+              <Award className="w-5 h-5 text-[#C7A45B]" /> Performance Analysis Report
             </h3>
-            <span className="text-xs px-2.5 py-1 rounded-md bg-slate-800 text-slate-300 border border-slate-700 font-mono">
+            <span className="text-xs px-2.5 py-1 rounded-md bg-[#22221D] text-[#E0C98F] border border-[#3B392F] font-mono">
               Confidence: {report.confidence}
             </span>
           </div>
 
           {/* Scores Overview Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-slate-950 p-4 rounded-xl border border-slate-800">
-              <span className="text-xs text-slate-400 font-medium">Overall Pitch Accuracy</span>
-              <div className="text-3xl font-extrabold text-amber-400 mt-1 font-mono">
+            <div className="bg-[#161410] p-4 rounded-xl border border-[#3B392F]">
+              <span className="text-xs text-[#BDB4A4] font-medium">Overall Pitch Accuracy</span>
+              <div className="text-3xl font-extrabold text-[#E0C98F] mt-1 font-mono">
                 {report.overall_score_pct}%
               </div>
-              <p className="text-xs text-slate-400 mt-1">{report.pitch_accuracy_label}</p>
+              <p className="text-xs text-[#BDB4A4] mt-1">{report.pitch_accuracy_label}</p>
             </div>
 
-            <div className="bg-slate-950 p-4 rounded-xl border border-slate-800">
-              <span className="text-xs text-slate-400 font-medium">Sustained Tone Stability</span>
-              <div className="text-2xl font-bold text-emerald-400 mt-1 flex items-center gap-1.5 font-mono">
-                <Activity className="w-5 h-5 text-emerald-400" /> {report.overall_score_pct ? `${report.overall_score_pct}% Ratio` : 'Estimated'}
+            <div className="bg-[#161410] p-4 rounded-xl border border-[#3B392F]">
+              <span className="text-xs text-[#BDB4A4] font-medium">Sustained Tone Stability</span>
+              <div className="text-2xl font-bold text-[#87947A] mt-1 flex items-center gap-1.5 font-mono">
+                <Activity className="w-5 h-5 text-[#87947A]" /> {report.overall_score_pct ? `${report.overall_score_pct}% Ratio` : 'Estimated'}
               </div>
-              <p className="text-xs text-slate-400 mt-1">{report.stability_label}</p>
+              <p className="text-xs text-[#BDB4A4] mt-1">{report.stability_label}</p>
             </div>
 
-            <div className="bg-slate-950 p-4 rounded-xl border border-slate-800">
-              <span className="text-xs text-slate-400 font-medium">Analysis Quality & Provenance</span>
-              <div className="text-xs font-mono text-slate-300 mt-2 bg-slate-900 p-2 rounded border border-slate-800 truncate" title={report.provenance}>
+            <div className="bg-[#161410] p-4 rounded-xl border border-[#3B392F]">
+              <span className="text-xs text-[#BDB4A4] font-medium">Analysis Quality & Provenance</span>
+              <div className="text-xs font-mono text-[#F4EBDD] mt-2 bg-[#191916] p-2 rounded border border-[#3B392F] truncate" title={report.provenance}>
                 {report.analysis_quality === 'local_heuristic_estimate' ? 'Local Heuristic Analysis' : report.provenance}
               </div>
             </div>
           </div>
 
           {/* Measured vs Inferred Provenance Transparency */}
-          <div className="bg-slate-950/90 border border-slate-800/90 rounded-xl p-3.5 text-xs">
-            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2 mb-2.5">
-              <span className="font-semibold text-slate-300 flex items-center gap-1.5">
-                <Activity className="w-3.5 h-3.5 text-amber-400" /> Measurement vs Inference Transparency
+          <div className="bg-[#161410] border border-[#3B392F] rounded-xl p-3.5 text-xs">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#3B392F] pb-2 mb-2.5">
+              <span className="font-semibold text-[#F4EBDD] flex items-center gap-1.5">
+                <Activity className="w-3.5 h-3.5 text-[#C7A45B]" /> Measurement vs Inference Transparency
               </span>
-              <span className={`px-2 py-0.5 rounded text-[11px] font-mono ${report.is_heuristic_fallback ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'}`}>
+              <span className={`px-2 py-0.5 rounded text-[11px] font-mono ${report.is_heuristic_fallback ? 'bg-[#C7A45B]/15 text-[#E0C98F] border border-[#C7A45B]/30' : 'bg-[#87947A]/15 text-[#87947A] border border-[#87947A]/40'}`}>
                 {report.analysis_quality === 'local_heuristic_estimate' ? 'Deterministic Local Estimate' : 'Algorithmic Synthesis'}
               </span>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-slate-400">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-[#BDB4A4]">
               <div>
-                <span className="text-[11px] uppercase tracking-wider text-slate-400 font-bold block mb-1">
+                <span className="text-[11px] uppercase tracking-wider text-[#C7A45B] font-mono font-bold block mb-1">
                   Directly Measured Features:
                 </span>
                 <ul className="space-y-1 text-[11px] list-disc list-inside">
@@ -765,12 +765,12 @@ export const ExplainablePracticeCompanion: React.FC<Props> = ({
                     'Cent deviation from 22 Shruti just intonation',
                     'Pitch frame variance stability index'
                   ]).map((m, idx) => (
-                    <li key={idx} className="text-slate-300">{m}</li>
+                    <li key={idx} className="text-[#F4EBDD]">{m}</li>
                   ))}
                 </ul>
               </div>
               <div>
-                <span className="text-[11px] uppercase tracking-wider text-slate-400 font-bold block mb-1">
+                <span className="text-[11px] uppercase tracking-wider text-[#C7A45B] font-mono font-bold block mb-1">
                   Pedagogical Deductions (Inferred):
                 </span>
                 <ul className="space-y-1 text-[11px] list-disc list-inside">
@@ -779,7 +779,7 @@ export const ExplainablePracticeCompanion: React.FC<Props> = ({
                     'Shruti alignment classification',
                     'Targeted remedial lesson recommendations'
                   ]).map((m, idx) => (
-                    <li key={idx} className="text-slate-300">{m}</li>
+                    <li key={idx} className="text-[#F4EBDD]">{m}</li>
                   ))}
                 </ul>
               </div>
@@ -787,37 +787,37 @@ export const ExplainablePracticeCompanion: React.FC<Props> = ({
           </div>
 
           {/* AI Explanation Text */}
-          <div className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-4">
-            <span className="text-xs font-semibold uppercase tracking-wider text-amber-400 block mb-1">
+          <div className="bg-[#C7A45B]/10 border border-[#C7A45B]/30 rounded-xl p-4">
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#C7A45B] block mb-1">
               Guru Commentary & Acoustical Guidance
             </span>
-            <p className="text-sm text-slate-200 leading-relaxed">{report.summary_explanation}</p>
+            <p className="text-sm text-[#F4EBDD] leading-relaxed">{report.summary_explanation}</p>
           </div>
 
           {/* Strengths and Targeted Improvements */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-slate-950 p-4 rounded-xl border border-slate-800">
-              <span className="text-xs font-bold text-emerald-400 flex items-center gap-1.5 mb-3">
+            <div className="bg-[#161410] p-4 rounded-xl border border-[#3B392F]">
+              <span className="text-xs font-bold text-[#87947A] flex items-center gap-1.5 mb-3">
                 <CheckCircle2 className="w-4 h-4" /> Identified Strengths
               </span>
               <ul className="space-y-2">
                 {report.identified_strengths.map((str, idx) => (
-                  <li key={idx} className="text-xs text-slate-300 flex items-start gap-2">
-                    <span className="text-emerald-500 mt-0.5">•</span>
+                  <li key={idx} className="text-xs text-[#BDB4A4] flex items-start gap-2">
+                    <span className="text-[#87947A] mt-0.5">•</span>
                     <span>{str}</span>
                   </li>
                 ))}
               </ul>
             </div>
 
-            <div className="bg-slate-950 p-4 rounded-xl border border-slate-800">
-              <span className="text-xs font-bold text-amber-400 flex items-center gap-1.5 mb-3">
+            <div className="bg-[#161410] p-4 rounded-xl border border-[#3B392F]">
+              <span className="text-xs font-bold text-[#E0C98F] flex items-center gap-1.5 mb-3">
                 <TrendingUp className="w-4 h-4" /> Focus Areas for Sadhana
               </span>
               <ul className="space-y-2">
                 {report.targeted_improvements.map((imp, idx) => (
-                  <li key={idx} className="text-xs text-slate-300 flex items-start gap-2">
-                    <span className="text-amber-500 mt-0.5">•</span>
+                  <li key={idx} className="text-xs text-[#BDB4A4] flex items-start gap-2">
+                    <span className="text-[#E0C98F] mt-0.5">•</span>
                     <span>{imp}</span>
                   </li>
                 ))}
@@ -826,26 +826,26 @@ export const ExplainablePracticeCompanion: React.FC<Props> = ({
           </div>
 
           {/* Recommended Curriculum Lessons */}
-          <div className="bg-slate-950 p-4 rounded-xl border border-slate-800">
-            <span className="text-xs font-bold text-slate-300 flex items-center gap-1.5 mb-3">
-              <BookOpen className="w-4 h-4 text-amber-400" /> Recommended Remedial Lessons
+          <div className="bg-[#161410] p-4 rounded-xl border border-[#3B392F]">
+            <span className="text-xs font-bold text-[#F4EBDD] flex items-center gap-1.5 mb-3">
+              <BookOpen className="w-4 h-4 text-[#C7A45B]" /> Recommended Remedial Lessons
             </span>
             <div className="flex flex-wrap gap-2">
               {report.recommended_exercises.map((rec, idx) => (
                 <button
                   key={idx}
                   onClick={() => onNavigateToCurriculum && onNavigateToCurriculum()}
-                  className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-700/80 rounded-lg text-xs text-amber-300 font-medium transition-colors flex items-center gap-1.5"
+                  className="px-3 py-1.5 bg-[#22221D] hover:bg-[#2A2922] border border-[#3B392F] hover:border-[#C7A45B]/50 rounded-lg text-xs text-[#E0C98F] font-medium transition-colors flex items-center gap-1.5"
                 >
-                  <BookOpen className="w-3 h-3 text-slate-400" /> {rec}
+                  <BookOpen className="w-3 h-3 text-[#BDB4A4]" /> {rec}
                 </button>
               ))}
             </div>
           </div>
 
           {/* Limitations Notice */}
-          <div className="p-3.5 bg-slate-950/80 border border-slate-800/80 rounded-xl text-[11px] text-slate-400 flex items-start gap-2.5">
-            <Info className="w-4 h-4 text-slate-400 flex-shrink-0 mt-0.5" />
+          <div className="p-3.5 bg-[#161410] border border-[#3B392F] rounded-xl text-[11px] text-[#BDB4A4] flex items-start gap-2.5">
+            <Info className="w-4 h-4 text-[#C7A45B] flex-shrink-0 mt-0.5" />
             <span>{report.limitations_notice}</span>
           </div>
 
@@ -854,7 +854,7 @@ export const ExplainablePracticeCompanion: React.FC<Props> = ({
             <div className="flex justify-end pt-2">
               <button
                 onClick={handleSaveToJournal}
-                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-xs font-semibold text-slate-200 transition-colors"
+                className="px-4 py-2 bg-[#22221D] hover:bg-[#2A2922] border border-[#3B392F] hover:border-[#C7A45B]/60 rounded-xl text-xs font-semibold text-[#F4EBDD] transition-colors"
               >
                 Log Report to Sadhana Journal
               </button>
