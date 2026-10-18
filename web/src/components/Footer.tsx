@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ShieldCheck } from 'lucide-react';
+import { ShieldCheck, Coffee, ExternalLink } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 interface FooterProps {
@@ -46,22 +46,22 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPrivacy, onOpenAttribution
                 href="https://abarjun.online"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center space-x-2 text-xs font-mono text-[#C7A45B] hover:text-[#E0C98F] bg-[#22221D] px-3 py-1.5 rounded-lg border border-[#3B392F] hover:border-[#C7A45B]/60 transition-all shadow-sm group"
+                className="inline-flex items-center space-x-2 text-xs font-mono text-[#C7A45B] hover:text-[#E0C98F] bg-[#1C1A16] hover:bg-[#25221B] px-3 py-1.5 rounded-lg border border-[#3B392F] hover:border-[#C7A45B]/60 transition-all shadow-sm group"
               >
                 <span className="text-[#BDB4A4]">{lang === 'ml' ? 'സ്രഷ്ടാവ്:' : 'Creator:'}</span>
                 <span className="font-semibold text-[#F4EBDD] group-hover:underline decoration-[#C7A45B]/50">Anand Binu Arjun</span>
-                <span className="text-[#87947A] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform">↗</span>
+                <ExternalLink className="w-3 h-3 text-[#87947A] group-hover:text-[#C7A45B] transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </a>
               <a
                 href="https://buymeacoffee.com/anandbinuarjun"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center space-x-1.5 text-xs font-mono text-[#FFDD00] hover:text-[#FFE766] bg-[#22221D] hover:bg-[#FFDD00]/10 px-3 py-1.5 rounded-lg border border-[#FFDD00]/30 hover:border-[#FFDD00]/70 transition-all shadow-sm group"
+                className="inline-flex items-center space-x-1.5 text-xs font-mono text-[#E0C98F] hover:text-[#F4EBDD] bg-[#1C1A16] hover:bg-[#25221B] px-3 py-1.5 rounded-lg border border-[#C7A45B]/30 hover:border-[#C7A45B]/70 transition-all shadow-sm group"
                 title={lang === 'ml' ? 'പദ്ധതിയെ പിന്തുണയ്ക്കാം' : 'Support NadaVerse on Buy Me a Coffee'}
               >
-                <span>☕</span>
+                <Coffee className="w-3.5 h-3.5 text-[#C7A45B] group-hover:text-[#E0C98F] transition-colors" />
                 <span className="font-semibold text-[#F4EBDD] group-hover:text-[#FFF]">{lang === 'ml' ? 'കോഫി നൽകാം' : 'Buy Me a Coffee'}</span>
-                <span className="text-[#FFDD00] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform">↗</span>
+                <ExternalLink className="w-3 h-3 text-[#C7A45B]/70 group-hover:text-[#E0C98F] transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </a>
             </div>
           </div>
@@ -172,24 +172,24 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPrivacy, onOpenAttribution
               href="https://abarjun.online"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[#C7A45B] hover:text-[#E0C98F] transition-colors font-medium inline-flex items-center space-x-1"
+              className="text-[#C7A45B] hover:text-[#E0C98F] transition-colors font-medium inline-flex items-center gap-1 group"
             >
               <span>{lang === 'ml' ? 'പോർട്ട്ഫോളിയോ' : 'Portfolio'}</span>
-              <span>↗</span>
+              <ExternalLink className="w-3 h-3 text-[#C7A45B]/70 group-hover:text-[#E0C98F] transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </a>
-            <span>·</span>
+            <span className="text-[#3B392F]">·</span>
             <a
               href="https://buymeacoffee.com/anandbinuarjun"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[#FFDD00] hover:text-[#FFE766] transition-colors font-medium inline-flex items-center space-x-1"
+              className="text-[#C7A45B] hover:text-[#E0C98F] transition-colors font-medium inline-flex items-center gap-1.5 group"
               title={lang === 'ml' ? 'പദ്ധതിയെ പിന്തുണയ്ക്കാം' : 'Support NadaVerse on Buy Me a Coffee'}
             >
-              <span>☕</span>
+              <Coffee className="w-3.5 h-3.5 text-[#C7A45B]/90 group-hover:text-[#E0C98F] transition-colors" />
               <span>{lang === 'ml' ? 'കോഫി നൽകാം' : 'Buy Me a Coffee'}</span>
-              <span>↗</span>
+              <ExternalLink className="w-3 h-3 text-[#C7A45B]/70 group-hover:text-[#E0C98F] transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </a>
-            <span>·</span>
+            <span className="text-[#3B392F]">·</span>
             <Link
               href="/privacy"
               className="text-[#C7A45B] hover:text-[#E0C98F] transition-colors"
