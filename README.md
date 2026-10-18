@@ -212,6 +212,14 @@ npm run build
 
 ---
 
+## ☕ Support the Project
+
+NadaVerse is and will always remain 100% free with zero ads, subscriptions, or paywalls. If you value this cultural preservation initiative and would like to support cloud hosting, domains, and inference infrastructure, voluntary patronage is gratefully welcomed:
+
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-Donate-yellow?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/anandbinuarjun)
+
+---
+
 ## 📄 License & Product Commitment
 
 - **Code:** Licensed under the [MIT License](LICENSE).

@@ -41,7 +41,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPrivacy, onOpenAttribution
             <p className="leading-relaxed text-[13px] text-[#BDB4A4]/90">
               {t.footerMission}
             </p>
-            <div className="pt-1">
+            <div className="pt-1 flex flex-wrap items-center gap-2">
               <a
                 href="https://abarjun.online"
                 target="_blank"
@@ -51,6 +51,17 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPrivacy, onOpenAttribution
                 <span className="text-[#BDB4A4]">{lang === 'ml' ? 'സ്രഷ്ടാവ്:' : 'Creator:'}</span>
                 <span className="font-semibold text-[#F4EBDD] group-hover:underline decoration-[#C7A45B]/50">Anand Binu Arjun</span>
                 <span className="text-[#87947A] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform">↗</span>
+              </a>
+              <a
+                href="https://buymeacoffee.com/anandbinuarjun"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center space-x-1.5 text-xs font-mono text-[#FFDD00] hover:text-[#FFE766] bg-[#22221D] hover:bg-[#FFDD00]/10 px-3 py-1.5 rounded-lg border border-[#FFDD00]/30 hover:border-[#FFDD00]/70 transition-all shadow-sm group"
+                title={lang === 'ml' ? 'പദ്ധതിയെ പിന്തുണയ്ക്കാം' : 'Support NadaVerse on Buy Me a Coffee'}
+              >
+                <span>☕</span>
+                <span className="font-semibold text-[#F4EBDD] group-hover:text-[#FFF]">{lang === 'ml' ? 'കോഫി നൽകാം' : 'Buy Me a Coffee'}</span>
+                <span className="text-[#FFDD00] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform">↗</span>
               </a>
             </div>
           </div>
@@ -164,6 +175,18 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPrivacy, onOpenAttribution
               className="text-[#C7A45B] hover:text-[#E0C98F] transition-colors font-medium inline-flex items-center space-x-1"
             >
               <span>{lang === 'ml' ? 'പോർട്ട്ഫോളിയോ' : 'Portfolio'}</span>
+              <span>↗</span>
+            </a>
+            <span>·</span>
+            <a
+              href="https://buymeacoffee.com/anandbinuarjun"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#FFDD00] hover:text-[#FFE766] transition-colors font-medium inline-flex items-center space-x-1"
+              title={lang === 'ml' ? 'പദ്ധതിയെ പിന്തുണയ്ക്കാം' : 'Support NadaVerse on Buy Me a Coffee'}
+            >
+              <span>☕</span>
+              <span>{lang === 'ml' ? 'കോഫി നൽകാം' : 'Buy Me a Coffee'}</span>
               <span>↗</span>
             </a>
             <span>·</span>
