@@ -2,7 +2,7 @@
 
 **Document Version:** 1.1.0  
 **Audit Date:** 18 October 2026  
-**Candidate Release Commit:** `1f3ba07` (clean checkout)  
+**Candidate Release Commit:** `1ef9b74` (clean checkout)  
 **Catalog Inspected:** `web/src/data/compositionLibraryData.ts` (`COMPOSITION_CATALOG`)  
 **Licensing Policy:** Code under MIT License; Pedagogical & Musicological Content under CC-BY-SA 4.0; Classical Works in Public Domain  
 **Takedown SLA:** 48 hours via [anandbinuarjun@zohomail.eu](mailto:anandbinuarjun@zohomail.eu) with `rights-takedown` label  

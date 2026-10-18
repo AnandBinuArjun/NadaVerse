@@ -1,7 +1,7 @@
 # NadaVerse — Security, Authorization & Privacy Test Matrix
 
 **Document Version:** 1.0.0-beta  
-**Evaluation Commit:** `1f3ba078583e81a34fd96a96ee5b5e64f4fc7ae4` (`1f3ba07`)  
+**Evaluation Commit:** `1ef9b74251ace18be70f6874375291ada6e39934` (`1ef9b74`)  
 **Target Hosts:** FastAPI Backend (`/api/v1/*`), Next.js Web Client  
 **Verification Framework:** Pytest (Async SQLAlchemy) + Service Worker Invariant Harness  
 

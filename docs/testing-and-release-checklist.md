@@ -1,7 +1,7 @@
 # NadaVerse — Testing & Release Checklist
 
 **Version:** 1.0.0-beta  
-**Release Candidate Commit:** `1f3ba078583e81a34fd96a96ee5b5e64f4fc7ae4` (`1f3ba07`)  
+**Release Candidate Commit:** `1ef9b74251ace18be70f6874375291ada6e39934` (`1ef9b74`)  
 **Evaluation Date:** 18 October 2026  
 **Environment:** Windows 11 / Python 3.12.1 / Node v21.7.2  
 **Target Hosts:** Vercel (Frontend), FastAPI Production Server (Backend)  
