@@ -2,7 +2,7 @@
 
 **Document Version:** 1.0.0-beta  
 **Audit Date:** 18 October 2026  
-**Candidate Release Commit:** `e46104b4879e33ede682eee0329f3085e9456afe` (`e46104b`)  
+**Candidate Release Commit:** `f2c5295b35168a5e3b787fd79d6b882522bce480` (`f2c5295`)  
 **Repository Branch:** `main` (clean working tree)  
 **Repository URL:** [https://github.com/AnandBinuArjun/NadaVerse](https://github.com/AnandBinuArjun/NadaVerse)  
 **Live Site:** [https://nadaverse.abarjun.online/](https://nadaverse.abarjun.online/)  
@@ -12,7 +12,7 @@
 
 ## 1. Executive Summary & Assessment
 
-NadaVerse is a bilingual (English & Malayalam) Carnatic music discovery, practice sanctuary, and collaborative Gurukulam platform. This document establishes the **empirical current state** of the codebase at commit `e46104b`.
+NadaVerse is a bilingual (English & Malayalam) Carnatic music discovery, practice sanctuary, and collaborative Gurukulam platform. This document establishes the **empirical current state** of the codebase at commit `f2c5295`.
 
 The platform adheres to four foundational non-negotiable principles:
 1. **100% Free Forever:** No paywalls, paid tiers, subscriptions, advertisements, tracking cookies, or checkout requirements. Voluntary patronage is strictly supported via external, un-instrumented Buy Me a Coffee link.
@@ -53,7 +53,7 @@ Every capability listed below has been verified by source inspection and passing
 
 ---
 
-## 3. Empirical Verification Evidence (Candidate SHA: `e46104b`)
+## 3. Empirical Verification Evidence (Candidate SHA: `f2c5295`)
 
 All 9 automated suites executed from a clean checkout on Windows 11 / Python 3.12.1 / Node v21.7.2:
 
@@ -85,4 +85,4 @@ While the codebase foundation is exceptionally strong, the following boundaries 
 
 ## 5. Audit Verdict
 
-**Conditional Go for Public Beta.** The code, automated tests, data isolation boundaries, and privacy safeguards are fully evidenced on commit `e46104b`.
+**Conditional Go for Public Beta.** The code, automated tests, data isolation boundaries, and privacy safeguards are fully evidenced on commit `f2c5295`.
