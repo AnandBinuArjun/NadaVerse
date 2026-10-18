@@ -15,7 +15,9 @@ import {
   Mic,
   AlertTriangle,
   Layers,
-  Volume2
+  Volume2,
+  FileText,
+  Edit3
 } from 'lucide-react';
 import { audioEngine, TONIC_OPTIONS, TonicNote } from '../lib/audioEngine';
 import { audioKeepAlive } from '../lib/audioKeepAlive';
@@ -110,6 +112,25 @@ export function InteractiveCompositionPlayer({
   const [violinMode, setViolinMode] = useState(() => disciplineMode === 'violin' || disciplineMode === 'all');
   const [micPitchActive, setMicPitchActive] = useState(false);
   const [detectedPitchNote, setDetectedPitchNote] = useState<string | null>(null);
+
+  // --- Learner Private Annotations & Accessible Text-First View (FI-004) ---
+  const [learnerNotes, setLearnerNotes] = useState<string>('');
+  const [isNotesOpen, setIsNotesOpen] = useState<boolean>(false);
+  const [accessibleTextView, setAccessibleTextView] = useState<boolean>(false);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(`nadaverse_comp_notes_${composition.id}`);
+      if (saved) setLearnerNotes(saved);
+    } catch {}
+  }, [composition.id]);
+
+  const handleSaveNotes = (val: string) => {
+    setLearnerNotes(val);
+    try {
+      localStorage.setItem(`nadaverse_comp_notes_${composition.id}`, val);
+    } catch {}
+  };
 
   // Update refs on state changes
   useEffect(() => {
@@ -625,29 +646,127 @@ export function InteractiveCompositionPlayer({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column (2 cols): Swara Notation Sheet & Current Highlighting */}
         <div className="lg:col-span-2 space-y-4">
-          {/* Section Navigation Tabs */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 border-b border-[#3B392F]/60">
-            {composition.sections.map((sec, idx) => (
+          {/* Section Navigation Tabs & Accessibility / Notes Actions (FI-004) */}
+          <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-[#3B392F]/60">
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 max-w-full">
+              {composition.sections.map((sec, idx) => (
+                <button
+                  key={sec.id}
+                  onClick={() => handleSelectSection(idx)}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold transition-all whitespace-nowrap flex items-center gap-2 ${
+                    currentSectionIndex === idx
+                      ? 'nv-gold-btn border border-[#C7A45B] shadow-inner'
+                      : 'bg-[#161410] text-[#BDB4A4] hover:text-[#F4EBDD] border border-[#3B392F]'
+                  }`}
+                >
+                  <span>{isMl ? sec.nameMl : sec.name}</span>
+                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
+                    currentSectionIndex === idx ? 'bg-[#11110F]/20 text-[#11110F]' : 'bg-[#22221D] text-[#8A7F6D]'
+                  }`}>
+                    {sec.lines.length} {isMl ? 'വരി' : 'lines'}
+                  </span>
+                </button>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
               <button
-                key={sec.id}
-                onClick={() => handleSelectSection(idx)}
-                className={`px-4 py-2 rounded-xl text-xs font-mono font-bold transition-all whitespace-nowrap flex items-center gap-2 ${
-                  currentSectionIndex === idx
-                    ? 'nv-gold-btn border border-[#C7A45B] shadow-inner'
-                    : 'bg-[#161410] text-[#BDB4A4] hover:text-[#F4EBDD] border border-[#3B392F]'
+                onClick={() => setAccessibleTextView(!accessibleTextView)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-mono font-medium border flex items-center gap-1.5 transition-all ${
+                  accessibleTextView
+                    ? 'bg-[#C7A45B] text-[#11110F] border-[#E0C98F] font-bold shadow'
+                    : 'bg-[#1c1a14] text-[#BDB4A4] border-[#3B392F] hover:text-[#F4EBDD]'
                 }`}
+                title={isMl ? 'സ്‌ക്രീൻ റീഡർ അനുയോജ്യമായ അക്ഷര രൂപം' : 'Accessible Text-First Notation View'}
+                aria-pressed={accessibleTextView}
               >
-                <span>{isMl ? sec.nameMl : sec.name}</span>
-                <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
-                  currentSectionIndex === idx ? 'bg-[#11110F]/20 text-[#11110F]' : 'bg-[#22221D] text-[#8A7F6D]'
-                }`}>
-                  {sec.lines.length} {isMl ? 'വരി' : 'lines'}
-                </span>
+                <FileText className="w-3.5 h-3.5" />
+                <span>{accessibleTextView ? (isMl ? 'ഇന്ററാക്ടീവ്' : 'Interactive') : (isMl ? 'അക്ഷര രൂപം' : 'Text-First View')}</span>
               </button>
-            ))}
+
+              <button
+                onClick={() => setIsNotesOpen(!isNotesOpen)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-mono font-medium border flex items-center gap-1.5 transition-all ${
+                  isNotesOpen || learnerNotes.length > 0
+                    ? 'bg-[#C7A45B]/20 text-[#E0C98F] border-[#C7A45B]/40'
+                    : 'bg-[#1c1a14] text-[#BDB4A4] border-[#3B392F] hover:text-[#F4EBDD]'
+                }`}
+                title={isMl ? 'സാധക കുറിപ്പുകൾ' : 'Personal Practice Notes'}
+              >
+                <Edit3 className="w-3.5 h-3.5" />
+                <span>{isMl ? 'കുറിപ്പുകൾ' : 'Notes'}{learnerNotes.length > 0 ? ' •' : ''}</span>
+              </button>
+            </div>
           </div>
 
-          {/* Notation Sheet Viewport */}
+          {/* Private Learner Notes Drawer (FI-004) */}
+          {isNotesOpen && (
+            <div className="bg-[#14120E] border border-[#C7A45B]/30 rounded-2xl p-4 shadow-xl space-y-3">
+              <div className="flex items-center justify-between pb-2 border-b border-[#3B392F]">
+                <div className="flex items-center gap-2">
+                  <Edit3 className="w-4 h-4 text-[#C7A45B]" />
+                  <span className="text-xs font-mono font-bold text-[#E0C98F] uppercase tracking-wider">
+                    {isMl ? 'വ്യക്തിഗത സാധക കുറിപ്പുകൾ' : 'Private Learner Practice Notes'}
+                  </span>
+                </div>
+                <span className="text-[10px] text-[#8A7F6D] font-mono">100% Client-Side Local Storage</span>
+              </div>
+              <textarea
+                value={learnerNotes}
+                onChange={(e) => handleSaveNotes(e.target.value)}
+                placeholder={isMl ? 'ഈ കൃതിയെക്കുറിച്ചുള്ള നിങ്ങളുടെ സാധക നിരീക്ഷണങ്ങളും വേഗതയും രേഖപ്പെടുത്തുക...' : 'Record private practice observations, tempo goals, or difficult phrase cues for this piece...'}
+                className="w-full h-24 p-3 bg-[#1c1a14] border border-[#3B392F] rounded-xl text-xs text-[#F4EBDD] font-mono focus:outline-none focus:border-[#C7A45B] resize-none"
+              />
+              <div className="flex items-center justify-between text-[11px] text-[#8A7F6D]">
+                <span>{learnerNotes.length > 0 ? (isMl ? 'ഓട്ടോമാറ്റിക്കായി ഉപകരണത്തിൽ സംരക്ഷിക്കപ്പെട്ടു' : 'Saved locally on your device') : (isMl ? 'കുറിപ്പുകളില്ല' : 'No notes yet')}</span>
+                {learnerNotes.length > 0 && (
+                  <button
+                    onClick={() => handleSaveNotes('')}
+                    className="text-rose-400 hover:text-rose-300 font-mono text-[10px]"
+                  >
+                    {isMl ? 'കുറിപ്പുകൾ മായ്ക്കുക' : 'Clear notes'}
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Accessible Text-First View (FI-004) */}
+          {accessibleTextView ? (
+            <div className="bg-[#14120E] border border-[#3B392F] rounded-2xl p-6 shadow-xl space-y-6" aria-label="Text-First Accessible Swara Notation">
+              <div className="pb-3 border-b border-[#3B392F]">
+                <h2 className="text-lg font-serif font-bold text-[#F4EBDD]">
+                  {composition.title} — {isMl ? 'സമ്പൂർണ്ണ അക്ഷര രൂപം' : 'Accessible Swara & Sahitya Notation'}
+                </h2>
+                <p className="text-xs text-[#8A7F6D] mt-1 font-mono">
+                  {composition.ragaName} · {composition.talaName} ({composition.talaTotalAksharas} {isMl ? 'അക്ഷരങ്ങൾ' : 'Aksharas'})
+                </p>
+              </div>
+              {composition.sections.map((sec) => (
+                <div key={sec.id} className="space-y-3 pb-4 border-b border-[#3B392F]/40 last:border-0">
+                  <h3 className="text-sm font-mono font-bold text-[#E0C98F] uppercase tracking-wider">
+                    {isMl ? sec.nameMl : sec.name}
+                  </h3>
+                  <div className="space-y-4">
+                    {sec.lines.map((line, lIdx) => (
+                      <div key={lIdx} className="bg-[#1c1a14] p-3 rounded-xl border border-[#3B392F]/60 space-y-1.5 font-mono text-xs">
+                        <div className="text-[#8A7F6D] text-[10px]">
+                          {isMl ? `വരി ${line.lineNumber}` : `Line ${line.lineNumber}`}:
+                        </div>
+                        <div className="text-[#F4EBDD] font-bold text-sm tracking-widest break-words">
+                          {line.swaras.map((sw) => sw.swara).join('  ')}
+                        </div>
+                        <div className="text-[#BDB4A4] text-xs italic break-words">
+                          {line.swaras.map((sw) => sw.sahitya || '—').join(' ')}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+          /* Notation Sheet Viewport */
           <div className="bg-[#14120E] border border-[#3B392F] rounded-2xl p-4 sm:p-6 shadow-xl relative overflow-hidden">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 mb-4 border-b border-[#3B392F]/60">
               <span className="text-xs font-mono font-bold text-[#E0C98F] uppercase tracking-wider">
@@ -797,6 +916,7 @@ export function InteractiveCompositionPlayer({
               </div>
             </div>
           </div>
+          )}
 
           {/* Practice Controls Bar */}
           <div className="bg-[#161410] border border-[#3B392F] rounded-2xl p-5 shadow-lg flex flex-wrap items-center justify-between gap-4">

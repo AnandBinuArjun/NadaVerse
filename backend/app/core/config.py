@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     APP_ENV: str = os.getenv("APP_ENV", "development")
     DEBUG: bool = os.getenv("DEBUG", "false" if os.getenv("APP_ENV") == "production" else "true").lower() == "true"
     API_V1_PREFIX: str = "/api/v1"
+    DEPLOYED_COMMIT_SHA: str = os.getenv("DEPLOYED_COMMIT_SHA", os.getenv("GITHUB_SHA", "dev-local"))
     
     # Security & JWT
     SECRET_KEY: str = os.getenv("SECRET_KEY", "nadaverse_dev_secret_key_change_in_production_32bytes_min")

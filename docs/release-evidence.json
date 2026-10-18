@@ -1,0 +1,100 @@
+{
+  "application": "NadaVerse Carnatic Platform",
+  "product_guarantee": "100% Free Forever — Zero paywalls, subscriptions, checkouts, or advertisements.",
+  "commit_sha": "209923bee64fb2f2830138406ae774a941fe8779",
+  "short_sha": "209923b",
+  "branch": "main",
+  "working_tree_clean": false,
+  "generated_at": "2026-10-18T14:25:40.717Z",
+  "environment": {
+    "node_version": "v21.7.2",
+    "python_version": "Python 3.12.1",
+    "platform": "win32"
+  },
+  "overall_status": "VERIFIED_READY",
+  "summary_metrics": {
+    "backend_tests_passed": 36,
+    "composition_invariants_passed": 60,
+    "pitch_diagnostics_passed": 10,
+    "pitch_benchmarks_passed": 19,
+    "service_worker_invariants_passed": 13,
+    "e2e_smoke_invariants_passed": 18,
+    "typescript_errors": 0,
+    "eslint_errors": 0,
+    "alembic_heads_verified": true
+  },
+  "test_suites": [
+    {
+      "id": "backend-pytest",
+      "name": "Backend Unit, Integration & Privacy Pytest Suite",
+      "command": "python -m pytest backend/tests -v",
+      "passed": true,
+      "exit_code": 0,
+      "duration_seconds": 13.4
+    },
+    {
+      "id": "composition-schema",
+      "name": "Composition Schema & Rhythmic Integrity Verification",
+      "command": "npx tsx scripts/test-compositions-schema.mjs",
+      "passed": true,
+      "exit_code": 0,
+      "duration_seconds": 2.33
+    },
+    {
+      "id": "pitch-diagnostics",
+      "name": "Synthetic Pitch Estimator Diagnostics",
+      "command": "npx tsx scripts/test-pitch.mjs",
+      "passed": true,
+      "exit_code": 0,
+      "duration_seconds": 2.41
+    },
+    {
+      "id": "pitch-benchmark",
+      "name": "Acoustic Multi-Register & Noise Pitch Research Benchmark",
+      "command": "npx tsx scripts/test-pitch-benchmark.mjs",
+      "passed": true,
+      "exit_code": 0,
+      "duration_seconds": 2.53
+    },
+    {
+      "id": "sw-privacy",
+      "name": "Service Worker Multi-Account Privacy & Isolation",
+      "command": "npx tsx scripts/test-sw-privacy.mjs",
+      "passed": true,
+      "exit_code": 0,
+      "duration_seconds": 2.46
+    },
+    {
+      "id": "e2e-smoke",
+      "name": "E2E Smoke & System Invariant Verification",
+      "command": "node scripts/test-e2e-smoke.mjs",
+      "passed": true,
+      "exit_code": 0,
+      "duration_seconds": 0.09
+    },
+    {
+      "id": "tsc-typecheck",
+      "name": "Strict TypeScript Static Type Check",
+      "command": "npx tsc --noEmit",
+      "passed": true,
+      "exit_code": 0,
+      "duration_seconds": 3.81
+    },
+    {
+      "id": "eslint-quality",
+      "name": "ESLint Code Quality & Best Practices",
+      "command": "npm run lint",
+      "passed": true,
+      "exit_code": 0,
+      "duration_seconds": 14.15
+    },
+    {
+      "id": "alembic-heads",
+      "name": "Alembic Migration Single Head Check",
+      "command": "python -m alembic heads",
+      "passed": true,
+      "exit_code": 0,
+      "duration_seconds": 0.82
+    }
+  ]
+}

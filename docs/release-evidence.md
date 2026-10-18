@@ -13,15 +13,16 @@
 
 | Suite / Check | Command Executed | Items Tested | Result | Duration |
 |---|---|---|---|---|
-| **Backend Unit & Integration Suite** | `python -m pytest backend/tests -v` | 33 test cases covering API, authorization, rate limiting, audio consent, practice lifecycle, violin learning, editorial corrections, Alembic migrations, playable compositions, error telemetry | **33 Passed (100%)** | 14.26s |
-| **Composition Schema & Rhythmic Integrity** | `npx tsx scripts/test-compositions-schema.mjs` (in `web/`) | 60 invariant checks across 10 compositions: 6 cornerstone forms, akshara durations, sections, rights metadata, primary treatise sources | **60 Passed (100%)** | 3.5s |
-| **Synthetic Pitch Detector Diagnostics** | `npx tsx scripts/test-pitch.mjs` (in `web/`) | 8 swarasthanas, silence rejection, white-noise immunity | **10 Passed (100%)** | 2.1s |
-| **Service Worker Privacy & Security** | `npx tsx scripts/test-sw-privacy.mjs` (in `web/`) | 13 cache boundary invariants: allowlist, cookie/auth bypass, RSC bypass, query-string guard, same-origin | **13 Passed (100%)** | 1.8s |
-| **E2E Smoke & System Invariants** | `node scripts/test-e2e-smoke.mjs` (in `web/`) | 15 invariant checks: translations, Just Intonation math ratios, Tala cycle math, composition licensing, autocorrelation, SW privacy, standalone /privacy & /terms routes, dynamic sitemap | **15 Passed (100%)** | 1.2s |
-| **Strict TypeScript Type-Check** | `npx tsc --noEmit` (in `web/`) | App Router routes, components, violin studio, composition player & library, audio engine, types | **0 Errors (Exit 0)** | 2.9s |
-| **Code Quality & Lint** | `npx eslint src` (in `web/`) | Next.js ESLint configuration | **0 Errors, 0 Warnings** | 18.0s |
+| **Backend Unit, Integration & Privacy Suite** | `python -m pytest backend/tests -v` | 36 test cases covering API, two-user IDOR isolation, user data export, account deletion cascade, rate limiting, audio consent, practice lifecycle, violin learning, editorial corrections, Alembic migrations, playable compositions, deployment metadata | **36 Passed (100%)** | 13.40s |
+| **Composition Schema & Rhythmic Integrity** | `npx tsx scripts/test-compositions-schema.mjs` (in `web/`) | 60 invariant checks across 10 compositions: 6 cornerstone forms, akshara durations, sections, rights metadata, primary treatise sources | **60 Passed (100%)** | 2.33s |
+| **Synthetic Pitch Detector Diagnostics** | `npx tsx scripts/test-pitch.mjs` (in `web/`) | 8 swarasthanas, silence rejection, white-noise immunity | **10 Passed (100%)** | 2.41s |
+| **Acoustic Pitch Research Benchmark** | `npx tsx scripts/test-pitch-benchmark.mjs` (in `web/`) | 19 invariant checks: Mandra, Madhya, Tara registers, 5.5 Hz gamaka vibrato modulation, additive noise, unvoiced silence, frame latency < 15ms | **19 Passed (100%)** | 2.53s |
+| **Service Worker Privacy & Security** | `npx tsx scripts/test-sw-privacy.mjs` (in `web/`) | 13 cache boundary invariants: allowlist, cookie/auth bypass, RSC bypass, query-string guard, same-origin | **13 Passed (100%)** | 2.46s |
+| **E2E Smoke & System Invariants** | `node scripts/test-e2e-smoke.mjs` (in `web/`) | 18 invariant checks: translations, Just Intonation math ratios, Tala cycle math, composition licensing, autocorrelation, SW privacy, standalone /privacy & /terms routes, /me/export, deployment metadata, Buy Me a Coffee link | **18 Passed (100%)** | 0.09s |
+| **Strict TypeScript Type-Check** | `npx tsc --noEmit` (in `web/`) | App Router routes, components, violin studio, composition player & library, audio engine, types | **0 Errors (Exit 0)** | 3.81s |
+| **Code Quality & Lint** | `npm run lint` (in `web/`) | Next.js ESLint configuration | **0 Errors, 0 Warnings** | 14.15s |
 | **Turbopack Production Build** | `npm run build` (in `web/`) | Production compilation of 9 static/dynamic routes including Playable Composition Library, `/privacy`, and `/terms` | **Clean Build Success** | 35.8s |
-| **Alembic Migration Heads** | `python -m alembic heads` (in `backend/`) | Migration chain coherence | **Single Head (`95d82f7c0a11`)** | 1.1s |
+| **Alembic Migration Heads** | `python -m alembic heads` (in `backend/`) | Migration chain coherence | **Single Head (`95d82f7c0a11`)** | 0.82s |
 
 ---
 
@@ -33,45 +34,49 @@
 platform win32 -- Python 3.12.1, pytest-9.1.1, pluggy-1.6.0 -- C:\Python312\python.exe
 cachedir: .pytest_cache
 rootdir: D:\Ddeveloped_things\NadaVerse
+configfile: pytest.ini
 plugins: anyio-3.7.1, asyncio-1.4.0, cov-7.1.0
-asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
-collecting ... collected 33 items
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 36 items
 
-backend/tests/test_api.py::test_health_check PASSED                      [  3%]
-backend/tests/test_api.py::test_list_ragas_and_provenance PASSED         [  6%]
-backend/tests/test_api.py::test_get_raga_by_slug PASSED                  [  9%]
-backend/tests/test_api.py::test_list_talas_and_instruments PASSED        [ 12%]
-backend/tests/test_api.py::test_global_search_multi_entity PASSED        [ 15%]
-backend/tests/test_api.py::test_auth_registration_login_lifecycle PASSED [ 18%]
-backend/tests/test_api.py::test_cross_user_authorization_isolation PASSED [ 21%]
-backend/tests/test_api.py::test_ai_tutor_grounded_answer_and_citations PASSED [ 24%]
-backend/tests/test_api.py::test_ai_tutor_prompt_injection_guard PASSED   [ 27%]
-backend/tests/test_api.py::test_expanded_corpus_and_glossary PASSED      [ 30%]
-backend/tests/test_api.py::test_curriculum_progress_lifecycle PASSED     [ 33%]
-backend/tests/test_api.py::test_tala_studio_rhythm_calculations_and_tempo_ramps PASSED [ 36%]
-backend/tests/test_api.py::test_explainable_ai_practice_companion_analysis PASSED [ 39%]
-backend/tests/test_api.py::test_teacher_supported_learning_workflow PASSED [ 42%]
-backend/tests/test_api.py::test_heritage_archive_editorial_workflow PASSED [ 45%]
-backend/tests/test_api.py::test_violin_curriculum_progress_and_practice PASSED [ 48%]
-backend/tests/test_api.py::test_compositions_api PASSED                  [ 51%]
-backend/tests/test_api.py::test_client_error_telemetry_endpoint PASSED   [ 54%]
-backend/tests/test_beta_readiness.py::test_health_and_readiness_endpoints PASSED [ 57%]
-backend/tests/test_beta_readiness.py::test_ai_gateway_injection_and_guardrails PASSED [ 60%]
-backend/tests/test_beta_readiness.py::test_ai_gateway_provenance_and_confidence PASSED [ 63%]
-backend/tests/test_beta_readiness.py::test_tutor_post_stream_endpoint PASSED [ 66%]
-backend/tests/test_beta_readiness.py::test_rate_limiter_trusted_proxy_logic PASSED [ 69%]
-backend/tests/test_beta_readiness.py::test_in_memory_rate_limiter_concurrency_and_timestamps PASSED [ 72%]
-backend/tests/test_beta_readiness.py::test_auth_deleted_account_and_cascade_lifecycle PASSED [ 75%]
-backend/tests/test_beta_readiness.py::test_audio_practice_consent_enforcement_and_metrics_separation PASSED [ 78%]
-backend/tests/test_beta_readiness.py::test_practice_session_lifecycle_and_duration_accuracy PASSED [ 81%]
-backend/tests/test_beta_readiness.py::test_ai_citations_source_traceability PASSED [ 84%]
-backend/tests/test_beta_readiness.py::test_practice_session_abandon_and_summary_lifecycle PASSED [ 87%]
-backend/tests/test_beta_readiness.py::test_content_correction_editorial_lifecycle PASSED [ 90%]
-backend/tests/test_beta_readiness.py::test_alembic_migrations_schema_integrity PASSED [ 93%]
-backend/tests/test_beta_readiness.py::test_rate_limiter_scope_header_and_proxy_config PASSED [ 96%]
-backend/tests/test_beta_readiness.py::test_ai_gateway_unable_to_verify_and_no_key_in_url PASSED [100%]
+backend/tests/test_api.py::test_health_check PASSED                      [  2%]
+backend/tests/test_api.py::test_list_ragas_and_provenance PASSED         [  5%]
+backend/tests/test_api.py::test_get_raga_by_slug PASSED                  [  8%]
+backend/tests/test_api.py::test_list_talas_and_instruments PASSED        [ 11%]
+backend/tests/test_api.py::test_global_search_multi_entity PASSED        [ 13%]
+backend/tests/test_api.py::test_auth_registration_login_lifecycle PASSED [ 16%]
+backend/tests/test_api.py::test_cross_user_authorization_isolation PASSED [ 19%]
+backend/tests/test_api.py::test_ai_tutor_grounded_answer_and_citations PASSED [ 22%]
+backend/tests/test_api.py::test_ai_tutor_prompt_injection_guard PASSED   [ 25%]
+backend/tests/test_api.py::test_expanded_corpus_and_glossary PASSED      [ 27%]
+backend/tests/test_api.py::test_curriculum_progress_lifecycle PASSED     [ 30%]
+backend/tests/test_api.py::test_tala_studio_rhythm_calculations_and_tempo_ramps PASSED [ 33%]
+backend/tests/test_api.py::test_explainable_ai_practice_companion_analysis PASSED [ 36%]
+backend/tests/test_api.py::test_teacher_supported_learning_workflow PASSED [ 38%]
+backend/tests/test_api.py::test_heritage_archive_editorial_workflow PASSED [ 41%]
+backend/tests/test_api.py::test_violin_curriculum_progress_and_practice PASSED [ 44%]
+backend/tests/test_api.py::test_compositions_api PASSED                  [ 47%]
+backend/tests/test_api.py::test_client_error_telemetry_endpoint PASSED   [ 50%]
+backend/tests/test_beta_readiness.py::test_health_and_readiness_endpoints PASSED [ 52%]
+backend/tests/test_beta_readiness.py::test_ai_gateway_injection_and_guardrails PASSED [ 55%]
+backend/tests/test_beta_readiness.py::test_ai_gateway_provenance_and_confidence PASSED [ 58%]
+backend/tests/test_beta_readiness.py::test_tutor_post_stream_endpoint PASSED [ 61%]
+backend/tests/test_beta_readiness.py::test_rate_limiter_trusted_proxy_logic PASSED [ 63%]
+backend/tests/test_beta_readiness.py::test_in_memory_rate_limiter_concurrency_and_timestamps PASSED [ 66%]
+backend/tests/test_beta_readiness.py::test_auth_deleted_account_and_cascade_lifecycle PASSED [ 69%]
+backend/tests/test_beta_readiness.py::test_audio_practice_consent_enforcement_and_metrics_separation PASSED [ 72%]
+backend/tests/test_beta_readiness.py::test_practice_session_lifecycle_and_duration_accuracy PASSED [ 75%]
+backend/tests/test_beta_readiness.py::test_ai_citations_source_traceability PASSED [ 77%]
+backend/tests/test_beta_readiness.py::test_practice_session_abandon_and_summary_lifecycle PASSED [ 80%]
+backend/tests/test_beta_readiness.py::test_content_correction_editorial_lifecycle PASSED [ 83%]
+backend/tests/test_beta_readiness.py::test_alembic_migrations_schema_integrity PASSED [ 86%]
+backend/tests/test_beta_readiness.py::test_rate_limiter_scope_header_and_proxy_config PASSED [ 88%]
+backend/tests/test_beta_readiness.py::test_ai_gateway_unable_to_verify_and_no_key_in_url PASSED [ 91%]
+backend/tests/test_privacy_and_export.py::test_deployment_metadata_endpoint PASSED [ 94%]
+backend/tests/test_privacy_and_export.py::test_two_user_export_and_isolation PASSED [ 97%]
+backend/tests/test_privacy_and_export.py::test_account_deletion_lifecycle_via_me PASSED [100%]
 
-====================== 33 passed, 44 warnings in 14.26s =======================
+============================= 36 passed in 13.40s =============================
 ```
 
 ### 2.2 Composition Schema & Rhythmic Integrity Verification (`npx tsx scripts/test-compositions-schema.mjs`)

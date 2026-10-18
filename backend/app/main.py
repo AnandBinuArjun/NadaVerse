@@ -148,6 +148,28 @@ async def health_readiness(db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Database connectivity unavailable")
 
 
+@app.get("/api/v1/meta/deployment", tags=["System"])
+async def deployment_metadata():
+    """
+    FI-001: Deployment metadata endpoint for evidence-driven release verification.
+    Safely reveals tested commit SHA and runtime versions without exposing secrets.
+    """
+    import sys
+    import platform
+    return {
+        "service": "nadaverse-authoritative-api",
+        "version": "1.0.0",
+        "environment": settings.APP_ENV,
+        "commit_sha": settings.DEPLOYED_COMMIT_SHA,
+        "runtime": {
+            "python_version": sys.version.split()[0],
+            "platform": platform.platform(),
+        },
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }
+
+
+
 class ClientTelemetryError(BaseModel):
     message: str
     name: Optional[str] = None

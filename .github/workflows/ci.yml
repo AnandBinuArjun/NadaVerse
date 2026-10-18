@@ -37,6 +37,10 @@ jobs:
         working-directory: web
         run: npx tsx scripts/test-pitch.mjs
 
+      - name: Pitch Research Benchmark Tests
+        working-directory: web
+        run: npx tsx scripts/test-pitch-benchmark.mjs
+
       - name: Composition Schema & Rhythmic Integrity Tests
         working-directory: web
         run: npx tsx scripts/test-compositions-schema.mjs
@@ -80,3 +84,44 @@ jobs:
           PYTHONPATH: backend
         run: |
           python -m pytest backend/tests -v
+
+  release-evidence:
+    name: Release Evidence & Artifact Generation
+    needs: [web-checks, backend-checks]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: web/package-lock.json
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: |
+          cd web && npm ci && cd ..
+          python -m pip install --upgrade pip
+          pip install -r backend/requirements.txt
+
+      - name: Execute Release Evidence Generator
+        env:
+          PYTHONPATH: backend
+        run: node scripts/generate-release-evidence.mjs
+
+      - name: Upload Release Evidence Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-evidence
+          path: |
+            docs/release-evidence.json
+            docs/release-evidence.md
+

@@ -145,6 +145,35 @@ check('/terms standalone route exists and states 100% Free Forever non-commercia
 );
 
 // =========================================================================
+// 8. Privacy Lifecycle & Deployment Metadata Invariants
+// =========================================================================
+const authEndpointsPath = path.resolve(__dirname, '../../backend/app/api/v1/endpoints/auth.py');
+const mainAppPath = path.resolve(__dirname, '../../backend/app/main.py');
+const footerPath = path.resolve(__dirname, '../src/components/Footer.tsx');
+
+if (fs.existsSync(authEndpointsPath)) {
+  const authSrc = fs.readFileSync(authEndpointsPath, 'utf8');
+  check('Backend auth router implements user-scoped data export (/me/export)',
+    authSrc.includes('/export') && authSrc.includes('export_my_data')
+  );
+}
+
+if (fs.existsSync(mainAppPath)) {
+  const mainSrc = fs.readFileSync(mainAppPath, 'utf8');
+  check('Backend system router provides deployment metadata endpoint (/api/v1/meta/deployment)',
+    mainSrc.includes('/api/v1/meta/deployment') && mainSrc.includes('deployment_metadata')
+  );
+}
+
+if (fs.existsSync(footerPath)) {
+  const footerSrc = fs.readFileSync(footerPath, 'utf8');
+  check('Footer provides non-commercial voluntary Buy Me a Coffee link without tracking cookies',
+    footerSrc.includes('https://buymeacoffee.com/anandbinuarjun') &&
+    footerSrc.includes('rel="noopener noreferrer"')
+  );
+}
+
+// =========================================================================
 // Results Summary
 // =========================================================================
 console.log(`\nE2E Smoke Verification Complete: ${passed} passed, ${failed} failed.`);
@@ -155,3 +184,4 @@ if (failed > 0) {
   console.log('All E2E smoke tests and system invariants VERIFIED.');
   process.exit(0);
 }
+

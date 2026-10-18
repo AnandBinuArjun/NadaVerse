@@ -282,3 +282,127 @@ async def update_progress(
     await db.commit()
     await db.refresh(progress)
     return progress
+
+
+@user_router.get("/export", status_code=status.HTTP_200_OK)
+async def export_my_data(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    FI-002: Generates a complete, user-scoped data export strictly containing the
+    authenticated learner's owned profile, practice logs, bookmarks, and learning progress.
+    Guarantees 100% data ownership and isolation from any other learner's private records.
+    """
+    from app.models.entities import PracticeSession, GroupMember, AssignmentSubmission
+
+    user_id = current_user.id
+
+    # 1. Profile
+    profile_data = None
+    if current_user.profile:
+        profile_data = {
+            "display_name": current_user.profile.display_name,
+            "preferred_tonic": current_user.profile.preferred_tonic,
+            "preferred_locale": current_user.profile.preferred_locale,
+            "experience_level": current_user.profile.experience_level,
+            "notes": current_user.profile.notes,
+        }
+
+    # 2. Bookmarks
+    bm_res = await db.execute(select(Bookmark).where(Bookmark.user_id == user_id).order_by(Bookmark.created_at.desc()))
+    bookmarks = [
+        {
+            "id": bm.id,
+            "content_type": bm.content_type,
+            "content_slug": bm.content_slug,
+            "created_at": bm.created_at.isoformat() if bm.created_at else None,
+        }
+        for bm in bm_res.scalars().all()
+    ]
+
+    # 3. Lesson Progress
+    prog_res = await db.execute(select(LessonProgress).where(LessonProgress.user_id == user_id))
+    progress = [
+        {
+            "id": p.id,
+            "lesson_id": p.lesson_id,
+            "status": p.status,
+            "completed_at": p.completed_at.isoformat() if p.completed_at else None,
+        }
+        for p in prog_res.scalars().all()
+    ]
+
+    # 4. Practice Sessions
+    ps_res = await db.execute(select(PracticeSession).where(PracticeSession.user_id == user_id).order_by(PracticeSession.started_at.desc()))
+    sessions = [
+        {
+            "id": s.id,
+            "started_at": s.started_at.isoformat() if s.started_at else None,
+            "completed_at": s.completed_at.isoformat() if s.completed_at else None,
+            "duration_seconds": s.duration_seconds,
+            "planned_duration_seconds": s.planned_duration_seconds,
+            "status": s.status,
+            "focus": s.focus,
+            "tonic": s.tonic,
+            "tala_id": s.tala_id,
+            "notes": s.notes,
+        }
+        for s in ps_res.scalars().all()
+    ]
+
+    # 5. Group Memberships
+    gm_res = await db.execute(select(GroupMember).where(GroupMember.student_id == user_id))
+    memberships = [
+        {
+            "group_id": gm.group_id,
+            "joined_at": gm.joined_at.isoformat() if gm.joined_at else None,
+        }
+        for gm in gm_res.scalars().all()
+    ]
+
+    # 6. Submissions
+    sub_res = await db.execute(select(AssignmentSubmission).where(AssignmentSubmission.student_id == user_id))
+    submissions = [
+        {
+            "id": sub.id,
+            "assignment_id": sub.assignment_id,
+            "status": sub.status,
+            "audio_duration_seconds": sub.audio_duration_seconds,
+            "acoustic_stability_score": sub.acoustic_stability_score,
+            "notes": sub.notes,
+            "submitted_at": sub.submitted_at.isoformat() if sub.submitted_at else None,
+        }
+        for sub in sub_res.scalars().all()
+    ]
+
+    return {
+        "export_metadata": {
+            "application": "NadaVerse Carnatic Platform",
+            "service": "nadaverse-authoritative-api",
+            "version": "1.0.0",
+            "user_id": user_id,
+            "email": current_user.email,
+            "role": current_user.role,
+            "exported_at": datetime.now(timezone.utc).isoformat(),
+            "retention_policy": "User data is 100% owned by the learner. No data is sold, monetized, or shared with third parties. Upon account deletion, all personal data is permanently purged.",
+        },
+        "profile": profile_data,
+        "bookmarks": bookmarks,
+        "lesson_progress": progress,
+        "practice_sessions": sessions,
+        "group_memberships": memberships,
+        "submissions": submissions,
+    }
+
+
+@user_router.delete("", status_code=status.HTTP_200_OK)
+async def delete_my_account_via_me(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    FI-002: Alias for account deletion under /api/v1/me matching REST standard.
+    """
+    return await delete_my_account(current_user=current_user, db=db)
+

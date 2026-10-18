@@ -32,6 +32,84 @@ const RELATED_RAGA_MAPPING: Record<string, string[]> = {
   'simhendramadhyamam': ['Urmika', 'Seshanada']
 };
 
+interface RagaPrayoga {
+  phrase: string;
+  phraseMl: string;
+  context: string;
+  contextMl: string;
+  notes: string[];
+}
+
+const CANONICAL_PRAYOGAS: Record<string, RagaPrayoga[]> = {
+  'mayamalavagowla': [
+    {
+      phrase: 'S R₁ G₃ M₁ P',
+      phraseMl: 'സ രി₁ ഗ₃ മ₁ പ',
+      context: 'Fundamental ascending ascent establishing the pure Shuddha Rishabham and Antara Gandharam intervals.',
+      contextMl: 'ശുദ്ധ ഋഷഭവും അന്തര ഗാന്ധാരവും ഉറപ്പിക്കുന്ന അടിസ്ഥാന സഞ്ചാരം.',
+      notes: ['S', 'R₁', 'G₃', 'M₁', 'P']
+    },
+    {
+      phrase: 'P D₁ P M₁ G₃ R₁ S',
+      phraseMl: 'പ ധ₁ പ മ₁ ഗ₃ രി₁ സ',
+      context: 'Characteristic resting descent highlighting the Vadi-Samvadi harmonic balance (Sa-Pa).',
+      contextMl: 'ഷഡ്ജ-പഞ്ചമ സംവാദിത്വവും ഗാന്ധാര വിശ്രാന്തിയും വ്യക്തമാക്കുന്ന അവരോഹണ സഞ്ചാരം.',
+      notes: ['P', 'D₁', 'P', 'M₁', 'G₃', 'R₁', 'S']
+    }
+  ],
+  'shankarabharanam': [
+    {
+      phrase: 'S R₂ G₃ M₁ P D₂ N₃ Ṡ',
+      phraseMl: 'സ രി₂ ഗ₃ മ₁ പ ധ₂ നി₃ സ',
+      context: 'Majestic whole-tone modal expansion codified in Chaturdandi Prakasika.',
+      contextMl: 'ചതുർദണ്ഡി പ്രകാശികയിൽ രേഖപ്പെടുത്തിയ ഗാംഭീര്യമുള്ള സാർവത്രിക മേള സഞ്ചാരം.',
+      notes: ['S', 'R₂', 'G₃', 'M₁', 'P', 'D₂', 'N₃', 'Ṡ']
+    },
+    {
+      phrase: 'Ṡ N₃ D₂ P M₁ G₃ R₂ S',
+      phraseMl: 'സ നി₃ ധ₂ പ മ₁ ഗ₃ രി₂ സ',
+      context: 'Classic descending glide with gentle oscillation on Antara Gandhara.',
+      contextMl: 'ഗാന്ധാരത്തിന് ജീവൻ നൽകുന്ന മനോഹരമായ അവരോഹണം.',
+      notes: ['Ṡ', 'N₃', 'D₂', 'P', 'M₁', 'G₃', 'R₂', 'S']
+    }
+  ],
+  'kalyani': [
+    {
+      phrase: 'S R₂ G₃ M₂ P D₂ N₃ Ṡ',
+      phraseMl: 'സ രി₂ ഗ₃ മ₂ പ ധ₂ നി₃ സ',
+      context: 'Radiant Prati Madhyamam signature phrase creating shimmering overtones.',
+      contextMl: 'പ്രതി മധ്യമത്തിന്റെ പ്രകാശം നിറയുന്ന അദ്വിതീയ സഞ്ചാരം.',
+      notes: ['S', 'R₂', 'G₃', 'M₂', 'P', 'D₂', 'N₃', 'Ṡ']
+    },
+    {
+      phrase: 'G₃ M₂ P D₂ N₃ Ṡ',
+      phraseMl: 'ഗ₃ മ₂ പ ധ₂ നി₃ സ',
+      context: 'Signature Vishesha Prayoga omitting lower Sa for immediate melodic color.',
+      contextMl: 'താഴത്തെ ഷഡ്ജം ഒഴിവാക്കി മധ്യസ്ഥായിയിൽ തുടങ്ങുന്ന വിശേഷ പ്രയോഗം.',
+      notes: ['G₃', 'M₂', 'P', 'D₂', 'N₃', 'Ṡ']
+    }
+  ],
+  'kharaharapriya': [
+    {
+      phrase: 'R₂ G₂ M₁ P D₂ N₂ Ṡ',
+      phraseMl: 'രി₂ ഗ₂ മ₁ പ ധ₂ നി₂ സ',
+      context: 'Chaste Sadharana Gandhara and Kaisiki Nishada anchoring the mood of deep bhakti.',
+      contextMl: 'സാധാരണ ഗാന്ധാരവും കൈശികി നിഷാദവും സംയോജിക്കുന്ന ഭക്തിരസ സഞ്ചാരം.',
+      notes: ['R₂', 'G₂', 'M₁', 'P', 'D₂', 'N₂', 'Ṡ']
+    }
+  ],
+  'thodi': [
+    {
+      phrase: 'S R₁ G₂ M₁ P D₁ N₂ Ṡ',
+      phraseMl: 'സ രി₁ ഗ₂ മ₁ പ ധ₁ നി₂ സ',
+      context: 'Deep oscillating gamakas on Gandhara and Dhaivata from their adjacent lower swaras.',
+      contextMl: 'ഗാന്ധാരത്തിലും ധൈവതത്തിലും ആഴത്തിലുള്ള കമ്പിത ഗമകം ഉള്ള സഞ്ചാരം.',
+      notes: ['S', 'R₁', 'G₂', 'M₁', 'P', 'D₁', 'N₂', 'Ṡ']
+    }
+  ]
+};
+
+
 export const RagaCard: React.FC<RagaCardProps> = ({
   raga,
   onAskTutor,
@@ -160,6 +238,30 @@ export const RagaCard: React.FC<RagaCardProps> = ({
   const ml = RAGA_ML_DATA[raga.slug];
   const malayalamName = RAGA_ML_NAMES[raga.slug];
   const relatedRagas = RELATED_RAGA_MAPPING[raga.slug] || [];
+  const prayogas = CANONICAL_PRAYOGAS[raga.slug] || [];
+  const [activePrayogaIdx, setActivePrayogaIdx] = useState<number | null>(null);
+
+  const handlePlayPrayoga = (notes: string[], prayogaIdx: number) => {
+    if (activePrayogaIdx === prayogaIdx) {
+      handleStopScale();
+      setActivePrayogaIdx(null);
+      return;
+    }
+    handleStopScale();
+    setActivePrayogaIdx(prayogaIdx);
+    const ratios = notes.map((n) => resolveSwaraRatio(n));
+    audioEngine.playRagaScale(
+      ratios,
+      600,
+      (idx) => {
+        setActiveSwaraSymbol(notes[idx] || null);
+      },
+      () => {
+        setActivePrayogaIdx(null);
+        setActiveSwaraSymbol(null);
+      }
+    );
+  };
 
   return (
     <div className="nv-glass-card rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 shadow-xl relative overflow-hidden transition-all duration-300 border border-[#C7A45B]/20 hover:border-[#C7A45B]/50 hover:shadow-[0_15px_40px_-10px_rgba(0,0,0,0.7),0_0_30px_rgba(199,164,91,0.12)]">
@@ -307,6 +409,49 @@ export const RagaCard: React.FC<RagaCardProps> = ({
           {lang === 'ml' && ml ? ml.pedagogyMl : raga.pedagogicalSignificance}
         </div>
       </div>
+
+      {/* Raga Prayoga Explorer & Contextual Sancharas (FI-006) */}
+      {prayogas.length > 0 && (
+        <div className="mt-4 pt-3 border-t border-[#3B392F]">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[11px] font-mono uppercase text-[#C7A45B] flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-[#DFB960]" />
+              <span>{lang === 'ml' ? 'പ്രധാന രാഗ സഞ്ചാരങ്ങൾ (സവിശേഷ പ്രയോഗങ്ങൾ):' : 'Characteristic Sancharas & Signature Prayogas:'}</span>
+            </span>
+            <span className="text-[10px] text-[#8A7F6D] font-mono">Scale $\\neq$ Raga</span>
+          </div>
+
+          <div className="space-y-2">
+            {prayogas.map((prayoga, pIdx) => (
+              <div
+                key={pIdx}
+                className="bg-[#191916] p-3 rounded-xl border border-[#3B392F]/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
+              >
+                <div className="space-y-1">
+                  <div className="font-serif font-bold text-sm tracking-wider text-[#F4EBDD]">
+                    {lang === 'ml' ? prayoga.phraseMl : prayoga.phrase}
+                  </div>
+                  <div className="text-[11px] text-[#BDB4A4] leading-relaxed">
+                    {lang === 'ml' ? prayoga.contextMl : prayoga.context}
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => handlePlayPrayoga(prayoga.notes, pIdx)}
+                  className={`px-3 py-1.5 rounded-lg border text-xs font-mono font-medium flex items-center gap-1.5 shrink-0 transition-all ${
+                    activePrayogaIdx === pIdx
+                      ? 'bg-[#C7A45B] text-[#11110F] font-bold shadow'
+                      : 'bg-[#22221D] border-[#3B392F] text-[#E0C98F] hover:border-[#C7A45B]'
+                  }`}
+                >
+                  <Volume2 className="w-3.5 h-3.5" />
+                  <span>{activePrayogaIdx === pIdx ? (lang === 'ml' ? 'നിർത്തുക' : 'Stop') : (lang === 'ml' ? 'കേൾക്കുക' : 'Audition')}</span>
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Related Ragas & Sibling Janyas */}
       {relatedRagas.length > 0 && (
