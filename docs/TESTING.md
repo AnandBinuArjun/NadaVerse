@@ -1,7 +1,7 @@
 # NadaVerse — Automated Testing & Verification Guide
 
 **Date:** 18 October 2026  
-**Candidate Release Commit:** `f2c5295b35168a5e3b787fd79d6b882522bce480` (`f2c5295`)  
+**Candidate Release Commit:** `a09cf4e757f2d8ec02dd934b412d2eb30b1981e4` (`a09cf4e`)  
 **Status:** All Automated Suites Verified 100% Green (156 Automated Checks)  
 **Target Environments:** Python 3.12 (Backend), Node.js 20+ (Frontend Next.js 16)
 

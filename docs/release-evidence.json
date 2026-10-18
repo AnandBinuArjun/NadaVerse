@@ -1,11 +1,11 @@
 {
   "application": "NadaVerse Carnatic Platform",
   "product_guarantee": "100% Free Forever — Zero paywalls, subscriptions, checkouts, or advertisements.",
-  "commit_sha": "f2c5295b35168a5e3b787fd79d6b882522bce480",
-  "short_sha": "f2c5295",
+  "commit_sha": "a09cf4e757f2d8ec02dd934b412d2eb30b1981e4",
+  "short_sha": "a09cf4e",
   "branch": "main",
   "working_tree_clean": true,
-  "generated_at": "2026-10-18T16:12:30.214Z",
+  "generated_at": "2026-10-18T16:23:10.285Z",
   "environment": {
     "node_version": "v21.7.2",
     "python_version": "Python 3.12.1",
@@ -30,7 +30,7 @@
       "command": "python -m pytest backend/tests -v",
       "passed": true,
       "exit_code": 0,
-      "duration_seconds": 69.18
+      "duration_seconds": 58.3
     },
     {
       "id": "composition-schema",
@@ -38,7 +38,7 @@
       "command": "npx tsx scripts/test-compositions-schema.mjs",
       "passed": true,
       "exit_code": 0,
-      "duration_seconds": 2.45
+      "duration_seconds": 2.76
     },
     {
       "id": "pitch-diagnostics",
@@ -46,7 +46,7 @@
       "command": "npx tsx scripts/test-pitch.mjs",
       "passed": true,
       "exit_code": 0,
-      "duration_seconds": 2.39
+      "duration_seconds": 2.62
     },
     {
       "id": "pitch-benchmark",
@@ -54,7 +54,7 @@
       "command": "npx tsx scripts/test-pitch-benchmark.mjs",
       "passed": true,
       "exit_code": 0,
-      "duration_seconds": 2.44
+      "duration_seconds": 2.45
     },
     {
       "id": "sw-privacy",
@@ -62,7 +62,7 @@
       "command": "npx tsx scripts/test-sw-privacy.mjs",
       "passed": true,
       "exit_code": 0,
-      "duration_seconds": 2.27
+      "duration_seconds": 2.24
     },
     {
       "id": "e2e-smoke",
@@ -78,7 +78,7 @@
       "command": "npx tsc --noEmit",
       "passed": true,
       "exit_code": 0,
-      "duration_seconds": 3.6
+      "duration_seconds": 3.58
     },
     {
       "id": "eslint-quality",
@@ -86,7 +86,7 @@
       "command": "npm run lint",
       "passed": true,
       "exit_code": 0,
-      "duration_seconds": 13.65
+      "duration_seconds": 14.28
     },
     {
       "id": "alembic-heads",
@@ -94,7 +94,7 @@
       "command": "python -m alembic heads",
       "passed": true,
       "exit_code": 0,
-      "duration_seconds": 0.85
+      "duration_seconds": 0.83
     }
   ]
 }
