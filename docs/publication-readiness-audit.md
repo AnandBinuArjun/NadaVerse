@@ -2,7 +2,7 @@
 
 **Repository:** [https://github.com/AnandBinuArjun/NadaVerse](https://github.com/AnandBinuArjun/NadaVerse)  
 **Branch Inspected:** `main`  
-**Commit Evaluated:** `b87cca6` (clean checkout)  
+**Commit Evaluated:** `738838e961224397939e0041aa8a4e3cc852dd68` (`738838e`) (clean checkout)  
 **Audit Date:** 18 October 2026  
 **Auditor:** Senior Full-Stack Security, Accessibility & Musicology Engineering Lead (Antigravity)  
 **Overall Verdict:** **Conditional Go for Public Beta** — Core functionality verified; strict security, privacy, and data-isolation boundaries enforced; automated test evidence validated. Operational deployment configurations (secrets, reverse proxy topology, SSL, production PostgreSQL) must be independently validated in the live hosting environment prior to unconstrained promotion.
@@ -35,15 +35,16 @@ This audit evaluates the codebase against the P0, P1, and P2 criteria set forth 
 
 ### 3.1 Release Claim Verification (Clean Execution)
 - **Status:** **VERIFIED (Canonical Counts Reconciled)**
-- **Findings:** Documentation previously contained inconsistent test counts (30, 31, 32, 33). A clean execution of the release commit established canonical results:
-  - **Backend Tests:** 33 passed (100%) in 11.27s via `python -m pytest backend/tests -v` (18 in `test_api.py` + 15 in `test_beta_readiness.py`, clean 0 warnings via `pytest.ini`).
-  - **Composition Schema & Rhythmic Integrity Tests:** 60 passed (100%) in 3.5s via `npx tsx scripts/test-compositions-schema.mjs` verifying all 10 cataloged pieces across 6 cornerstone forms, akshara duration sums, section structures, and primary treatise citations.
+- **Findings:** Documentation previously contained inconsistent test counts (30, 31, 32, 33). A clean execution of the release commit `738838e` established canonical results across 156 automated invariant checks:
+  - **Backend Tests:** 36 passed (100%) via `python -m pytest backend/tests -v` (in `test_api.py`, `test_beta_readiness.py`, and `test_privacy_and_export.py`, clean 0 warnings via `pytest.ini`).
+  - **Composition Schema & Rhythmic Integrity Tests:** 60 passed (100%) via `npx tsx scripts/test-compositions-schema.mjs` verifying all 10 cataloged pieces across 6 cornerstone forms, akshara duration sums, section structures, and primary treatise citations.
   - **Synthetic Pitch Tests:** 10 passed (100%) across 8 swarasthanas, silence gating, and noise rejection via `npx tsx scripts/test-pitch.mjs`.
+  - **Acoustic Pitch Research Benchmark:** 19 passed (100%) across Mandra, Madhya, and Tara registers, 5.5 Hz gamaka vibrato, additive noise, unvoiced silence, and frame latency < 15ms via `npx tsx scripts/test-pitch-benchmark.mjs`.
   - **Service Worker Privacy Tests:** 13 passed (100%) including public allowlist, cookie/auth isolation, RSC bypass, query-string protection, and same-origin restriction via `npx tsx scripts/test-sw-privacy.mjs`.
-  - **E2E Smoke & System Invariant Tests:** 15 passed (100%) in 1.2s via `node scripts/test-e2e-smoke.mjs` verifying translations, Just Intonation math ratios, Tala cycles, composition rights, autocorrelation, SW allowlist, and legal pages.
+  - **E2E Smoke & System Invariant Tests:** 18 passed (100%) via `node scripts/test-e2e-smoke.mjs` verifying translations, Just Intonation math ratios, Tala cycles, composition rights, autocorrelation, SW allowlist, `/me/export`, `/meta/deployment`, and legal pages.
   - **TypeScript Type-Check:** 0 errors (clean exit 0) via `npx tsc --noEmit`.
   - **Code Quality / ESLint:** 0 errors, 0 warnings (clean exit 0) via `npm run lint`.
-  - **Production Build:** Compiled cleanly in Next.js 16.4.2 Turbopack with 9 static/dynamic routes in 26.7s via `npm run build` (including `/`, `/privacy`, `/terms`, `/api/og`, `/sitemap.xml`, `/robots.txt`).
+  - **Production Build:** Compiled cleanly in Next.js 16.4.2 Turbopack with 9 static/dynamic routes via `npm run build` (including `/`, `/privacy`, `/terms`, `/api/og`, `/sitemap.xml`, `/robots.txt`).
   - **Alembic Schema Head:** Single clean head `95d82f7c0a11` verified via `python -m alembic heads`.
 
 ### 3.2 Service Worker Cache Privacy & Account Switching

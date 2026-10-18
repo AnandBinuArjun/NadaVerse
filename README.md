@@ -153,52 +153,73 @@ Open `http://localhost:3000` in your browser.
 
 ## 🧪 Verification & Automated Testing
 
-### Backend Test Suite (Pytest)
+All verification suites can be executed independently or via the master evidence runner `node scripts/generate-release-evidence.mjs`:
+
+### 1. Backend Test Suite (Pytest)
 ```bash
 python -m pytest backend/tests -v
 ```
-*Current status:* **33 passed (100%)** covering curriculum progression, tala calculations, audio practice companion analysis, teacher-student authorization workflows, rate limiting scope & trusted proxy resolution, heritage archive moderation, role-based access control (RBAC 403 Forbidden enforcement), and client error telemetry ingestion.
+*Current status:* **36 passed (100%)** covering curriculum progression, tala calculations, audio practice companion analysis, teacher-student authorization workflows, rate limiting scope & trusted proxy resolution, heritage archive moderation, role-based access control (RBAC 403 Forbidden enforcement), client error telemetry ingestion, user data export lifecycle (`GET /api/v1/me/export`), account deletion cascade (`DELETE /api/v1/me`), and deployment metadata.
 
-### Frontend Composition Schema & Rhythmic Integrity Tests
+### 2. Frontend Composition Schema & Rhythmic Integrity Tests
 ```bash
 cd web
 npx tsx scripts/test-compositions-schema.mjs
 ```
 *Current status:* **60 passed (100%)** testing all 10 compositions across 6 classical forms, akshara duration sums, section structures, public domain assertions, and primary treatise citations.
 
-### Frontend Synthetic Pitch Tests
+### 3. Frontend Synthetic Pitch Tests
 ```bash
 cd web
 npx tsx scripts/test-pitch.mjs
 ```
 *Current status:* **10 passed (100%)** testing 8 swarasthanas, silence gating, and noise rejection.
 
-### Service Worker Privacy & Boundary Tests
+### 4. Acoustic Multi-Register & Noise Pitch Research Benchmark
+```bash
+cd web
+npx tsx scripts/test-pitch-benchmark.mjs
+```
+*Current status:* **19 passed (100%)** testing Mandra, Madhya, and Tara registers, 5.5 Hz gamaka vibrato modulation, additive noise robustness, unvoiced silence rejection, and frame analysis latency < 15ms.
+
+### 5. Service Worker Privacy & Boundary Tests
 ```bash
 cd web
 npx tsx scripts/test-sw-privacy.mjs
 ```
 *Current status:* **13 passed (100%)** testing public allowlist, cookie/auth isolation, RSC prevention, cross-origin bypass, and query-string isolation.
 
-### Frontend TypeScript & Production Build
+### 6. E2E Smoke & System Invariant Verification
+```bash
+cd web
+node scripts/test-e2e-smoke.mjs
+```
+*Current status:* **18 passed (100%)** testing translations, Just Intonation math ratios, Tala cycles, composition rights, autocorrelation, SW privacy, standalone `/privacy` & `/terms` routes, `/me/export`, `/meta/deployment`, and Buy Me a Coffee link.
+
+### 7. Frontend TypeScript, Lint & Production Build
 ```bash
 cd web
 npx tsc --noEmit
 npm run lint
 npm run build
 ```
-*Current status:* **0 TypeScript errors**, **0 ESLint errors**, **production build successful**.
+*Current status:* **0 TypeScript errors**, **0 ESLint errors**, **production build successful (all 9 routes compiled cleanly)**.
+
+**Grand Total:** **156 automated verification checks passed (100%)** with zero errors or warnings.
 
 ---
 
 ## 📚 Documentation Index
 
-- [docs/publication-readiness-audit.md](docs/publication-readiness-audit.md) — Comprehensive source-level release audit and remediation report.
-- [docs/feature-gap-matrix.md](docs/feature-gap-matrix.md) — 18-feature capability status matrix (EXISTS / PARTIAL / MISSING / NEEDS_VALIDATION).
+- [docs/current-state-audit.md](docs/current-state-audit.md) — Comprehensive source audit, candidate commit SHA, feature status, and empirical evidence.
+- [docs/public-release-gates.md](docs/public-release-gates.md) — P0 and P1 release gates, ownership, acceptance criteria, and status.
+- [docs/security-and-privacy-test-matrix.md](docs/security-and-privacy-test-matrix.md) — Complete endpoint, role, object-level authorization, and privacy test matrix.
+- [docs/content-rights-review.md](docs/content-rights-review.md) — Item-level content rights review for compositions, raga prayogas, and takedown workflow.
+- [docs/publication-readiness-audit.md](docs/publication-readiness-audit.md) — Source-level release audit and remediation report.
+- [docs/feature-gap-matrix.md](docs/feature-gap-matrix.md) — Capability status matrix (EXISTS / PARTIAL / MISSING / NEEDS_VALIDATION).
 - [docs/release-evidence.md](docs/release-evidence.md) — Automated test verification outputs, commit SHA, and release evidence.
+- [docs/release-evidence.json](docs/release-evidence.json) — Machine-readable release evidence manifest.
 - [docs/content-rights-ledger.md](docs/content-rights-ledger.md) — Item-level content rights and primary treatise provenance ledger.
-- [docs/feature-implementation-report.md](docs/feature-implementation-report.md) — Six core features implementation report.
-- [docs/content-provenance-and-licensing.md](docs/content-provenance-and-licensing.md) — Source attribution, treatise provenance, and licensing policy.
 - [docs/testing-and-release-checklist.md](docs/testing-and-release-checklist.md) — Verification checklist and release testing records.
 - [docs/architecture.md](docs/architecture.md) — Complete full-stack system architecture.
 
