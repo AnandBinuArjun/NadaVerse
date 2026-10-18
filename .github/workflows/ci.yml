@@ -37,6 +37,10 @@ jobs:
         working-directory: web
         run: npx tsx scripts/test-pitch.mjs
 
+      - name: Composition Schema & Rhythmic Integrity Tests
+        working-directory: web
+        run: npx tsx scripts/test-compositions-schema.mjs
+
       - name: Service Worker Privacy Tests
         working-directory: web
         run: npx tsx scripts/test-sw-privacy.mjs

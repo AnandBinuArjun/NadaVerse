@@ -2,8 +2,8 @@
 
 **Repository:** [https://github.com/AnandBinuArjun/NadaVerse](https://github.com/AnandBinuArjun/NadaVerse)  
 **Branch Inspected:** `main`  
-**Commit Evaluated:** `f083d073a5c6b222870fde884b9991dff274d232` (+ uncommitted release hardening)  
-**Audit Date:** 17 October 2026  
+**Commit Evaluated:** `291a9311e85608e106f10d69e7425761014d9ae1` (clean checkout)  
+**Audit Date:** 18 October 2026  
 **Auditor:** Senior Full-Stack Security, Accessibility & Musicology Engineering Lead (Antigravity)  
 **Overall Verdict:** **Conditional Go for Public Beta** — Core functionality verified; strict security, privacy, and data-isolation boundaries enforced; automated test evidence validated. Operational deployment configurations (secrets, reverse proxy topology, SSL, production PostgreSQL) must be independently validated in the live hosting environment prior to unconstrained promotion.
 
@@ -34,14 +34,15 @@ This audit evaluates the codebase against the P0, P1, and P2 criteria set forth 
 ## 3. P0 — Release Blockers & Security/Privacy Audit Findings
 
 ### 3.1 Release Claim Verification (Clean Execution)
-- **Status:** **VERIFIED**
-- **Findings:** The documentation previously reported 30 backend tests, 10 pitch tests, and 11 service worker tests. Actual clean executions reproduced:
-  - **Backend Tests:** 31 passed (100%) in 9.89s via `python -m pytest backend/tests -v`, including regression coverage for violin curriculum progress and practice session logging.
+- **Status:** **VERIFIED (Canonical Counts Reconciled)**
+- **Findings:** Documentation previously contained inconsistent test counts (30, 31, 32, 33). A clean execution of the release commit `291a9311e85608e106f10d69e7425761014d9ae1` established canonical results:
+  - **Backend Tests:** 33 passed (100%) in 14.26s via `python -m pytest backend/tests -v` (18 in `test_api.py` + 15 in `test_beta_readiness.py`).
+  - **Composition Schema & Rhythmic Integrity Tests:** 60 passed (100%) in 3.5s via `npx tsx scripts/test-compositions-schema.mjs` verifying all 10 cataloged pieces across 6 cornerstone forms, akshara duration sums, section structures, and primary treatise citations.
   - **Synthetic Pitch Tests:** 10 passed (100%) across 8 swarasthanas, silence gating, and noise rejection via `npx tsx scripts/test-pitch.mjs`.
-  - **Service Worker Privacy Tests:** 13 passed (100%) including public allowlist, cookie/auth isolation, RSC bypass, query-string protection, and same-origin restriction via `node scripts/test-sw-privacy.mjs`.
-  - **TypeScript Type-Check:** 0 errors via `npx tsc --noEmit`.
-  - **Code Quality / ESLint:** 0 errors, 0 warnings via `npm run lint`.
-  - **Production Build:** Compiled cleanly in Next.js 16.4.2 Turbopack with 7 static/dynamic routes via `npm run build`.
+  - **Service Worker Privacy Tests:** 13 passed (100%) including public allowlist, cookie/auth isolation, RSC bypass, query-string protection, and same-origin restriction via `npx tsx scripts/test-sw-privacy.mjs`.
+  - **TypeScript Type-Check:** 0 errors (clean exit 0) via `npx tsc --noEmit`.
+  - **Code Quality / ESLint:** 0 errors, 0 warnings (clean exit 0) via `npx eslint src`.
+  - **Production Build:** Compiled cleanly in Next.js 16.4.2 Turbopack with 7 static/dynamic routes in 35.8s via `npm run build`.
   - **Alembic Schema Head:** Single clean head `95d82f7c0a11` verified via `python -m alembic heads`.
 
 ### 3.2 Service Worker Cache Privacy & Account Switching
@@ -53,7 +54,7 @@ This audit evaluates the codebase against the P0, P1, and P2 criteria set forth 
   3. All `/api/` requests strictly bypass cache with 503 fallback when offline.
   4. Next.js React Server Component requests (`_rsc`, `next-action`, `next-router-state-tree`, `next-url`) strictly bypass cache.
   5. Requests with `authorization` or `cookie` headers bypass cache; responses with `Set-Cookie`, `no-store`, or `private` Cache-Control directives are rejected by `isCacheableResponse()`.
-  6. Automated test suite `web/scripts/test-sw-privacy.mjs` was expanded to 13 automated invariant tests.
+  6. Automated test suite `web/scripts/test-sw-privacy.mjs` verifies all 13 automated invariant tests.
 
 ### 3.3 Production Configuration, Proxy Trust & Rate Limiting
 - **Status:** **VERIFIED & SAFEGUARDS ENFORCED**
@@ -76,22 +77,23 @@ This audit evaluates the codebase against the P0, P1, and P2 criteria set forth 
 - **Status:** **VERIFIED & CATALOGED**
 - **Evidence & Fixes:**
   1. Every published raga, tala, instrument, and archive article has explicit source attribution (*Chaturdandi Prakasika*, *Sangita Ratnakara*, *Sangita Sampradaya Pradarsini*, Sambamoorthy treatises, ASI Epigraphia Indica).
-  2. Synthesized audio (Tanpura drone, instrument timbres, Tala metronomes) is 100% synthesized in Web Audio via algorithmic oscillators and physical modeling; no proprietary commercial audio samples are hosted or bundled.
-  3. Community submissions via `/api/v1/heritage/submit` default to `pending_review` and are excluded from public results until approved by editorial review.
-  4. A dedicated item-level rights ledger is codified in `docs/content-rights-ledger.md`.
+  2. All 10 playable compositions and exercises in `COMPOSITION_CATALOG` (`web/src/data/compositionLibraryData.ts`) cite primary treatises and historical publication records.
+  3. Synthesized audio (Tanpura drone, instrument timbres, Tala metronomes) is 100% synthesized in Web Audio via algorithmic oscillators and physical modeling; no proprietary commercial audio samples are hosted or bundled.
+  4. Community submissions via `/api/v1/heritage/submit` default to `pending_review` and are excluded from public results until approved by editorial review.
+  5. A dedicated item-level rights ledger is codified in `docs/content-rights-ledger.md`.
 
 ### 3.6 Account Lifecycle, Authorization & Private Data
 - **Status:** **REMEDIATED & VERIFIED**
 - **Evidence & Fixes:**
   1. Strict object-level ownership checks are enforced across all teaching endpoints in `backend/app/api/v1/endpoints/teaching.py`.
   2. Teachers can only view groups and submissions for classes they own (`group.teacher_id == current_user.id`).
-  3. Added student lookup endpoint `@router.get("/assignments/{assignment_id}/my-submission")` allowing students to access their own submitted work and teacher feedback, while strictly blocking access to other students' work.
+  3. Student lookup endpoint `@router.get("/assignments/{assignment_id}/my-submission")` allows students to access only their own submitted work and teacher feedback, while strictly blocking access to other students' work.
   4. Account deletion endpoint (`/api/v1/auth/me`) cascades to remove user group memberships, assignments, submissions, feedback, and anonymizes contributor submissions.
 
 ### 3.7 Database Migrations, Backup, Restore & Rollback
 - **Status:** **VERIFIED**
 - **Evidence & Fixes:**
-  1. Alembic migrations are structured with clean single head `95d82f7c0a11_feature_tables_and_practice_lifecycle.py` covering all 6 feature tables.
+  1. Alembic migrations are structured with clean single head `95d82f7c0a11_feature_tables_and_practice_lifecycle.py` covering all feature tables.
   2. In production, automatic table creation on startup is bypassed, requiring explicit out-of-band execution of `alembic upgrade head`.
 
 ---
@@ -124,18 +126,19 @@ This audit evaluates the codebase against the P0, P1, and P2 criteria set forth 
   - **Integration:** First-class navigation tab in desktop/mobile navbar and Command Palette (`tool-violin-studio`).
   - **Automated Verification:** `test_violin_curriculum_progress_and_practice` (pytest), Next.js 16.4 production build, ESLint (0 errors, 0 warnings).
 
-### 5.2 Raga Comparison & Scale Analysis (`RagaComparisonModal.tsx`)
-- Side-by-side selection of two ragas from the verified corpus.
-- Interactive arohanam/avarohanam audiation using Just Intonation swara ratios.
-- Matrix calculation of shared swaras, unique swaras to Raga A, and unique swaras to Raga B.
-- Prominent musicological disclaimer in English and Malayalam explaining that a scale alone does not define a raga (gamakas, prayogas, and traditional lineage are essential).
-- Quick launch from Command Palette (`Ctrl+K` / `⌘K`), Raga Cards, and Raga Explorer quick bar.
-- Integration with the AI Tutor to inquire about comparative prayogas.
+### 5.2 Playable Composition Studio & Repertoire Navigator
+- **Status:** **DELIVERED & VERIFIED (P2 Core Release Feature)**
+- **Scope & Implementation:**
+  - Integrated `CarnaticCompositionLibrary.tsx` and `InteractiveCompositionPlayer.tsx` covering 10 fully verified compositions across 6 classical forms (Tana Varnam, Kriti/Keerthanam, Geetham, Swarajathi, Varisai/Abhyasa Ganam, Violin Practice Study).
+  - Real-time swara sequence playback, note-by-note highlighting, tala akshara tracking, and section navigation (Pallavi, Anupallavi, Charanam, Mukthayi Swaram, etc.).
+  - Tonic-relative Just Intonation playback with synchronized Tanpura drone.
+  - Dual discipline modes: Vocal (Akara Sadhana vowel guidance and Sthayi resonance) and Violin (Carnatic string S1–S4, fingering F0–F4, bow direction).
+  - Validated by 60 automated tests in `web/scripts/test-compositions-schema.mjs`.
 
 ### 5.3 Formal Roadmap Deliverables
-- [Carnatic Feature Gap Matrix](file:///d:/Ddeveloped_things/NadaVerse/docs/carnatic-feature-gap-matrix.md)
-- [Carnatic Violin Learning Product Specification](file:///d:/Ddeveloped_things/NadaVerse/docs/violin-learning-product-spec.md)
-- [Carnatic Content Review & Rights Ledger](file:///d:/Ddeveloped_things/NadaVerse/docs/carnatic-content-review-and-rights.md)
+- [Carnatic Feature Gap Matrix](carnatic-feature-gap-matrix.md)
+- [Carnatic Violin Learning Product Specification](violin-learning-product-spec.md)
+- [Carnatic Content Review & Rights Ledger](carnatic-content-review-and-rights.md)
 
 ---
 
@@ -145,3 +148,4 @@ The following checks cannot be executed solely via local source audit and must b
 2. **Reverse Proxy Network Topology:** Ensure `TRUSTED_PROXIES` in production is set to the exact IP or CIDR block of the upstream reverse proxy / Cloudflare / AWS ALB to prevent IP spoofing.
 3. **SSL / HTTPS Termination:** Confirm HSTS and HTTPS enforcement at the edge CDN.
 4. **PostgreSQL Production Rehearsal:** Validate database backup retention schedules, point-in-time recovery, and connection pooling under load.
+5. **Real-Browser Smoke Testing:** Validate multi-account sign-in/sign-out in real browsers to verify that offline cache does not retain previous user data.

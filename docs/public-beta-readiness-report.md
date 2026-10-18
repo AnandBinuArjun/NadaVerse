@@ -169,13 +169,13 @@ python -m alembic heads
 ## 3. Workstreams Implemented
 
 ### Workstream 1: Audio Consent Architecture
-- **Component:** [ExplainablePracticeCompanion.tsx](file:///d:/Ddeveloped_things/NadaVerse/web/src/components/ExplainablePracticeCompanion.tsx)
+- **Component:** [ExplainablePracticeCompanion.tsx](../web/src/components/ExplainablePracticeCompanion.tsx)
 - Explicit consent checkbox initialized to `false`. Audio context and microphone streams are strictly prevented from instantiating until opt-in is granted.
 - Rejection dialog clearly informs user of local audio processing versus transmitted acoustic summaries.
 - On stream stop, disconnects all audio nodes and releases media tracks immediately.
 
 ### Workstream 2: Audio Results Trust & Label Scoping
-- **Centralized Detector:** [pitchDetector.ts](file:///d:/Ddeveloped_things/NadaVerse/web/src/lib/pitchDetector.ts)
+- **Centralized Detector:** [pitchDetector.ts](../web/src/lib/pitchDetector.ts)
 - Eliminated all duplicate autocorrelation code; introduced normalized parabolic interpolation and synthetic evaluation suite.
 - Replaced misleading "Verified" labels across UI with scoped descriptors:
   - `Organology Verified` $\to$ `Treatise-Documented Organology`
@@ -185,35 +185,35 @@ python -m alembic heads
 
 ### Workstream 3: Practice Record Accuracy & Export Hygiene
 - **Backend:** Added `PATCH /api/v1/practice/sessions/{id}/abandon` (resets duration to 0 and marks abandoned) and `GET /api/v1/practice/summary` (authoritative calculation of sessions, minutes, 7-day volume, and streaks).
-- **Frontend:** [SadhanaTracker.tsx](file:///d:/Ddeveloped_things/NadaVerse/web/src/components/SadhanaTracker.tsx)
+- **Frontend:** [SadhanaTracker.tsx](../web/src/components/SadhanaTracker.tsx)
   - `handleExportCSV` and `handleExportJSON` strictly filter `!s.isDemo`.
   - Prompts informative alert if only sample data is present.
   - JSON export bundles user bookmarks and completed curriculum lessons.
 
 ### Workstream 4: Traceable AI Citations & Evidence Inspector
-- **Gateway:** [ai_gateway.py](file:///d:/Ddeveloped_things/NadaVerse/backend/app/services/ai_gateway.py)
+- **Gateway:** [ai_gateway.py](../backend/app/services/ai_gateway.py)
   - Citations now include `sourceId`, `referenceEdition`, and `verbatimSourceQuote`.
   - Enforces minimum similarity relevance threshold; omits ungrounded treatise claims.
-- **Frontend:** [TutorModal.tsx](file:///d:/Ddeveloped_things/NadaVerse/web/src/components/TutorModal.tsx)
+- **Frontend:** [TutorModal.tsx](../web/src/components/TutorModal.tsx)
   - Collapsible **"Evidence Inspector"** reveals Corpus Record ID, primary treatise edition, and verbatim excerpt.
   - One-click **"Suggest Edit"** button opens prefilled correction modal.
 
 ### Workstream 5: Auth, Data Isolation & Account Deletion
-- **Endpoints:** [auth.py](file:///d:/Ddeveloped_things/NadaVerse/backend/app/api/v1/endpoints/auth.py)
+- **Endpoints:** [auth.py](../backend/app/api/v1/endpoints/auth.py)
   - Deletion cascades across `Bookmarks`, `LessonProgress`, `PracticeSessions`, `GroupMemberships`, `Assignments`, `Submissions`, and `Feedback`.
   - Anonymizes submitter identities in `HeritageEntries` and `ContentCorrections` to preserve historical integrity without retaining PII.
   - Old JWT tokens immediately return 401 on all authenticated endpoints.
 
 ### Workstream 6: Deployment & Cache Hardening
-- **API URL Helper:** [api.ts](file:///d:/Ddeveloped_things/NadaVerse/web/src/lib/api.ts)
+- **API URL Helper:** [api.ts](../web/src/lib/api.ts)
   - Resolves environment base URL, strips any redundant `/api/v1` or `/api` suffixes, and falls back to window origin in production.
-- **Service Worker:** [sw.js](file:///d:/Ddeveloped_things/NadaVerse/web/public/sw.js)
+- **Service Worker:** [sw.js](../web/public/sw.js)
   - Version bumped to `nadaverse-cache-v2`.
   - Strictly ignores authenticated requests (`Authorization` header).
   - API routes bypass cache with 503 JSON offline response.
 
 ### Workstream 7 & 8: Content Rights, Takedown & Editorial Queue
-- **Documentation:** Updated [content-provenance-and-licensing.md](file:///d:/Ddeveloped_things/NadaVerse/docs/content-provenance-and-licensing.md) with comprehensive Rights-Gap Checklist and 48-hour takedown SLA (`heritage@nadaverse.org`).
+- **Documentation:** Updated [content-provenance-and-licensing.md](content-provenance-and-licensing.md) with comprehensive Rights-Gap Checklist and 48-hour takedown SLA (`heritage@nadaverse.org`).
 - **Database Model:** Added `ContentCorrection` table and review endpoints (`/api/v1/corrections/pending`, `/api/v1/corrections/{id}/review`).
 
 ---

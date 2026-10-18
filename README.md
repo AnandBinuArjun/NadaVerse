@@ -55,7 +55,7 @@ NadaVerse is a comprehensive, open-source Carnatic music ecosystem combining aut
 - **Audio Engine:** Low-latency Web Audio API (Tanpura overtone synthesis, instrument timbre modeling, autocorrelation pitch tracking, drift-free metronome)
 - **Backend API:** Python 3.12 + FastAPI + SQLAlchemy + SQLite / PostgreSQL
 - **AI Gateway:** Provider-neutral gateway with Google Gemini 1.5 Flash / Pro and deterministic classical treatise fallback
-- **Testing:** Pytest (33 backend unit/integration tests) + Next.js 16 production build & strict TypeScript verification + 40 composition schema tests + 10 synthetic pitch tests + 13 service worker privacy tests
+- **Testing:** Pytest (33 backend unit/integration tests) + Next.js 16 production build & strict TypeScript verification + 60 composition schema tests + 10 synthetic pitch tests + 13 service worker privacy tests
 
 ---
 
@@ -104,9 +104,13 @@ NadaVerse is a comprehensive, open-source Carnatic music ecosystem combining aut
 1. **Role-Based Access Control (RBAC):**
    - User identities support distinct roles (`student`, `teacher`, `editor`, `admin`).
    - Ordinary students and teachers are strictly forbidden (HTTP 403 Forbidden) from approving or rejecting editorial corrections or heritage archive submissions. Only authenticated `editor` and `admin` accounts can modify canonical content.
-2. **Zero Raw Audio Retention:**
-   - Microphone pitch analysis is executed entirely on the client's device using real-time Web Audio API autocorrelation. Only extracted numerical features (mean cents deviation, pitch stability score, swarasthana timestamps) are submitted to `/api/v1/audio/analyze-practice`.
-3. **Resilient Error Telemetry:**
+2. **Zero Raw Audio Retention & Exact Data Flow:**
+   - Microphone pitch analysis is executed entirely on the client's device using real-time Web Audio API autocorrelation.
+   - Raw microphone audio is never streamed or uploaded to the server. Only user-consented, derived numerical features (e.g. mean cents deviation, pitch stability score, swarasthana timestamps) are submitted to `/api/v1/audio/analyze-practice`.
+3. **Pedagogical Limits of AI & Synthesis:**
+   - Automated pitch and stability feedback are heuristic acoustic guides and do not replace a qualified Carnatic guru or evaluate gamaka nuance, bhava, or lineage authenticity.
+   - All instrument auditions and Tanpura drones are algorithmic Web Audio API sound synthesizers (physical modeling and additive oscillators), not proprietary studio recordings.
+4. **Resilient Error Telemetry:**
    - Uncaught UI and Web Audio exceptions are trapped by the React `<ErrorBoundary>` and dispatched non-blocking via `navigator.sendBeacon` to `/api/v1/telemetry/errors` without degrading the user's practice experience.
 
 ---
@@ -160,7 +164,7 @@ python -m pytest backend/tests -v
 cd web
 npx tsx scripts/test-compositions-schema.mjs
 ```
-*Current status:* **40 passed (100%)** testing all 6 repertoire forms, akshara duration sums, section structures, public domain assertions, and treatise citations.
+*Current status:* **60 passed (100%)** testing all 10 compositions across 6 classical forms, akshara duration sums, section structures, public domain assertions, and primary treatise citations.
 
 ### Frontend Synthetic Pitch Tests
 ```bash
@@ -200,7 +204,16 @@ npm run build
 
 ---
 
-## 📄 License
+## 🤝 Support, Takedowns & Community Contact
 
-Released under the **MIT License** for code and **CC-BY-SA 4.0** for musicological educational content.
-NadaVerse is and will always remain completely free for all learners, teachers, and musicians worldwide.
+- **General Inquiries & Musicology Review:** [anandbinuarjun@zohomail.eu](mailto:anandbinuarjun@zohomail.eu)
+- **Security Vulnerabilities:** [security@abarjun.online](mailto:security@abarjun.online) (see [SECURITY.md](SECURITY.md))
+- **Content Takedowns & Rights Inquiries:** Submit an issue with the `rights-takedown` label or email `anandbinuarjun@zohomail.eu` (48-hour response SLA).
+
+---
+
+## 📄 License & Product Commitment
+
+- **Code:** Licensed under the [MIT License](LICENSE).
+- **Musicological & Educational Content:** Licensed under [Creative Commons Attribution-ShareAlike 4.0 International (CC-BY-SA 4.0)](https://creativecommons.org/licenses/by-sa/4.0/).
+- **100% Free Forever:** NadaVerse is and will always remain completely free with zero paywalls, subscriptions, checkouts, or advertisements. Cloud hosting, domains, and API gateway inference costs are funded directly by the project maintainer as a public cultural contribution.

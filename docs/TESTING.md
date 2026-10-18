@@ -42,7 +42,7 @@ Run the full backend test suite from repository root:
 python -m pytest backend/tests -v
 ```
 **Observed Execution Result:**
-- **28 passed in ~9.5s** (0 failed, 0 errors, 100% passing).
+- **33 passed in ~12.3s** (0 failed, 0 errors, 100% passing).
 - Tests cover:
   1. `test_health_check`
   2. `test_list_ragas_and_provenance`
@@ -59,21 +59,48 @@ python -m pytest backend/tests -v
   13. `test_explainable_ai_practice_companion_analysis`
   14. `test_teacher_supported_learning_workflow`
   15. `test_heritage_archive_editorial_workflow`
-  16. `test_health_and_readiness_endpoints`
-  17. `test_ai_gateway_injection_and_guardrails`
-  18. `test_ai_gateway_provenance_and_confidence`
-  19. `test_tutor_post_stream_endpoint`
-  20. `test_rate_limiter_trusted_proxy_logic`
-  21. `test_in_memory_rate_limiter_concurrency_and_timestamps`
-  22. `test_auth_deleted_account_and_cascade_lifecycle`
-  23. `test_audio_practice_consent_enforcement_and_metrics_separation`
-  24. `test_practice_session_lifecycle_and_duration_accuracy`
-  25. `test_ai_citations_source_traceability`
-  26. `test_practice_session_abandon_and_summary_lifecycle`
-  27. `test_content_correction_editorial_lifecycle`
-  28. `test_alembic_migrations_schema_integrity`
+  16. `test_violin_curriculum_progress_and_practice`
+  17. `test_compositions_api`
+  18. `test_client_error_telemetry_endpoint`
+  19. `test_health_and_readiness_endpoints`
+  20. `test_ai_gateway_injection_and_guardrails`
+  21. `test_ai_gateway_provenance_and_confidence`
+  22. `test_tutor_post_stream_endpoint`
+  23. `test_rate_limiter_trusted_proxy_logic`
+  24. `test_in_memory_rate_limiter_concurrency_and_timestamps`
+  25. `test_auth_deleted_account_and_cascade_lifecycle`
+  26. `test_audio_practice_consent_enforcement_and_metrics_separation`
+  27. `test_practice_session_lifecycle_and_duration_accuracy`
+  28. `test_ai_citations_source_traceability`
+  29. `test_practice_session_abandon_and_summary_lifecycle`
+  30. `test_content_correction_editorial_lifecycle`
+  31. `test_alembic_migrations_schema_integrity`
+  32. `test_rate_limiter_scope_header_and_proxy_config`
+  33. `test_ai_gateway_unable_to_verify_and_no_key_in_url`
 
-### 2.2. Synthetic Pitch Detection Diagnostics
+### 2.2. Composition Schema & Rhythmic Integrity Tests
+Run the composition schema and rhythmic akshara validation in `web/`:
+```bash
+cd web
+npx tsx scripts/test-compositions-schema.mjs
+```
+**Observed Execution Result:**
+- **60 passed in ~3.5s** (0 failed, 100% passing).
+- Validates 10 compositions across 6 classical forms (Tana Varnam, Kriti/Keerthanam, Geetham, Swarajathi, Varisai, Violin Practice Study).
+- Invariant checks verify note counts, section structures, akshara duration totals matching tala cycle lengths, explicit public domain rights, and authoritative treatise citations.
+- Error injection tests verify negative rejection of malformed aksharas, duration mismatches, and missing rights metadata.
+
+### 2.3. Service Worker Privacy & Cache Boundary Tests
+Run the service worker security and privacy isolation suite in `web/`:
+```bash
+cd web
+npx tsx scripts/test-sw-privacy.mjs
+```
+**Observed Execution Result:**
+- **13 passed in ~1.8s** (0 failed, 100% passing).
+- Validates public HTML allowlist, strict cache bypass for `Authorization` and `Cookie` headers, Next.js React Server Component (`_rsc`, `next-action`) bypass, `/api/` network-only isolation, exclusion of `Set-Cookie`, `no-store`, and `private` responses, cross-origin disallow, and query-string protection.
+
+### 2.4. Synthetic Pitch Detection Diagnostics
 Run the synthetic audio evaluation harness in `web/`:
 ```bash
 cd web

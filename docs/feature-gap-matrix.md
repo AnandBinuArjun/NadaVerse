@@ -24,7 +24,7 @@
 | **5.7** | **Audio Calibration Wizard** | `EXISTS` | P1 | `web/src/components/AudioCalibrationWizard.tsx`, `web/src/components/ShrutiCompanion.tsx` | `test_audio_practice_consent_enforcement_and_metrics_separation` | Verified pre-flight microphone consent, noise/clipping diagnostics, pitch stability check, and manual non-mic fallback via Tanpura drone. |
 | **5.8** | **Raga Exploration & Comparison** | `EXISTS` | P2 | `web/src/components/RagaComparisonModal.tsx`, `web/src/components/RagaCard.tsx`, `web/src/data/carnaticData.ts` | Frontend Jest/TSX type-check & build verification | Verified side-by-side scale comparison, Just Intonation audiation, shared/unique swarastha matrix, and explicit musicological disclaimer that scale != raga. |
 | **5.9** | **Tala & Rhythm Practice Improvements** | `EXISTS` | P2 | `web/src/components/TalaStudio.tsx`, `web/src/lib/audioEngine.ts` | `test_tala_studio_rhythm_calculations_and_tempo_ramps` | Verified lookahead clock, 4-beat lead-in count-in, bounded tempo ramps, visual kriya hand gestures, and screen-reader aria-live announcements. |
-| **5.10** | **Notation & Composition Reader** | `PARTIAL` | P2 | `backend/app/data/verified_corpus.py:VERIFIED_COMPOSITIONS_DATA`, `web/src/components/LearningCurriculum.tsx` | Corpus schema tests | Verified composition metadata, arohanam/avarohanam notation, and rights. Full sheet-notation interactive zooming reader deferred to P2 post-beta. |
+| **5.10** | **Playable Composition Studio & Repertoire Navigator** | `EXISTS` | P2 | `web/src/components/CarnaticCompositionLibrary.tsx`, `web/src/components/InteractiveCompositionPlayer.tsx`, `backend/app/api/v1/endpoints/compositions.py`, `web/src/data/compositionLibraryData.ts` | `test_compositions_api` (backend), `test-compositions-schema.mjs` (60 passed) | Verified 10 compositions across 6 classical forms (Varnam, Keerthanam, Geetham, Swarajathi, Varisai, Violin Study). Real-time swara highlighting, tempo adjustment, section looping, tonic-aware drone, and vocal/violin fingering modes. |
 | **5.11** | **Curated Listening Library** | `EXISTS` | P2 | `web/src/components/CuratedListeningLibrary.tsx`, `web/src/data/carnaticData.ts` | Production build & strict TypeScript verification | Verified rights-cleared educational recordings, outbound archive links, performer/raga/tala metadata, and learner listening reflection prompts. |
 | **5.12** | **Glossary & Concept Graph** | `EXISTS` | P2 | `backend/app/data/verified_corpus.py:VERIFIED_GLOSSARY_DATA`, `web/src/components/CommandPalette.tsx` | `test_expanded_corpus_and_glossary` | Verified 48+ core terms with Malayalam and English transliteration, cross-entity links, and definitions. |
 | **5.13** | **Offline Learning Packs** | `EXISTS` | P2 | `web/src/components/OfflinePackManager.tsx`, `web/public/sw.js` | `test-sw-privacy.mjs` (13 passed) | Verified offline cache manager with size breakdown, public asset pre-caching, and strict credential isolation. |
@@ -39,8 +39,8 @@
 ## 2. Summary of Implementation Coverage
 
 - **Total Assessed Capabilities:** 18
-- **Fully Implemented (`EXISTS`):** 13 (72.2%)
-- **Partially Implemented (`PARTIAL`):** 3 (16.7%)
+- **Fully Implemented (`EXISTS`):** 14 (77.8%)
+- **Partially Implemented (`PARTIAL`):** 2 (11.1%)
 - **Needs Real-World Calibration (`NEEDS_VALIDATION`):** 1 (5.6%)
 - **Safely Deferred (`MISSING`):** 1 (5.6% — Community user recitals, deferred for moderation safety)
 
