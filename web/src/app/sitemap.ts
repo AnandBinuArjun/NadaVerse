@@ -31,6 +31,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'weekly',
       priority: 0.85,
     },
+    {
+      url: `${baseUrl}/privacy`,
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/terms`,
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
   ];
 
   // Ragas: all 72 Melakartas and verified janyas

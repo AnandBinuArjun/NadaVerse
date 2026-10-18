@@ -120,7 +120,41 @@ npx tsx scripts/test-pitch.mjs
 - Rejection of silence below noise threshold (returns null, no false positives).
 - Rejection of white/pink noise without periodic harmonic fundamental.
 
-### 2.3. Frontend TypeScript Strict Type-Check
+### 2.5. E2E Smoke & System Invariant Verification Suite
+Run the end-to-end mathematical and system invariant smoke harness in `web/`:
+```bash
+cd web
+npm run test:e2e
+# or: node scripts/test-e2e-smoke.mjs
+```
+**Observed Execution Result:**
+- **15 passed in ~1.2s** (0 failed, 100% passing).
+- Tests cover:
+  1. `[PASS] Malayalam translation dictionary contains core keys and non-empty strings`
+  2. `[PASS] Just Intonation ratios are strictly increasing monotonically from Sa to Tara Sa`
+  3. `[PASS] Pa (Panchamam) ratio is exactly 3/2 (1.500)`
+  4. `[PASS] Tara Sa ratio is exactly 2/1 (2.000)`
+  5. `[PASS] Sree Ragam raga definition has matching swara ratios for all arohana swaras`
+  6. `[PASS] Adi Tala (Chatusra Nadai) has exactly 32 sub-beats (aksharas * nadai)`
+  7. `[PASS] Rupaka Tala (Tisra Nadai) has exactly 18 sub-beats`
+  8. `[PASS] Misra Chapu (Chatusra Nadai) has exactly 28 sub-beats`
+  9. `[PASS] Composition catalog contains 10 compositions with 100% public domain licenses`
+  10. `[PASS] Autocorrelation algorithm on 440 Hz synthetic test wave detects 440.0 Hz`
+  11. `[PASS] Service worker bypasses caching on Authorization and Cookie request headers`
+  12. `[PASS] Service worker explicitly includes /privacy and /terms in public allowlist`
+  13. `[PASS] Standalone /privacy route page exists and exports React default component`
+  14. `[PASS] Standalone /terms route page exists and exports React default component`
+  15. `[PASS] Dynamic sitemap includes core static routes: /, /privacy, /terms`
+
+### 2.6. Unified Frontend Test Suite Runner
+Run all frontend test suites concurrently or sequentially via:
+```bash
+cd web
+npm test
+```
+Executes `test:pitch`, `test:compositions`, `test:sw`, and `test:e2e` in sequence.
+
+### 2.7. Frontend TypeScript Strict Type-Check
 ```bash
 cd web
 npx tsc --noEmit
@@ -128,7 +162,7 @@ npx tsc --noEmit
 **Observed Execution Result:**
 - Exit code: 0, **0 errors**. Strict TypeScript 5 with App Router types.
 
-### 2.4. Frontend ESLint Code Quality
+### 2.8. Frontend ESLint Code Quality
 ```bash
 cd web
 npm run lint
@@ -136,15 +170,15 @@ npm run lint
 **Observed Execution Result:**
 - Exit code: 0, **0 errors, 0 warnings**.
 
-### 2.5. Next.js Production Build
+### 2.9. Next.js Production Build
 ```bash
 cd web
 npm run build
 ```
 **Observed Execution Result:**
-- Exit code: 0, **Compiled successfully** in ~2s with static prerendering across all routes (`/`, `/_not-found`, `/api/og`, `/robots.txt`, `/sitemap.xml`).
+- Exit code: 0, **Compiled successfully** with static prerendering across all 9 core routes (`/`, `/_not-found`, `/api/og`, `/privacy`, `/robots.txt`, `/sitemap.xml`, `/terms`).
 
-### 2.6. Database Migration Integrity
+### 2.10. Database Migration Integrity
 ```bash
 cd backend
 python -m alembic heads

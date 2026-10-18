@@ -45,6 +45,10 @@ jobs:
         working-directory: web
         run: npx tsx scripts/test-sw-privacy.mjs
 
+      - name: E2E Smoke & System Invariant Tests
+        working-directory: web
+        run: node scripts/test-e2e-smoke.mjs
+
       - name: Next.js Production Build
         working-directory: web
         run: npm run build

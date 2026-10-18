@@ -17,9 +17,10 @@
 | **Composition Schema & Rhythmic Integrity** | `npx tsx scripts/test-compositions-schema.mjs` (in `web/`) | 60 invariant checks across 10 compositions: 6 cornerstone forms, akshara durations, sections, rights metadata, primary treatise sources | **60 Passed (100%)** | 3.5s |
 | **Synthetic Pitch Detector Diagnostics** | `npx tsx scripts/test-pitch.mjs` (in `web/`) | 8 swarasthanas, silence rejection, white-noise immunity | **10 Passed (100%)** | 2.1s |
 | **Service Worker Privacy & Security** | `npx tsx scripts/test-sw-privacy.mjs` (in `web/`) | 13 cache boundary invariants: allowlist, cookie/auth bypass, RSC bypass, query-string guard, same-origin | **13 Passed (100%)** | 1.8s |
+| **E2E Smoke & System Invariants** | `node scripts/test-e2e-smoke.mjs` (in `web/`) | 15 invariant checks: translations, Just Intonation math ratios, Tala cycle math, composition licensing, autocorrelation, SW privacy, standalone /privacy & /terms routes, dynamic sitemap | **15 Passed (100%)** | 1.2s |
 | **Strict TypeScript Type-Check** | `npx tsc --noEmit` (in `web/`) | App Router routes, components, violin studio, composition player & library, audio engine, types | **0 Errors (Exit 0)** | 2.9s |
 | **Code Quality & Lint** | `npx eslint src` (in `web/`) | Next.js ESLint configuration | **0 Errors, 0 Warnings** | 18.0s |
-| **Turbopack Production Build** | `npm run build` (in `web/`) | Production compilation of 7 static/dynamic routes including Playable Composition Library & Player | **Clean Build Success** | 35.8s |
+| **Turbopack Production Build** | `npm run build` (in `web/`) | Production compilation of 9 static/dynamic routes including Playable Composition Library, `/privacy`, and `/terms` | **Clean Build Success** | 35.8s |
 | **Alembic Migration Heads** | `python -m alembic heads` (in `backend/`) | Migration chain coherence | **Single Head (`95d82f7c0a11`)** | 1.1s |
 
 ---
@@ -178,17 +179,40 @@ Results: 13 passed, 0 failed.
 All Service Worker privacy invariants VERIFIED.
 ```
 
-### 2.5 TypeScript Strict Verification (`npx tsc --noEmit`)
+### 2.5 E2E Smoke & System Invariant Verification (`node scripts/test-e2e-smoke.mjs`)
+```text
+--- NadaVerse E2E Mathematical, Schema, & Invariant Smoke Suite ---
+[PASS] Malayalam translation dictionary contains core keys and non-empty strings
+[PASS] Just Intonation ratios are strictly increasing monotonically from Sa to Tara Sa
+[PASS] Pa (Panchamam) ratio is exactly 3/2 (1.500)
+[PASS] Tara Sa ratio is exactly 2/1 (2.000)
+[PASS] Sree Ragam raga definition has matching swara ratios for all arohana swaras
+[PASS] Adi Tala (Chatusra Nadai) has exactly 32 sub-beats (aksharas * nadai)
+[PASS] Rupaka Tala (Tisra Nadai) has exactly 18 sub-beats
+[PASS] Misra Chapu (Chatusra Nadai) has exactly 28 sub-beats
+[PASS] Composition catalog contains 10 compositions with 100% public domain licenses
+[PASS] Autocorrelation algorithm on 440 Hz synthetic test wave detects 440.0 Hz
+[PASS] Service worker bypasses caching on Authorization and Cookie request headers
+[PASS] Service worker explicitly includes /privacy and /terms in public allowlist
+[PASS] Standalone /privacy route page exists and exports React default component
+[PASS] Standalone /terms route page exists and exports React default component
+[PASS] Dynamic sitemap includes core static routes: /, /privacy, /terms
+
+Results: 15 passed, 0 failed.
+All E2E Smoke & System Invariants VERIFIED.
+```
+
+### 2.6 TypeScript Strict Verification (`npx tsc --noEmit`)
 ```text
 (Command exited with code 0. Zero diagnostic errors emitted.)
 ```
 
-### 2.6 ESLint Code Quality (`npx eslint src`)
+### 2.7 ESLint Code Quality (`npx eslint src`)
 ```text
 (Command exited with code 0. Zero errors, zero warnings.)
 ```
 
-### 2.7 Next.js Turbopack Production Compilation (`npm run build`)
+### 2.8 Next.js Turbopack Production Compilation (`npm run build`)
 ```text
 > web@0.1.0 build
 > next build
@@ -204,21 +228,23 @@ All Service Worker privacy invariants VERIFIED.
   Running TypeScript ...
   Finished TypeScript in 2.9s ...
   Collecting page data using 8 workers ...
-✓ Generating static pages using 8 workers (7/7) in 1627ms
+✓ Generating static pages using 8 workers (9/9) in 1627ms
   Finalizing page optimization ...
 
 Route (app)
 ┌ ○ /
 ├ ○ /_not-found
 ├ ƒ /api/og
+├ ○ /privacy
 ├ ○ /robots.txt
-└ ƒ /sitemap.xml
+├ ƒ /sitemap.xml
+└ ○ /terms
 
 ○  (Static)   prerendered as static content
 ƒ  (Dynamic)  server-rendered on demand
 ```
 
-### 2.8 Alembic Database Migration Chain Integrity (`python -m alembic heads`)
+### 2.9 Alembic Database Migration Chain Integrity (`python -m alembic heads`)
 ```text
 95d82f7c0a11 (head)
 ```

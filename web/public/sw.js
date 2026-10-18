@@ -28,12 +28,16 @@ const PRECACHE_ASSETS = [
   '/android-chrome-512x512.png',
   '/robots.txt',
   '/sitemap.xml',
+  '/privacy',
+  '/terms',
 ];
 
 // Explicit allowlist of public HTML routes that may be cached for offline access
 const PUBLIC_HTML_ALLOWLIST = new Set([
   '/',
   '/index.html',
+  '/privacy',
+  '/terms',
 ]);
 
 self.addEventListener('install', (event) => {

@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import Image from 'next/image';
 import { ShieldCheck } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
@@ -166,11 +167,25 @@ export const Footer: React.FC<FooterProps> = ({ onOpenPrivacy, onOpenAttribution
               <span>↗</span>
             </a>
             <span>·</span>
+            <Link
+              href="/privacy"
+              className="text-[#C7A45B] hover:text-[#E0C98F] transition-colors"
+            >
+              {lang === 'ml' ? 'സ്വകാര്യതാ നയം' : 'Privacy Policy'}
+            </Link>
+            <span>·</span>
+            <Link
+              href="/terms"
+              className="text-[#C7A45B] hover:text-[#E0C98F] transition-colors"
+            >
+              {lang === 'ml' ? 'ഉപയോഗ നിബന്ധനകൾ' : 'Terms of Use'}
+            </Link>
+            <span>·</span>
             <button
               onClick={onOpenPrivacy}
               className="hover:text-[#F4EBDD] transition-colors cursor-pointer"
             >
-              {lang === 'ml' ? 'സ്വകാര്യത പ്രധാനം (ലോക്കൽ പ്രോസസ്സിംഗ്)' : 'Privacy Policy (100% Local Processing)'}
+              {lang === 'ml' ? 'ഓഡിയോ സുരക്ഷ' : 'Audio Privacy'}
             </button>
             <span>·</span>
             <button

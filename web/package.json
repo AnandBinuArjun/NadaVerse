@@ -6,7 +6,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:pitch": "npx tsx scripts/test-pitch.mjs",
+    "test:compositions": "npx tsx scripts/test-compositions-schema.mjs",
+    "test:sw": "npx tsx scripts/test-sw-privacy.mjs",
+    "test:e2e": "node scripts/test-e2e-smoke.mjs",
+    "test": "npm run test:pitch && npm run test:compositions && npm run test:sw && npm run test:e2e"
   },
   "dependencies": {
     "lucide-react": "^1.58.0",

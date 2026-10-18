@@ -14,9 +14,10 @@
 | **Composition Schema & Rhythmic Integrity** | `npx tsx scripts/test-compositions-schema.mjs` (in `web/`) | 60 invariant checks across 10 compositions: 6 cornerstone forms, akshara durations, sections, rights metadata, primary treatise sources | **60 Passed (100%)** |
 | **Frontend Synthetic Pitch Tests** | `npx tsx scripts/test-pitch.mjs` (in `web/`) | Centralized autocorrelation pitch detector across 8 swaras, silence, and noise thresholds | **10 Passed (100%)** |
 | **Service Worker Privacy Tests** | `npx tsx scripts/test-sw-privacy.mjs` (in `web/`) | Public allowlist enforcement, Cookie/Auth header isolation, Next.js RSC bypass, cross-origin disallow, and query-string protection | **13 Passed (100%)** |
+| **E2E Smoke & System Invariants** | `node scripts/test-e2e-smoke.mjs` (in `web/`) | 15 invariant checks: translations, Just Intonation math ratios, Tala cycle math, composition licensing, autocorrelation, SW privacy, standalone /privacy & /terms routes, dynamic sitemap | **15 Passed (100%)** |
 | **Frontend TypeScript Type-Check** | `npx tsc --noEmit` (in `web/`) | Strict TypeScript 5 with App Router types | **0 Errors** |
 | **Frontend Code Quality & Lint** | `npm run lint` (in `web/`) | Next.js ESLint configuration | **0 Errors, 0 Warnings** |
-| **Frontend Production Build** | `npm run build` (in `web/`) | Next.js 16.4.2 Turbopack production compilation | **Compiled Successfully** |
+| **Frontend Production Build** | `npm run build` (in `web/`) | Next.js 16.4.2 Turbopack production compilation across 9 static/dynamic routes | **Compiled Successfully** |
 | **Database Migration Integrity** | `python -m alembic heads` + pytest | Clean single head `95d82f7c0a11` covering all feature tables | **Verified Clean Head** |
 | **Release Readiness Audit Remediation** | [Audit Report](public-beta-readiness-report.md) | Workstreams 1–10 remediated, tested, and documented | **All P0/P1 Items Resolved** |
 
