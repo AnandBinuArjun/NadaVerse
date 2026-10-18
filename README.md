@@ -207,6 +207,8 @@ npm run build
 
 **Grand Total:** **156 automated verification checks passed (100%)** with zero errors or warnings.
 
+> **Note on Verification Metrics:** The **156 checks** total represents the exact sum of the six counted test and invariant suites (36 backend tests + 60 composition invariants + 10 pitch diagnostics + 19 pitch benchmarks + 13 service-worker privacy checks + 18 E2E smoke checks = 156 passed). Strict TypeScript static compilation (0 errors), ESLint code quality (0 errors, 0 warnings), Next.js Turbopack production build (clean compilation across all 9 routes), and Alembic database migration verification (single clean head `95d82f7c0a11`) serve as four additional quality gates verified by `scripts/generate-release-evidence.mjs` and recorded in the machine-readable manifest [docs/release-evidence.json](docs/release-evidence.json) on candidate commit `1a80181`.
+
 ---
 
 ## 📚 Documentation Index

@@ -1,7 +1,8 @@
 # NadaVerse — Feature Gap Matrix & Implementation Status
 
-**Document Version:** 1.0.0  
-**Audit Date:** 17 October 2026  
+**Document Version:** 1.1.0  
+**Audit Date:** 18 October 2026  
+**Candidate Release Commit:** `1a80181434d2122f5b00a90e8581cb9388e18875` (`1a80181`)  
 **Evaluation Standard:** Source-level inspection, automated test execution, and user experience verification.  
 **Classification Values:**  
 - `EXISTS`: Fully implemented end-to-end, tested, and active in the user interface and backend.  

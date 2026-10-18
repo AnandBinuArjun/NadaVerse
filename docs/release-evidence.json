@@ -1,11 +1,11 @@
 {
   "application": "NadaVerse Carnatic Platform",
   "product_guarantee": "100% Free Forever — Zero paywalls, subscriptions, checkouts, or advertisements.",
-  "commit_sha": "1ca02f3caa4e7c219aa9e1924ce072e9681fd08b",
-  "short_sha": "1ca02f3",
+  "commit_sha": "1a80181434d2122f5b00a90e8581cb9388e18875",
+  "short_sha": "1a80181",
   "branch": "main",
-  "working_tree_clean": true,
-  "generated_at": "2026-10-18T14:49:58.667Z",
+  "working_tree_clean": false,
+  "generated_at": "2026-10-18T15:07:12.391Z",
   "environment": {
     "node_version": "v21.7.2",
     "python_version": "Python 3.12.1",
@@ -30,7 +30,7 @@
       "command": "python -m pytest backend/tests -v",
       "passed": true,
       "exit_code": 0,
-      "duration_seconds": 28.55
+      "duration_seconds": 23.48
     },
     {
       "id": "composition-schema",
@@ -38,7 +38,7 @@
       "command": "npx tsx scripts/test-compositions-schema.mjs",
       "passed": true,
       "exit_code": 0,
-      "duration_seconds": 2.4
+      "duration_seconds": 2.45
     },
     {
       "id": "pitch-diagnostics",
@@ -54,7 +54,7 @@
       "command": "npx tsx scripts/test-pitch-benchmark.mjs",
       "passed": true,
       "exit_code": 0,
-      "duration_seconds": 2.46
+      "duration_seconds": 2.44
     },
     {
       "id": "sw-privacy",
@@ -86,7 +86,7 @@
       "command": "npm run lint",
       "passed": true,
       "exit_code": 0,
-      "duration_seconds": 13.9
+      "duration_seconds": 13.96
     },
     {
       "id": "alembic-heads",
@@ -94,7 +94,7 @@
       "command": "python -m alembic heads",
       "passed": true,
       "exit_code": 0,
-      "duration_seconds": 0.9
+      "duration_seconds": 0.94
     }
   ]
 }
