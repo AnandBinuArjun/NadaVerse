@@ -1,7 +1,7 @@
 # NadaVerse — Content Rights, Provenance & Pedagogical Licensing Review
 
 **Document Version:** 1.0.0-beta  
-**Evaluation Commit:** `738838e`  
+**Evaluation Commit:** `1ca02f3caa4e7c219aa9e1924ce072e9681fd08b` (`1ca02f3`)  
 **Review Basis:** Source-Level Audit of Composition Library, Raga Prayogas, Treatises & Media Assets  
 **Licensing Policy:** Code under MIT License; Pedagogical & Musicological Content under CC-BY-SA 4.0  
 **Takedown SLA:** 48 hours via [anandbinuarjun@zohomail.eu](mailto:anandbinuarjun@zohomail.eu) with `rights-takedown` label  

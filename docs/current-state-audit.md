@@ -2,7 +2,7 @@
 
 **Document Version:** 1.0.0-beta  
 **Audit Date:** 18 October 2026  
-**Candidate Release Commit:** `738838e961224397939e0041aa8a4e3cc852dd68` (`738838e`)  
+**Candidate Release Commit:** `1ca02f3caa4e7c219aa9e1924ce072e9681fd08b` (`1ca02f3`)  
 **Repository Branch:** `main` (clean working tree)  
 **Repository URL:** [https://github.com/AnandBinuArjun/NadaVerse](https://github.com/AnandBinuArjun/NadaVerse)  
 **Live Site:** [https://nadaverse.abarjun.online/](https://nadaverse.abarjun.online/)  
@@ -12,7 +12,7 @@
 
 ## 1. Executive Summary & Assessment
 
-NadaVerse is a bilingual (English & Malayalam) Carnatic music discovery, practice sanctuary, and collaborative Gurukulam platform. This document establishes the **empirical current state** of the codebase at commit `738838e`.
+NadaVerse is a bilingual (English & Malayalam) Carnatic music discovery, practice sanctuary, and collaborative Gurukulam platform. This document establishes the **empirical current state** of the codebase at commit `1ca02f3`.
 
 The platform adheres to four foundational non-negotiable principles:
 1. **100% Free Forever:** No paywalls, paid tiers, subscriptions, advertisements, tracking cookies, or checkout requirements. Voluntary patronage is strictly supported via external, un-instrumented Buy Me a Coffee link.
@@ -53,21 +53,21 @@ Every capability listed below has been verified by source inspection and passing
 
 ---
 
-## 3. Empirical Verification Evidence (Candidate SHA: `738838e`)
+## 3. Empirical Verification Evidence (Candidate SHA: `1ca02f3`)
 
 All 9 automated suites executed from a clean checkout on Windows 11 / Python 3.12.1 / Node v21.7.2:
 
 | Suite | Command | Total Checks | Result | Execution Time |
 |---|---|---|---|---|
-| **Backend Unit & Privacy** | `python -m pytest backend/tests -v` | 36 tests | **36 Passed (100%)** | 37.77s |
-| **Composition Schema** | `npx tsx scripts/test-compositions-schema.mjs` | 60 invariants | **60 Passed (100%)** | 2.54s |
-| **Pitch Estimator Diagnostics** | `npx tsx scripts/test-pitch.mjs` | 10 swaras | **10 Passed (100%)** | 2.37s |
-| **Pitch Research Benchmark** | `npx tsx scripts/test-pitch-benchmark.mjs` | 19 benchmarks | **19 Passed (100%)** | 2.48s |
+| **Backend Unit & Privacy** | `python -m pytest backend/tests -v` | 36 tests | **36 Passed (100%)** | 28.55s |
+| **Composition Schema** | `npx tsx scripts/test-compositions-schema.mjs` | 60 invariants | **60 Passed (100%)** | 2.40s |
+| **Pitch Estimator Diagnostics** | `npx tsx scripts/test-pitch.mjs` | 10 swaras | **10 Passed (100%)** | 2.36s |
+| **Pitch Research Benchmark** | `npx tsx scripts/test-pitch-benchmark.mjs` | 19 benchmarks | **19 Passed (100%)** | 2.46s |
 | **Service Worker Privacy** | `npx tsx scripts/test-sw-privacy.mjs` | 13 invariants | **13 Passed (100%)** | 2.27s |
-| **E2E Smoke & System Invariants** | `node scripts/test-e2e-smoke.mjs` | 18 invariants | **18 Passed (100%)** | 0.10s |
-| **Strict TypeScript Check** | `npx tsc --noEmit` | App Router + Components | **0 Errors (Exit 0)** | 3.70s |
-| **ESLint Quality** | `npm run lint` | Full codebase | **0 Errors, 0 Warnings** | 13.86s |
-| **Alembic Schema Head** | `python -m alembic heads` | Single head `95d82f7c0a11` | **Clean Single Head** | 0.92s |
+| **E2E Smoke & System Invariants** | `node scripts/test-e2e-smoke.mjs` | 18 invariants | **18 Passed (100%)** | 0.09s |
+| **Strict TypeScript Check** | `npx tsc --noEmit` | App Router + Components | **0 Errors (Exit 0)** | 3.65s |
+| **ESLint Quality** | `npm run lint` | Full codebase | **0 Errors, 0 Warnings** | 13.90s |
+| **Alembic Schema Head** | `python -m alembic heads` | Single head `95d82f7c0a11` | **Clean Single Head** | 0.90s |
 | **Turbopack Build** | `npm run build` | 9 routes compiled | **Clean Build Success** | 35.80s |
 | **Grand Total** | | **156 checks** | **156 Passed (100%)** | |
 
@@ -85,4 +85,4 @@ While the codebase foundation is exceptionally strong, the following boundaries 
 
 ## 5. Audit Verdict
 
-**Conditional Go for Public Beta.** The code, automated tests, data isolation boundaries, and privacy safeguards are fully evidenced on commit `738838e`.
+**Conditional Go for Public Beta.** The code, automated tests, data isolation boundaries, and privacy safeguards are fully evidenced on commit `1ca02f3`.

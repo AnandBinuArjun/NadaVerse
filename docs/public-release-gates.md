@@ -1,6 +1,6 @@
 # NadaVerse — Public Release Gates & Readiness Matrix
 
-**Release Candidate:** `738838e961224397939e0041aa8a4e3cc852dd68` (`738838e`)  
+**Release Candidate:** `1ca02f3caa4e7c219aa9e1924ce072e9681fd08b` (`1ca02f3`)  
 **Target Release:** Public Beta (1.0.0-beta)  
 **Evaluation Date:** 18 October 2026  
 **Status:** **CONDITIONAL GO FOR CONTROLLED PUBLIC BETA**
@@ -13,7 +13,7 @@ All P0 gates must have documented evidence and explicit sign-off before public p
 
 | Gate ID | Gate Name | Responsible Owner | Verification Evidence & Acceptance Criteria | Current Status |
 |---|---|---|---|---|
-| **P0-01** | Release Evidence Reconciliation | Release Lead | Commit SHA pinned to `738838e` across all documentation. Machine-readable manifest `docs/release-evidence.json` generated from clean execution. 156/156 automated tests passing with zero errors. | **VERIFIED (CLOSED)** |
+| **P0-01** | Release Evidence Reconciliation | Release Lead | Commit SHA pinned to `1ca02f3` across all documentation. Machine-readable manifest `docs/release-evidence.json` generated from clean execution. 156/156 automated tests passing with zero errors. | **VERIFIED (CLOSED)** |
 | **P0-02** | Live Deployment Validation | Ops / Infra Lead | Production HTTPS, SSL certificate, CORS allowlist, disabled debug mode, least-privileged PostgreSQL, secure JWT secrets, `/api/v1/meta/deployment` verification. | **GATED (LIVE HOST VERIFICATION)** |
 | **P0-03** | Object-Level Authorization & RBAC | AppSec Lead | Strict RBAC (`student`, `teacher`, `editor`, `admin`). Two-user IDOR isolation verified across assignments, submissions, classes, and practice logs. Editor-only governance for heritage archive. | **VERIFIED IN CI** |
 | **P0-04** | Privacy, Export & Deletion Lifecycle | Privacy Engineer | Zero raw audio upload. User data export via `GET /api/v1/me/export`. Cascading account deletion via `DELETE /api/v1/me`. Service worker isolation for auth/cookies/RSC. | **VERIFIED IN CI** |
@@ -53,7 +53,7 @@ All P0 gates must have documented evidence and explicit sign-off before public p
 
 ## 4. Release Decision Protocol
 
-A controlled public beta is **APPROVED** on commit `738838e` under the following conditions:
+A controlled public beta is **APPROVED** on commit `1ca02f3` under the following conditions:
 1. Operational checks (TLS, CORS allowlist, database credentials) are validated on the live hosting provider.
 2. The beta limitation banner and AI disclaimers remain visible across all learning and practice pages.
 3. Any reported security vulnerability or rights inquiry is addressed within the established 48-hour SLA.
