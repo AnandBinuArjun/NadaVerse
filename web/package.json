@@ -14,7 +14,7 @@
     "test": "npm run test:pitch && npm run test:compositions && npm run test:sw && npm run test:e2e"
   },
   "dependencies": {
-    "lucide-react": "^1.58.0",
+    "lucide-react": "^1.63.0",
     "next": "16.4.2",
     "react": "19.3.1",
     "react-dom": "19.3.1"
