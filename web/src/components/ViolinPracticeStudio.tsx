@@ -1286,7 +1286,7 @@ export const ViolinPracticeStudio: React.FC<ViolinPracticeStudioProps> = ({
                   </div>
 
                   {/* Fretless Neck Bar */}
-                  <div className="relative h-7 bg-[#1C1A14] rounded-xl border border-[#3B392F] flex items-center px-4">
+                  <div className="relative min-h-[2.25rem] py-1.5 bg-[#1C1A14] rounded-xl border border-[#3B392F] flex flex-wrap items-center gap-2 px-3 sm:px-4">
                     {/* Visual string wire */}
                     <div
                       className="absolute left-0 right-0 h-0.5 bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200"
@@ -1294,13 +1294,13 @@ export const ViolinPracticeStudio: React.FC<ViolinPracticeStudioProps> = ({
                     />
 
                     {/* Open String Swara Badge */}
-                    <div className="relative z-10 px-2.5 py-0.5 rounded-lg bg-[#0D0C0A] border border-[#C7A45B] text-[#E0C98F] text-[11px] font-mono font-bold">
+                    <div className="relative z-10 px-2.5 py-0.5 rounded-lg bg-[#0D0C0A] border border-[#C7A45B] text-[#E0C98F] text-[11px] font-mono font-bold shrink-0">
                       Open: {str.swara.split(' ')[0]}
                     </div>
 
                     {/* Position Swaras Indicators for 1st string (Tara Sa) as an illustration */}
                     {str.number === 1 && (
-                      <div className="relative z-10 flex space-x-6 ml-auto">
+                      <div className="relative z-10 flex flex-wrap gap-1.5 sm:gap-4 ml-auto">
                         <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-mono border border-emerald-500/30">
                           1st: Ṙ₁ / Ṙ₂
                         </span>
@@ -1315,7 +1315,7 @@ export const ViolinPracticeStudio: React.FC<ViolinPracticeStudioProps> = ({
 
                     {/* Position Swaras for 3rd string (Madhya Sa) */}
                     {str.number === 3 && (
-                      <div className="relative z-10 flex space-x-6 ml-auto">
+                      <div className="relative z-10 flex flex-wrap gap-1.5 sm:gap-4 ml-auto">
                         <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-mono border border-emerald-500/30">
                           1st: R₁ / R₂
                         </span>

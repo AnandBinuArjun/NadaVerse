@@ -9,6 +9,70 @@ export interface PitchDetectionResult {
   clarity: number;
 }
 
+export interface SignalQualityMetrics {
+  rms: number;
+  peakAmplitude: number;
+  isClipping: boolean;
+  isTooQuiet: boolean;
+  snrEstimateDb: number;
+  qualityLabel: 'optimal' | 'quiet' | 'clipping' | 'noisy';
+}
+
+/**
+ * Evaluates raw microphone time-domain buffer for signal level, clipping, and estimated SNR.
+ * Executes 100% locally in O(N) time without transmitting raw audio off the user's device.
+ */
+export function analyzeSignalQuality(
+  buffer: Float32Array,
+  noiseFloorRms = 0.008
+): SignalQualityMetrics {
+  const len = buffer.length;
+  if (len === 0) {
+    return {
+      rms: 0,
+      peakAmplitude: 0,
+      isClipping: false,
+      isTooQuiet: true,
+      snrEstimateDb: 0,
+      qualityLabel: 'quiet',
+    };
+  }
+
+  let sumSq = 0;
+  let peak = 0;
+  let clippedSamples = 0;
+  for (let i = 0; i < len; i++) {
+    const abs = Math.abs(buffer[i]);
+    sumSq += abs * abs;
+    if (abs > peak) peak = abs;
+    if (abs >= 0.98) clippedSamples++;
+  }
+
+  const rms = Math.sqrt(sumSq / len);
+  const isClipping = clippedSamples >= 2 || peak >= 0.99;
+  const isTooQuiet = rms < 0.015;
+  const effectiveNoise = Math.max(0.001, noiseFloorRms);
+  const snrEstimateDb = rms > effectiveNoise ? Math.round(20 * Math.log10(rms / effectiveNoise) * 10) / 10 : 0;
+
+  let qualityLabel: SignalQualityMetrics['qualityLabel'] = 'optimal';
+  if (isClipping) {
+    qualityLabel = 'clipping';
+  } else if (isTooQuiet) {
+    qualityLabel = 'quiet';
+  } else if (snrEstimateDb < 8) {
+    qualityLabel = 'noisy';
+  }
+
+  return {
+    rms: Math.round(rms * 10000) / 10000,
+    peakAmplitude: Math.round(peak * 1000) / 1000,
+    isClipping,
+    isTooQuiet,
+    snrEstimateDb,
+    qualityLabel,
+  };
+}
+
 /**
  * Autocorrelation pitch detector with parabolic peak interpolation and confidence score.
  */

@@ -442,7 +442,7 @@ export const TalaStudio: React.FC = () => {
             : ''}
         </div>
 
-        <div className="grid grid-cols-4 sm:grid-cols-8 gap-2.5 sm:gap-3" role="list" aria-label="Tala cycle beats">
+        <div className="grid grid-cols-2 min-[400px]:grid-cols-4 sm:grid-cols-8 gap-2 sm:gap-3" role="list" aria-label="Tala cycle beats">
           {selectedTala.beatActions.map((beat, idx) => {
             const isActive = activeBeat === idx;
             const isSamam = idx === 0;

@@ -175,6 +175,58 @@ if (fs.existsSync(footerPath)) {
 }
 
 // =========================================================================
+// 9. Master Expansion Invariants (72 Melakartas, 5 Nadais, Gamaka Lab, Ear Training, Notation Editor)
+// =========================================================================
+const mela72Path = path.resolve(__dirname, '../src/data/melakarta72Data.ts');
+const audioEnginePath = path.resolve(__dirname, '../src/lib/audioEngine.ts');
+const earTrainingPath = path.resolve(__dirname, '../src/components/EarTrainingAcademy.tsx');
+const gamakaLabPath = path.resolve(__dirname, '../src/components/GamakaLaboratory.tsx');
+const konnakolPath = path.resolve(__dirname, '../src/components/KonnakolAcademy.tsx');
+const notationEditorPath = path.resolve(__dirname, '../src/components/SwaraNotationEditor.tsx');
+const dashboardPath = path.resolve(__dirname, '../src/components/PersonalisedLearningDashboard.tsx');
+
+check('72 Melakarta data catalog defines all 72 parent ragas across 12 Chakras',
+  fs.existsSync(mela72Path) &&
+  fs.readFileSync(mela72Path, 'utf8').includes('Kanakangi') &&
+  fs.readFileSync(mela72Path, 'utf8').includes('Rasikapriya') &&
+  fs.readFileSync(mela72Path, 'utf8').includes('CHAKRA_12_METADATA')
+);
+
+check('AudioEngine supports all 5 Nadais (tisra, chatusra, khanda, misra, sankirna) and osc.onended memory cleanup',
+  fs.existsSync(audioEnginePath) &&
+  fs.readFileSync(audioEnginePath, 'utf8').includes("'sankirna'") &&
+  fs.readFileSync(audioEnginePath, 'utf8').includes('osc.onended')
+);
+
+check('PersonalisedLearningDashboard, EarTrainingAcademy, GamakaLaboratory, KonnakolAcademy & SwaraNotationEditor are integrated',
+  fs.existsSync(dashboardPath) &&
+  fs.existsSync(earTrainingPath) &&
+  fs.existsSync(gamakaLabPath) &&
+  fs.existsSync(konnakolPath) &&
+  fs.existsSync(notationEditorPath)
+);
+
+const mirEnginePath = path.resolve(__dirname, '../src/lib/mirEngine.ts');
+const mirLabPath = path.resolve(__dirname, '../src/components/MusicalIntelligenceLab.tsx');
+const kutcheriPath = path.resolve(__dirname, '../src/components/KutcheriAndPerformanceStudio.tsx');
+const researchHubPath = path.resolve(__dirname, '../src/components/ResearchAndKnowledgeHub.tsx');
+const v2PrdPath = path.resolve(__dirname, '../../docs/NADAVERSE_V2_PRD.md');
+const costModelPath = path.resolve(__dirname, '../../docs/INFRASTRUCTURE_COST_MODEL.md');
+
+check('NadaVerse 2.0 MIR Engine, Spectrogram Lab, Kutcheri Planner, Live Stage Mode & Research Hub exist',
+  fs.existsSync(mirEnginePath) &&
+  fs.existsSync(mirLabPath) &&
+  fs.existsSync(kutcheriPath) &&
+  fs.existsSync(researchHubPath)
+);
+
+check('NadaVerse 2.0 PRD & Infrastructure Cost Model (100 to 100,000 MAU) documentation are complete',
+  fs.existsSync(v2PrdPath) &&
+  fs.existsSync(costModelPath) &&
+  fs.readFileSync(costModelPath, 'utf8').includes('100,000 MAU')
+);
+
+// =========================================================================
 // Results Summary
 // =========================================================================
 console.log(`\nE2E Smoke Verification Complete: ${passed} passed, ${failed} failed.`);

@@ -35,6 +35,7 @@ from app.api.v1.endpoints.audio_practice import router as audio_router
 from app.api.v1.endpoints.teaching import router as teaching_router
 from app.api.v1.endpoints.heritage import router as heritage_router
 from app.api.v1.endpoints.compositions import router as compositions_router
+from app.api.v1.endpoints.expansion import router as expansion_router
 from app.services.ai_gateway import ai_gateway
 from app.data.verified_corpus import (
     VERIFIED_RAGAS_DATA,
@@ -94,6 +95,10 @@ async def add_security_headers(request: Request, call_next):
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["X-XSS-Protection"] = "1; mode=block"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = "camera=(), geolocation=(), payment=(), usb=(), microphone=(self)"
+    response.headers["Content-Security-Policy"] = "default-src 'self'; frame-ancestors 'none'; base-uri 'self'"
+    if settings.APP_ENV == "production":
+        response.headers["Strict-Transport-Security"] = "max-age=63072000; includeSubDomains; preload"
     return response
 
 # Rate Limiting Middleware
@@ -121,6 +126,7 @@ app.include_router(audio_router, prefix=settings.API_V1_PREFIX)
 app.include_router(teaching_router, prefix=settings.API_V1_PREFIX)
 app.include_router(heritage_router, prefix=settings.API_V1_PREFIX)
 app.include_router(compositions_router, prefix=settings.API_V1_PREFIX)
+app.include_router(expansion_router, prefix=settings.API_V1_PREFIX)
 
 
 @app.get("/api/v1/health", tags=["System"])
@@ -681,7 +687,7 @@ async def submit_musicological_correction(
 
 @app.get("/api/v1/corrections/pending", response_model=List[CorrectionOut], tags=["Peer Review"])
 async def list_pending_corrections(
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_editor_or_admin),
     db: AsyncSession = Depends(get_db)
 ):
     """

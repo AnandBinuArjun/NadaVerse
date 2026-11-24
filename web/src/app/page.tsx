@@ -34,6 +34,15 @@ import { CuratedListeningLibrary } from '../components/CuratedListeningLibrary';
 import { CommandPalette } from '../components/CommandPalette';
 import { ViolinPracticeStudio } from '../components/ViolinPracticeStudio';
 import { CarnaticCompositionLibrary } from '../components/CarnaticCompositionLibrary';
+import { PersonalisedLearningDashboard } from '../components/PersonalisedLearningDashboard';
+import { EarTrainingAcademy } from '../components/EarTrainingAcademy';
+import { GamakaLaboratory } from '../components/GamakaLaboratory';
+import { MelakartaChakraExplorer } from '../components/MelakartaChakraExplorer';
+import { KonnakolAcademy } from '../components/KonnakolAcademy';
+import { SwaraNotationEditor } from '../components/SwaraNotationEditor';
+import { MusicalIntelligenceLab } from '../components/MusicalIntelligenceLab';
+import { KutcheriAndPerformanceStudio } from '../components/KutcheriAndPerformanceStudio';
+import { ResearchAndKnowledgeHub } from '../components/ResearchAndKnowledgeHub';
 import { RagaItem } from '../types/carnatic';
 import { VERIFIED_RAGAS, VERIFIED_INSTRUMENTS, VERIFIED_TALAS, GLOSSARY_TERMS, VERIFIED_COMPOSERS } from '../data/carnaticData';
 import { API_BASE_URL } from '../lib/api';
@@ -62,7 +71,24 @@ import {
 
 export default function Home() {
   const { lang, t } = useLanguage();
-  const [activeSection, setActiveSection] = useState<'home' | 'learn' | 'explore' | 'practice' | 'compositions' | 'violin' | 'teaching' | 'heritage'>('home');
+  const [activeSection, setActiveSection] = useState<
+    | 'home'
+    | 'learn'
+    | 'explore'
+    | 'practice'
+    | 'compositions'
+    | 'violin'
+    | 'teaching'
+    | 'heritage'
+    | 'ear-training'
+    | 'gamaka'
+    | 'melakarta'
+    | 'konnakol'
+    | 'notation'
+    | 'mir-lab'
+    | 'kutcheri'
+    | 'research'
+  >('home');
   const [exploreTab, setExploreTab] = useState<'ragas' | 'talas' | 'instruments' | 'composers' | 'glossary' | 'library' | 'compositions'>('ragas');
   const [searchQuery, setSearchQuery] = useState('');
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
@@ -175,7 +201,26 @@ export default function Home() {
   };
 
   const handleNavigate = (section: string) => {
-    if (['home', 'learn', 'explore', 'practice', 'compositions', 'violin', 'teaching', 'heritage'].includes(section)) {
+    if (
+      [
+        'home',
+        'learn',
+        'explore',
+        'practice',
+        'compositions',
+        'violin',
+        'teaching',
+        'heritage',
+        'ear-training',
+        'gamaka',
+        'melakarta',
+        'konnakol',
+        'notation',
+        'mir-lab',
+        'kutcheri',
+        'research',
+      ].includes(section)
+    ) {
       setActiveSection(section as any);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -334,7 +379,7 @@ export default function Home() {
         }}
       />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-10 space-y-10 sm:space-y-16">
+      <main className="flex-1 max-w-[1600px] 2xl:max-w-[1760px] w-full mx-auto px-2.5 sm:px-5 md:px-6 lg:px-8 py-4 sm:py-8 lg:py-10 space-y-8 sm:space-y-12 lg:space-y-16 overflow-x-hidden">
         {/* =========================================================================
             SECTION: HOME / HERO OVERVIEW
         ========================================================================= */}
@@ -419,6 +464,15 @@ export default function Home() {
                 </div>
               </div>
             </section>
+
+            {/* Personalised Learner Dashboard & Flagship Expansion Studio Launcher */}
+            <PersonalisedLearningDashboard
+              currentUser={currentUser}
+              activeTonic={activeTonic}
+              onNavigateSection={handleNavigate}
+              onOpenAuth={() => setIsAuthOpen(true)}
+              onStartPracticeSession={handleStartSadhanaSession}
+            />
 
             {/* Complete Vertical Slice Pathway Highlight Cards */}
             <section className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
@@ -579,6 +633,15 @@ export default function Home() {
             {/* Structured Multi-Pathway Curriculum */}
             <LearningCurriculum />
 
+            {/* Advanced Carnatic Ear Training Academy */}
+            <EarTrainingAcademy
+              activeTonic={activeTonic}
+              onTonicChange={(tOpt) => {
+                setActiveTonic(tOpt);
+                audioEngine.setTonic(tOpt.frequency);
+              }}
+            />
+
             <BeginnerPath
               onNavigateToPractice={() => {
                 setActiveSection('practice');
@@ -619,7 +682,7 @@ export default function Home() {
             {/* Explore Navigation & Search */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 nv-glass-panel p-3.5 sm:p-6 rounded-2xl sm:rounded-3xl border border-[#C7A45B]/25 shadow-xl">
               {/* Category Tabs */}
-              <div className="flex flex-wrap gap-1.5 sm:gap-2">
+              <div className="flex overflow-x-auto no-scrollbar sm:flex-wrap gap-1.5 sm:gap-2 pb-1 sm:pb-0">
                 <button
                   onClick={() => setExploreTab('ragas')}
                   className={`px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-xs font-mono font-medium transition-all ${
@@ -710,6 +773,12 @@ export default function Home() {
             {/* RAGAS TAB */}
             {exploreTab === 'ragas' && (
               <div className="space-y-6">
+                {/* Complete 72 Melakarta & 12 Chakra Explorer */}
+                <MelakartaChakraExplorer
+                  activeTonic={activeTonic}
+                  onAskTutor={handleOpenTutorWithTopic}
+                />
+
                 {/* Raga Category & Bookmark Filters */}
                 <div className="flex flex-wrap items-center gap-2 p-2.5 bg-[#14130f] rounded-2xl border border-[#C7A45B]/20">
                   <div className="flex items-center space-x-1.5 text-xs font-mono text-[#C7A45B] px-2 py-1">
@@ -784,6 +853,7 @@ export default function Home() {
             {exploreTab === 'talas' && (
               <div className="space-y-6">
                 <TalaStudio />
+                <KonnakolAcademy />
               </div>
             )}
 
@@ -1034,7 +1104,10 @@ export default function Home() {
             SECTION: PLAYABLE COMPOSITIONS LIBRARY (STANDALONE SECTION)
         ========================================================================= */}
         {activeSection === 'compositions' && (
-          <CarnaticCompositionLibrary />
+          <div className="space-y-10">
+            <CarnaticCompositionLibrary />
+            <SwaraNotationEditor activeTonic={activeTonic} />
+          </div>
         )}
 
         {/* =========================================================================
@@ -1156,6 +1229,9 @@ export default function Home() {
                 setSessionFocus('AI Practice Companion Evaluation');
               }}
             />
+
+            {/* Gamaka Laboratory (Dasavidha Contour DSP) */}
+            <GamakaLaboratory activeTonic={activeTonic} />
 
             {/* Classical Graded Exercises (Sarali, Jantai, Alankaram) */}
             <GradedExercises
@@ -1320,6 +1396,50 @@ export default function Home() {
         ========================================================================= */}
         {activeSection === 'heritage' && (
           <HeritageArchive />
+        )}
+
+        {/* =========================================================================
+            STANDALONE EXPANSION STUDIO SECTIONS
+        ========================================================================= */}
+        {activeSection === 'ear-training' && (
+          <EarTrainingAcademy
+            activeTonic={activeTonic}
+            onTonicChange={(tOpt) => {
+              setActiveTonic(tOpt);
+              audioEngine.setTonic(tOpt.frequency);
+            }}
+          />
+        )}
+
+        {activeSection === 'gamaka' && (
+          <GamakaLaboratory activeTonic={activeTonic} />
+        )}
+
+        {activeSection === 'melakarta' && (
+          <MelakartaChakraExplorer
+            activeTonic={activeTonic}
+            onAskTutor={handleOpenTutorWithTopic}
+          />
+        )}
+
+        {activeSection === 'konnakol' && (
+          <KonnakolAcademy />
+        )}
+
+        {activeSection === 'notation' && (
+          <SwaraNotationEditor activeTonic={activeTonic} />
+        )}
+
+        {activeSection === 'mir-lab' && (
+          <MusicalIntelligenceLab activeTonic={activeTonic} />
+        )}
+
+        {activeSection === 'kutcheri' && (
+          <KutcheriAndPerformanceStudio activeTonic={activeTonic} />
+        )}
+
+        {activeSection === 'research' && (
+          <ResearchAndKnowledgeHub activeTonic={activeTonic} />
         )}
       </main>
 

@@ -4,6 +4,9 @@ const nextConfig: NextConfig = {
   /* config options here */
   cacheComponents: true,
   partialPrefetching: true,
+  experimental: {
+    agentUpgrade: "security",
+  },
   turbopack: {
     rules: {
       "*.css": {
@@ -11,6 +14,26 @@ const nextConfig: NextConfig = {
         as: "*.css",
       },
     },
+  },
+  webpack(config) {
+    const oneOfRule = config.module.rules.find(
+      (rule: Record<string, unknown>) => typeof rule === "object" && rule !== null && Array.isArray(rule.oneOf)
+    );
+    if (oneOfRule && Array.isArray(oneOfRule.oneOf)) {
+      for (const rule of oneOfRule.oneOf) {
+        if (rule.use && Array.isArray(rule.use)) {
+          const hasCssLoader = rule.use.some(
+            (u: { loader?: string }) => typeof u === "object" && u !== null && typeof u.loader === "string" && u.loader.includes("css-loader")
+          );
+          if (hasCssLoader) {
+            rule.use.push({
+              loader: "@tailwindcss/turbopack",
+            });
+          }
+        }
+      }
+    }
+    return config;
   },
   async rewrites() {
     const apiTarget = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';

@@ -805,7 +805,7 @@ export function InteractiveCompositionPlayer({
                     </div>
 
                     {/* Swara Grid */}
-                    <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
+                    <div className="grid grid-cols-2 min-[420px]:grid-cols-4 sm:grid-cols-8 gap-2">
                       {line.swaras.map((sw, swIdx) => {
                         const isNoteActive = isPlaying && currentLineIndex === lIdx && currentSwaraIndex === swIdx;
                         return (

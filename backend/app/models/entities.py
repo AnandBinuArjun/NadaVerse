@@ -243,3 +243,44 @@ class ContentCorrection(Base):
     reviewed_at = Column(DateTime(timezone=True), nullable=True)
 
     submitter = relationship("User", foreign_keys=[submitter_id])
+
+
+# -----------------------------------------------------------------------------
+# Master Expansion Entities: Ear Training Attempts & Swara Notation Documents
+# -----------------------------------------------------------------------------
+class EarTrainingAttempt(Base):
+    __tablename__ = "ear_training_attempts"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    user_id = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"), index=True, nullable=False)
+    category = Column(String(50), index=True, nullable=False)  # swara, interval, phrase, raga, shruti, tala
+    difficulty = Column(String(30), default="beginner")  # beginner, intermediate, advanced
+    tonic = Column(String(10), default="C")
+    total_questions = Column(Integer, default=5)
+    correct_answers = Column(Integer, default=0)
+    score_pct = Column(Integer, default=0)
+    created_at = Column(DateTime(timezone=True), default=utc_now)
+
+    user = relationship("User", foreign_keys=[user_id])
+
+
+class NotationDocument(Base):
+    __tablename__ = "notation_documents"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    owner_id = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"), index=True, nullable=False)
+    title = Column(String(200), nullable=False)
+    composer = Column(String(120), default="Student / Study Draft")
+    raga_slug = Column(String(100), default="mayamalavagowla")
+    tala_slug = Column(String(100), default="adi-tala")
+    nadai = Column(String(30), default="chatusra")
+    kalam = Column(Integer, default=1)
+    tonic = Column(String(10), default="C")
+    sections_json = Column(Text, nullable=False)  # JSON-serialized validated sections & swara cells
+    shared_group_id = Column(String(36), ForeignKey("learning_groups.id", ondelete="SET NULL"), nullable=True)
+    editorial_status = Column(String(30), default="private_draft", index=True)  # private_draft, pending_review, published
+    version_number = Column(Integer, default=1)
+    created_at = Column(DateTime(timezone=True), default=utc_now)
+    updated_at = Column(DateTime(timezone=True), default=utc_now)
+
+    owner = relationship("User", foreign_keys=[owner_id])

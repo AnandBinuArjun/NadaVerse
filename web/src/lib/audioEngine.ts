@@ -505,6 +505,15 @@ class AudioEngine {
         const endFreq = this.currentTonicFreq * gamaka.endRatio;
         osc.frequency.setValueAtTime(startFreq, startTime);
         osc.frequency.exponentialRampToValueAtTime(endFreq, startTime + durationSeconds * 0.85);
+      } else if (gamaka && gamaka.type === 'nokku') {
+        const upperFreq = baseFreq * (gamaka.startRatio ? gamaka.startRatio / ratio : 9 / 8);
+        osc.frequency.setValueAtTime(upperFreq, startTime);
+        osc.frequency.exponentialRampToValueAtTime(baseFreq, startTime + Math.min(0.09, durationSeconds * 0.25));
+      } else if (gamaka && gamaka.type === 'spurita') {
+        const lowerFreq = baseFreq * (15 / 16);
+        osc.frequency.setValueAtTime(baseFreq, startTime);
+        osc.frequency.setValueAtTime(lowerFreq, startTime + Math.min(0.04, durationSeconds * 0.12));
+        osc.frequency.exponentialRampToValueAtTime(baseFreq, startTime + Math.min(0.11, durationSeconds * 0.28));
       } else if (gamaka && gamaka.type === 'kampita') {
         osc.frequency.setValueAtTime(baseFreq, startTime);
         const lfoRate = gamaka.oscillationSpeedHz || 5.5;
@@ -572,6 +581,7 @@ class AudioEngine {
           try {
             osc.stop();
             osc.disconnect();
+            gain.disconnect();
             if (filterNode) filterNode.disconnect();
             if (lfo && lfoGain) {
               lfo.stop();
@@ -581,6 +591,21 @@ class AudioEngine {
           } catch {}
         }
       };
+
+      // Auto-prune completed note handle to prevent memory accumulation over long practice sessions
+      osc.onended = () => {
+        try {
+          osc.disconnect();
+          gain.disconnect();
+          if (filterNode) filterNode.disconnect();
+          if (lfo && lfoGain) {
+            lfo.disconnect();
+            lfoGain.disconnect();
+          }
+        } catch {}
+        this.scheduledNoteHandles = this.scheduledNoteHandles.filter((h) => h !== handle);
+      };
+
       this.scheduledNoteHandles.push(handle);
       return handle;
     } catch (err) {
@@ -665,14 +690,14 @@ class AudioEngine {
     return this.solkattuMode;
   }
 
-  private nadai: 'chatusra' | 'tisra' = 'chatusra';
+  private nadai: 'tisra' | 'chatusra' | 'khanda' | 'misra' | 'sankirna' = 'chatusra';
   private nadaiLoopsEnabled = false;
 
-  public setNadai(nadai: 'chatusra' | 'tisra'): void {
+  public setNadai(nadai: 'tisra' | 'chatusra' | 'khanda' | 'misra' | 'sankirna'): void {
     this.nadai = nadai;
   }
 
-  public getNadai(): 'chatusra' | 'tisra' {
+  public getNadai(): 'tisra' | 'chatusra' | 'khanda' | 'misra' | 'sankirna' {
     return this.nadai;
   }
 
@@ -717,20 +742,41 @@ class AudioEngine {
       // Primary Mridangam Solkattu Stroke Synthesis on the beat
       this.synthesizeMridangamStroke(time, syllable, isAccent, 1.0);
 
-      // Accompaniment Nadai Loops (Chatusra / Tisra sub-divisions)
+      // Accompaniment Nadai Loops (All 5 Jatis / Nadais: 3, 4, 5, 7, 9 subdivisions per akshara)
       if (this.nadaiLoopsEnabled) {
         const secondsPerBeat = 60.0 / this.talaBpm;
-        if (this.nadai === 'chatusra') {
-          // Tha (beat) -> Ka (1/4) -> Dhi (2/4) -> Mi (3/4)
+        if (this.nadai === 'tisra') {
+          // 3: Tha - Ki - Ta
+          const sub = secondsPerBeat / 3;
+          this.synthesizeMridangamStroke(time + sub * 1, 'ki', false, 0.45);
+          this.synthesizeMridangamStroke(time + sub * 2, 'ta', false, 0.55);
+        } else if (this.nadai === 'chatusra') {
+          // 4: Tha - Ka - Dhi - Mi
           const sub = secondsPerBeat / 4;
           this.synthesizeMridangamStroke(time + sub * 1, 'ka', false, 0.45);
           this.synthesizeMridangamStroke(time + sub * 2, 'dhi', false, 0.55);
           this.synthesizeMridangamStroke(time + sub * 3, 'mi', false, 0.50);
-        } else if (this.nadai === 'tisra') {
-          // Tha (beat) -> Ki (1/3) -> Ta (2/3)
-          const sub = secondsPerBeat / 3;
-          this.synthesizeMridangamStroke(time + sub * 1, 'ki', false, 0.45);
-          this.synthesizeMridangamStroke(time + sub * 2, 'ta', false, 0.55);
+        } else if (this.nadai === 'khanda') {
+          // 5: Tha - Dhi - Gi - Na - Thom
+          const sub = secondsPerBeat / 5;
+          this.synthesizeMridangamStroke(time + sub * 1, 'dhi', false, 0.45);
+          this.synthesizeMridangamStroke(time + sub * 2, 'ki', false, 0.42);
+          this.synthesizeMridangamStroke(time + sub * 3, 'ta', false, 0.48);
+          this.synthesizeMridangamStroke(time + sub * 4, 'thom', false, 0.55);
+        } else if (this.nadai === 'misra') {
+          // 7: Tha - Ki - Ta - Tha - Ka - Dhi - Mi
+          const sub = secondsPerBeat / 7;
+          const syls = ['ki', 'ta', 'tha', 'ka', 'dhi', 'mi'];
+          syls.forEach((s, i) => {
+            this.synthesizeMridangamStroke(time + sub * (i + 1), s, false, i === 2 ? 0.58 : 0.45);
+          });
+        } else if (this.nadai === 'sankirna') {
+          // 9: Tha - Ka - Dhi - Mi - Tha - Dhi - Gi - Na - Thom
+          const sub = secondsPerBeat / 9;
+          const syls = ['ka', 'dhi', 'mi', 'tha', 'dhi', 'ki', 'ta', 'thom'];
+          syls.forEach((s, i) => {
+            this.synthesizeMridangamStroke(time + sub * (i + 1), s, false, i === 3 ? 0.58 : 0.44);
+          });
         }
       }
     } else {

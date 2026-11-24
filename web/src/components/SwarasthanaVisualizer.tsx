@@ -172,7 +172,8 @@ export const SwarasthanaVisualizer: React.FC = () => {
           </div>
 
           {/* Interactive Keyboard Layout */}
-          <div className="relative h-44 sm:h-52 w-full max-w-4xl mx-auto flex select-none overflow-x-auto pb-2">
+          <div className="relative h-44 sm:h-52 w-full max-w-4xl mx-auto select-none overflow-x-auto pb-2">
+            <div className="relative flex min-w-[360px] sm:min-w-[480px] w-full h-full">
             {/* White Keys */}
             {SWARASTHANAS.filter((k) => !k.isBlack).map((def) => {
               const inRaga = isSwaraInRaga(def);
@@ -269,6 +270,7 @@ export const SwarasthanaVisualizer: React.FC = () => {
                   onPlay={() => handlePlayKey(SWARASTHANAS[10])}
                 />
               </div>
+            </div>
             </div>
           </div>
         </div>
